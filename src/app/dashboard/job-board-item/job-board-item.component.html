@@ -25,7 +25,7 @@
       <p><strong>Total Estimates: </strong>{{job.total_estimates}}</p>
     </section>
 
-    <section *ngIf="job.statusId!=12">
+    <section *ngIf="job.statusId!=12 && job.statusId!=11">
       <mat-form-field>
         <mat-label>Current Status</mat-label>
         <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onStatusChanged($event)">

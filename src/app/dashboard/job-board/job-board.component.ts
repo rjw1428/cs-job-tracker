@@ -96,7 +96,7 @@ export class JobBoardComponent implements OnInit {
             this.boardUpdated.emit(err.error.error.sqlMessage)
           },
           () => {
-            this.store.dispatch(DashboardActions.bidAdded())
+            this.store.dispatch(DashboardActions.requery())
             this.boardUpdated.emit("Job board updated")
           })
     } else {

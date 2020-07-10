@@ -3,40 +3,38 @@
     [attr.height]="(defaultWidth$ | async)*.65+'px'">
   <div class="button-groups">
     <div class="core-button-group">
-      <div class="icon-group" [ngClass]="{'active':activeButton=='dashboard'}"
-        (click)="onNavigationSelect('dashboard')">
+      <div class="icon-group" routerLink="/dashboard" routerLinkActive="active">
         <mat-icon class="icon">view_quilt</mat-icon>
         <small>Dashboard</small>
       </div>
-      <div id="charts" class="icon-group" [ngClass]="{'active':activeButton=='charts'}"
-        (click)="onNavigationSelect('charts')">
+      <div id="charts" class="icon-group" routerLink="/charts" routerLinkActive="active">
         <mat-icon class="icon">insert_chart_outlined</mat-icon>
         <small>Charts</small>
-        <div *ngIf="isExpanded && activeButton == 'charts'">
+        <!-- <div *ngIf="isExpanded && activeButton == 'charts'">
           <ul>
             <li>Bid Invitations</li>
             <li>Bids By Contractor</li>
             <li>Job Chart</li>
             <li>Awards Chart</li>
           </ul>
-        </div>
+        </div> -->
       </div>
-      <div class="icon-group" [ngClass]="{'active':activeButton=='reports'}" (click)="onNavigationSelect('reports')">
+      <div class="icon-group" routerLink="/reports" routerLinkActive="active">
         <mat-icon class="icon">square_foot</mat-icon>
         <small>Reports</small>
-        <div *ngIf="isExpanded && activeButton == 'reports'">
+        <!-- <div *ngIf="isExpanded && activeButton == 'reports'">
           <ul>
             <li>Estimating Board</li>
             <li>Awards</li>
             <li>Monthly Estimate Count</li>
             <li>Monthly Report</li>
           </ul>
-        </div>
+        </div> -->
       </div>
-      <div class="icon-group" [ngClass]="{'active':activeButton=='search'}" (click)="onNavigationSelect('search')">
+      <!-- <div class="icon-group" routerLink="/search" routerLinkActive="active">
         <mat-icon class="icon">search</mat-icon>
         <small>Search</small>
-      </div>
+      </div> -->
     </div>
     <div class="bottom-button-group">
       <div id="people" class="icon-group" (click)="onEditEstimators()">

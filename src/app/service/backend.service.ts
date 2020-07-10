@@ -25,6 +25,10 @@ export class BackendService {
     return this.http.post(`${environment.apiUrl}/api/update/${table}`, changes)
   }
 
+  sendEmail(message: string) {
+    return this.http.post(`${environment.apiUrl}/email`, {message})
+  }
+
   convertObjToParma(obj: {}) {
     return "?" + Object.keys(obj).map(key => {
       return `${key}=${encodeURIComponent(

@@ -1,3 +1,27 @@
-<div [ngStyle]="{'margin-left': (sidebarWidth$ | async)+'px'}">
-  <p>charts works!</p>
-</div>
+<!-- <div [ngStyle]="{'margin-left': (sidebarWidth$ | async)+'px'}"> -->
+<!-- </div> -->
+
+<h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Charts</h1>
+
+
+<mat-tab-group (selectedIndexChange)="onTabChanged($event)" [selectedIndex]="selectedTabOnLoad">
+  <mat-tab *ngFor="let chart of charts">
+    <ng-template mat-tab-label>{{chart.name}}</ng-template>
+    <ng-template matTabContent>
+      <div class="wrapper" *ngIf="chart.dataSource">
+        <ngx-charts-bar-vertical 
+            [results]="chart.dataSource"
+            [xAxisLabel]="chart.xAxisLabel"
+            [legendTitle]="'Product Sale Chart'"
+            [yAxisLabel]="chart.yAxisLabel"
+            [legend]="false"
+            [showXAxisLabel]="true"
+            [showYAxisLabel]="true"
+            [xAxis]="true"
+            [yAxis]="true"
+            [gradient]="true">
+        </ngx-charts-bar-vertical>
+      </div>
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>

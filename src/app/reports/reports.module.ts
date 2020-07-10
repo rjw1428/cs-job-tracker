@@ -8,11 +8,17 @@ export const routes: Routes = [
   {
     path: '',
     component: ReportsComponent
+  },
+  {
+    path: ':reportId',
+    component: ReportsComponent
   }
 ]
 
 @NgModule({
-  declarations: [ReportsComponent],
+  declarations: [
+    ReportsComponent,
+  ],
   imports: [
     CommonModule,
     SharedModule,

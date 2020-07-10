@@ -69,7 +69,8 @@ export class BidFormComponent implements OnInit {
         const transaction = {
           jobId: resp['insertId'],
           date: new Date().toISOString(),
-          statusId: 11
+          statusId: 11,
+          notes: ""
         }
         return forkJoin([
           this.backendService.saveData('job_transactions', transaction),

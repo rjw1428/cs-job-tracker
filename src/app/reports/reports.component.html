@@ -1,24 +1,33 @@
 <h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Reports</h1>
 
+<mat-tab-group (selectedIndexChange)="onTabChanged($event)" [selectedIndex]="selectedTabOnLoad">
+  <mat-tab *ngFor="let report of reports">
+    <ng-template mat-tab-label>{{report.name}}</ng-template>
+    <ng-template matTabContent>
 
-<div class="wrapper">
-  <mat-form-field>
-    <mat-label>Filter</mat-label>
-    <input matInput (keyup)="applyFilter($event)" placeholder="Filter" #input>
-  </mat-form-field>
-  <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <div class="wrapper">
+        <mat-form-field>
+          <mat-label>Search</mat-label>
+          <input matInput (keyup)="applyFilter($event, report.dataSource)" placeholder="Filter" #input>
+        </mat-form-field>
+        <mat-table [dataSource]="report.dataSource" class="mat-elevation-z8">
 
-    <ng-container [matColumnDef]="columnDef" *ngFor="let columnDef of displayedColumns; let i = index">
+          <ng-container [matColumnDef]="columnDef" *ngFor="let columnDef of report.displayedColumns; let i = index">
 
-      <mat-header-cell *matHeaderCellDef> {{columnDef}} </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef style="background: whitesmoke;"> {{columnDef}} </mat-header-cell>
 
-      <mat-cell *matCellDef="let element">
-        <div>{{element[columnDef]}}</div>
-      </mat-cell>
+            <mat-cell *matCellDef="let element">
+              <div>{{element[columnDef]}}</div>
+            </mat-cell>
 
-    </ng-container>
+          </ng-container>
 
-    <mat-header-row class="sticky-row" *matHeaderRowDef="displayedColumns;  sticky: true"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-  </mat-table>
-</div>
+          <mat-header-row class="sticky-row" *matHeaderRowDef="report.displayedColumns;  sticky: true"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: report.displayedColumns;"></mat-row>
+        </mat-table>
+      </div>
+
+
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>

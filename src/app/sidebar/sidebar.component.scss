@@ -67,6 +67,10 @@ small {
   // filter: drop-shadow(0 0 3px #bbb)
 }
 
+.icon-group:focus {
+  outline: none;
+}
+
 
 .core-button-group>.icon-group>.icon {
   font-size: 3.5em;

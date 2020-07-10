@@ -4,9 +4,14 @@ import { SharedModule } from '../shared/shared.module';
 import { Routes, RouterModule } from '@angular/router';
 import { ChartsComponent } from './charts.component';
 
+
 export const routes: Routes = [
   {
     path: '',
+    component: ChartsComponent
+  },
+  {
+    path: ':chartId',
     component: ChartsComponent
   }
 ]

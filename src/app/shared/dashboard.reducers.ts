@@ -50,7 +50,7 @@ export const initialDashboardState: DashboardState = {
 
 export const dashboardReducer = createReducer(
     initialDashboardState,
-    on(DashboardActions.bidAdded, (state, action) => {
+    on(DashboardActions.requery, (state, action) => {
         return {
             ...state,
             requery: true

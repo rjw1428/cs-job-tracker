@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 
-export const bidAdded = createAction(
+export const requery = createAction(
     "[Dashboard Component] Bid Created"
 )
 

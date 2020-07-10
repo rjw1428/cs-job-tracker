@@ -17,7 +17,8 @@ import { reducers, metaReducers } from './root.reducers';
 import { environment } from 'src/environments/environment';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { appReducer } from './shared/app.reducers';
-
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { HelpComponent } from './forms/help/help.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -26,12 +27,14 @@ import { appReducer } from './shared/app.reducers';
     SidebarComponent,
     ChartsComponent,
     SearchComponent,
+    HelpComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
+    NgxChartsModule,
     SharedModule,
     StoreModule.forRoot(reducers, {
       metaReducers,

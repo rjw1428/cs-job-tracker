@@ -11,11 +11,11 @@ export const initialDashboardState: AppState = {
 
 export const appReducer = createReducer(
     initialDashboardState,
-    on(AppActions.toggleSideBar, (state, action) => {
-        return {
-            ...state,
-            sidebarWidth: state.defaultSidebarWidth + (action.expand ? state.expandedSidebarWidth : 0)
-        }
+    // on(AppActions.toggleSideBar, (state, action) => {
+    //     return {
+    //         ...state,
+    //         sidebarWidth: state.defaultSidebarWidth + (action.expand ? state.expandedSidebarWidth : 0)
+    //     }
 
-    })
+    // })
 )

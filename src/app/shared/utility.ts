@@ -16,7 +16,7 @@ export function showSnackbar(snackBar, message: string) {
 export function handleFormUpdate(dialogRef, store, snackBar) {
     dialogRef.afterClosed().subscribe(result => {
         if (result && result.requery)
-            store.dispatch(DashboardActions.bidAdded())
+            store.dispatch(DashboardActions.requery())
 
         if (result && result.message)
             showSnackbar(snackBar, result.message)

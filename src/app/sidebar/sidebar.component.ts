@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { AppActions } from '../shared/app.action-types';
@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CreatePersonFormComponent } from '../forms/create-person-form/create-person-form.component';
 import { showSnackbar, handleFormUpdate } from '../shared/utility';
+import { HelpComponent } from '../forms/help/help.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -32,23 +33,13 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     this.defaultWidth$ = this.store.pipe(map(state => state.app.defaultSidebarWidth))
     this.width$ = this.store.pipe(map(state => state.app.sidebarWidth))
-    // Can this be done with ActivatedRoute?
-    this.router.events.pipe(filter(val => val instanceof NavigationEnd))
-      .subscribe((nav: NavigationEnd) => {
-        this.activeButton = nav.url.replace("/", "")
-      })
-  }
-
-
-  onNavigationSelect(location: string) {
-    this.isExpanded = !this.isExpanded && (location == 'charts' || location == 'reports')
-    this.activeButton = location
-    this.store.dispatch(AppActions.toggleSideBar({ expand: this.isExpanded }))
-    this.router.navigate([location])
   }
 
   onHelp() {
-
+    const dialogRef = this.dialog.open(HelpComponent, {
+      width: '500px',
+    });
+    handleFormUpdate(dialogRef, this.store, this.snackBar)
   }
 
   onEditEstimators() {

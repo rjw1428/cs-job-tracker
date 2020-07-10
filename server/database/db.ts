@@ -1,15 +1,19 @@
 import * as mysql from 'mysql'
 import * as express from 'express'
+import * as path from 'path';
+import * as dotenv from "dotenv";
+
+
+dotenv.config({ path: path.join(__dirname, "../.env") })
 
 const port = 3306
-
 const pool = mysql.createPool({
     connectionLimit: 10,
     port: port,
-    host: 'localhost',
-    user: 'root',
-    password: 'test123',
-    database: 'cs_workflow'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_SCHEMA
 });
 
 function runQuery(query: string, callback) {

@@ -21,6 +21,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 
 const modules = [
   CommonModule,
@@ -45,7 +46,8 @@ const modules = [
   MatRadioModule,
   MatChipsModule,
   MatExpansionModule,
-  MatTableModule
+  MatTableModule,
+  MatTabsModule
 ]
 
 @NgModule({
