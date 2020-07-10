@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { BackendService } from 'src/app/service/backend.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmationSnackbarComponent } from '../popups/confirmation-snackbar/confirmation-snackbar.component';
@@ -13,7 +13,8 @@ import { MatSelectChange } from '@angular/material/select';
 @Component({
   selector: 'app-job-board-item',
   templateUrl: './job-board-item.component.html',
-  styleUrls: ['./job-board-item.component.scss']
+  styleUrls: ['./job-board-item.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class JobBoardItemComponent implements OnInit {
   @Input() job: any

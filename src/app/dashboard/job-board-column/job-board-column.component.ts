@@ -1,10 +1,11 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { DashboardColumn } from 'src/app/models/dashboard-column';
 
 @Component({
   selector: 'app-job-board-column',
   templateUrl: './job-board-column.component.html',
-  styleUrls: ['./job-board-column.component.scss']
+  styleUrls: ['./job-board-column.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class JobBoardColumnComponent implements OnInit {
   @Input() columnConfig: DashboardColumn
