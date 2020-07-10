@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { BackendService } from 'src/app/service/backend.service';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, forkJoin, zip } from 'rxjs';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { startWith, map, switchMap } from 'rxjs/operators';
-import { ValueConverter } from '@angular/compiler/src/render3/view/template';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { Bid } from 'src/app/models/bid';
-import { filterList } from 'src/app/shared/utility';
+import { filterList, handleFormUpdate } from 'src/app/shared/utility';
+import { ContractorFormComponent } from '../contractor-form/contractor-form.component';
+import { ProjectFormComponent } from '../project-form/project-form.component';
 
 @Component({
   selector: 'app-bid-form',
@@ -28,6 +29,7 @@ export class BidFormComponent implements OnInit {
     private backendService: BackendService,
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<BidFormComponent>,
+    private dialog: MatDialog,
   ) { }
 
   ngOnInit(): void {
@@ -96,8 +98,43 @@ export class BidFormComponent implements OnInit {
     this.dialogRef.close();
   }
 
+  onAddContractor() {
+    const dialogRef = this.dialog.open(ContractorFormComponent, {
+      width: '500px',
+    });
+    const dialogResp = dialogRef.afterClosed()
+    zip(dialogResp, this.contractors$)
+      .pipe(
+        map(val => {
+          const newEntry = val[0].value
+          val[1].push(newEntry)
+          return newEntry
+        })
+      ).subscribe((value: any) => {
+        this.contractorFormGroup.patchValue({ contractor: value })
+      })
+  }
+
+  onAddProject() {
+    const dialogRef = this.dialog.open(ProjectFormComponent, {
+      width: '350px'
+    });
+
+    const dialogResp = dialogRef.afterClosed()
+    zip(dialogResp, this.projects$)
+      .pipe(
+        map(val => {
+          const newEntry = val[0].value
+          val[1].push(newEntry)
+          return newEntry
+        })
+      ).subscribe((value: any) => {
+        this.projectFormGroup.patchValue({ project: value })
+      })
+  }
+
   contractorDisplayFn(contractor): string {
-    return contractor && contractor.contractorName ? `${contractor.contractorName} | ${contractor.contactName}`  : '';
+    return contractor && contractor.contractorName ? `${contractor.contractorName} | ${contractor.contactName}` : '';
   }
 
   projectDisplayFn(project): string {

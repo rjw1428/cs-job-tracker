@@ -36,12 +36,12 @@ export class ProjectFormComponent implements OnInit {
     this.backendService.saveData('projects', form)
       .subscribe(resp => {
         console.log(resp)
+        this.dialogRef.close({ message: "Project Saved", value: { ...form, projectId: resp['insertId'] } })
       },
         err => {
           console.log(err)
           this.error = err.error.error.sqlMessage
-        },
-        () => this.dialogRef.close({ message: "Project Saved" }))
+        })
   }
 
   onNoClick() {

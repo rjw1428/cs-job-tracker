@@ -41,14 +41,12 @@ export class ContractorFormComponent implements OnInit {
     this.backendService.saveData('general_contractors', form)
       .subscribe(resp => {
         console.log(resp)
+        this.dialogRef.close({ message: "General Contractor Saved", value: { ...form, contractorId: resp['insertId'] } });
       },
         err => {
           console.log(err)
           this.error = err.error.error.sqlMessage
-        },
-        () => {
-          this.dialogRef.close({ message: "General Contractor Saved" });
-        })
+        }
+      )
   }
-
 }

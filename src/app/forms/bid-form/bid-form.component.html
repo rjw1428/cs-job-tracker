@@ -5,19 +5,23 @@
       <form [formGroup]="contractorFormGroup">
         <ng-template matStepLabel>General Contractor</ng-template>
         <div style="display: flex; flex-direction: column;">
-          <mat-form-field>
-            <mat-label>General Contractor</mat-label>
-            <input name="companyName" matInput [matAutocomplete]="contractors" formControlName="contractor">
-            <button mat-button *ngIf="contractorFormGroup.get('contractor').value" matSuffix mat-icon-button
-              aria-label="Clear" (click)="contractorFormGroup.patchValue({contractor: null})">
-              <mat-icon>close</mat-icon>
-            </button>
-            <mat-autocomplete autoActiveFirstOption #contractors="matAutocomplete" [displayWith]="contractorDisplayFn">
-              <mat-option *ngFor="let option of filteredContractors$ | async" [value]="option">
-                {{option.contractorName}} | <small>{{option.contactName}}</small>
-              </mat-option>
-            </mat-autocomplete>
-          </mat-form-field>
+          <div style="display: flex; flex-direction: row; justify-content: stretch; align-items: center;">
+            <mat-form-field>
+              <mat-label>General Contractor</mat-label>
+              <input name="companyName" matInput [matAutocomplete]="contractors" formControlName="contractor">
+              <button mat-button *ngIf="contractorFormGroup.get('contractor').value" matSuffix mat-icon-button
+                aria-label="Clear" (click)="contractorFormGroup.patchValue({contractor: null})">
+                <mat-icon>close</mat-icon>
+              </button>
+              <mat-autocomplete autoActiveFirstOption #contractors="matAutocomplete"
+                [displayWith]="contractorDisplayFn">
+                <mat-option *ngFor="let option of filteredContractors$ | async" [value]="option">
+                  {{option.contractorName}} | <small>{{option.contactName}}</small>
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+            <button mat-mini-fab class="button-sm" color="primary" (click)="onAddContractor()">+</button>
+          </div>
           <div>
             <button mat-button matStepperNext>Next</button>
           </div>
@@ -29,19 +33,22 @@
       <form [formGroup]="projectFormGroup">
         <ng-template matStepLabel>Project</ng-template>
         <div style="display: flex; flex-direction: column;">
-          <mat-form-field>
-            <mat-label>Project</mat-label>
-            <input name="projectName" matInput [matAutocomplete]="projects" formControlName="project">
-            <button mat-button *ngIf="projectFormGroup.get('project').value" matSuffix mat-icon-button
-              aria-label="Clear" (click)="projectFormGroup.patchValue({project: null})">
-              <mat-icon>close</mat-icon>
-            </button>
-            <mat-autocomplete autoActiveFirstOption #projects="matAutocomplete" [displayWith]="projectDisplayFn">
-              <mat-option *ngFor="let option of filteredProjects$ | async" [value]="option">
-                {{option.projectName}} | <small>{{option.city}} {{option.state}}</small>
-              </mat-option>
-            </mat-autocomplete>
-          </mat-form-field>
+          <div style="display: flex; flex-direction: row; justify-content: stretch; align-items: center;">
+            <mat-form-field>
+              <mat-label>Project</mat-label>
+              <input name="projectName" matInput [matAutocomplete]="projects" formControlName="project">
+              <button mat-button *ngIf="projectFormGroup.get('project').value" matSuffix mat-icon-button
+                aria-label="Clear" (click)="projectFormGroup.patchValue({project: null})">
+                <mat-icon>close</mat-icon>
+              </button>
+              <mat-autocomplete autoActiveFirstOption #projects="matAutocomplete" [displayWith]="projectDisplayFn">
+                <mat-option *ngFor="let option of filteredProjects$ | async" [value]="option">
+                  {{option.projectName}} | <small>{{option.city}} {{option.state}}</small>
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+            <button mat-mini-fab class="button-sm" color="primary" (click)="onAddProject()">+</button>
+          </div>
           <div>
             <button mat-button matStepperPrevious>Back</button>
             <button mat-button matStepperNext>Next</button>
