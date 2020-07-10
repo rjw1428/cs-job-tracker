@@ -5,6 +5,9 @@
 <mat-form-field>
   <mat-label>Filter</mat-label>
   <input matInput (keyup)="applyFilter($event)" placeholder="Filter" #input>
+  <button mat-button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear" (click)="input.value=null; dataSource.filter=null">
+    <mat-icon>close</mat-icon>
+  </button>
 </mat-form-field>
 
 <div mat-dialog-content>

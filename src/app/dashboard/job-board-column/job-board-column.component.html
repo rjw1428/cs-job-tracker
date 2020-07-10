@@ -7,6 +7,7 @@
       class="box"  
       [job]="item" 
       [statusOptions]="columnConfig.statusOptions"
+      [showBoxField]="columnConfig.defaultStatusId == 3"
       cdkDrag 
       (deleted)="onItemDeleted($event)">
       <mat-icon cdkDragHandle>drag_indicator</mat-icon>

@@ -8,6 +8,10 @@
           <mat-form-field>
             <mat-label>Estimator</mat-label>
             <input name="estimatorName" matInput [matAutocomplete]="estimator" formControlName="estimatorName">
+            <button mat-button *ngIf="estimateFormGroup.get('estimatorName').value" matSuffix mat-icon-button
+              aria-label="Clear" (click)="estimateFormGroup.patchValue({estimatorName: {}})">
+              <mat-icon>close</mat-icon>
+            </button>
             <mat-autocomplete autoActiveFirstOption #estimator="matAutocomplete" [displayWith]="estimatorDisplayFn">
               <mat-option *ngFor="let option of filteredEstimators$ | async" [value]="option">
                 {{option.name}}
@@ -25,6 +29,10 @@
             <mat-form-field>
               <mat-label>Fee</mat-label>
               <input name="fee" matInput type="number" formControlName="fee">
+              <button mat-button *ngIf="estimateFormGroup.get('fee').value" matSuffix mat-icon-button aria-label="Clear"
+                (click)="estimateFormGroup.patchValue({fee: null})">
+                <mat-icon>close</mat-icon>
+              </button>
             </mat-form-field>
             <p><strong>Estimate Fee: </strong> {{projectCost$ | async | currency}}</p>
           </div>
@@ -43,26 +51,46 @@
           <mat-form-field>
             <mat-label>Excavation Cost</mat-label>
             <input name="excavationCost" matInput type="number" formControlName="excavationCost">
+            <button mat-button *ngIf="costFormGroup.get('excavationCost').value" matSuffix mat-icon-button
+              aria-label="Clear" (click)="costFormGroup.patchValue({excavationCost: null})">
+              <mat-icon>close</mat-icon>
+            </button>
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>Concrete Cost</mat-label>
             <input name="concreteCost" matInput type="number" formControlName="concreteCost">
+            <button mat-button *ngIf="costFormGroup.get('concreteCost').value" matSuffix mat-icon-button
+              aria-label="Clear" (click)="costFormGroup.patchValue({concreteCost: null})">
+              <mat-icon>close</mat-icon>
+            </button>
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>CMU Cost</mat-label>
             <input name="cmuCost" matInput type="number" formControlName="cmuCost">
+            <button mat-button *ngIf="costFormGroup.get('cmuCost').value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="costFormGroup.patchValue({cmuCost: null})">
+              <mat-icon>close</mat-icon>
+            </button>
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>Brick Cost</mat-label>
             <input name="brickCost" matInput type="number" formControlName="brickCost">
+            <button mat-button *ngIf="costFormGroup.get('brickCost').value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="costFormGroup.patchValue({brickCost: null})">
+              <mat-icon>close</mat-icon>
+            </button>
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>Other Cost</mat-label>
             <input name="otherCost" matInput type="number" formControlName="otherCost">
+            <button mat-button *ngIf="costFormGroup.get('otherCost').value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="costFormGroup.patchValue({otherCost: null})">
+              <mat-icon>close</mat-icon>
+            </button>
           </mat-form-field>
 
           <p><strong>Project Value: </strong> {{projectValue$ | async | currency}}</p>
@@ -88,16 +116,9 @@
               </mat-chip>
             </mat-chip-list>
 
-            <input 
-                name="jobs" 
-                #jobsInput
-                matInput [matAutocomplete]="jobs" 
-                formControlName="jobs"
-                placeholder="Attach Jobs"
-                [matChipInputFor]="chipList"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                (matChipInputTokenEnd)="onAdd($event)"
-            >
+            <input name="jobs" #jobsInput matInput [matAutocomplete]="jobs" formControlName="jobs"
+              placeholder="Attach Jobs" [matChipInputFor]="chipList"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="onAdd($event)">
 
             <mat-autocomplete autoActiveFirstOption #jobs="matAutocomplete">
               <mat-option *ngFor="let option of filteredJobs$ | async" [value]="option"

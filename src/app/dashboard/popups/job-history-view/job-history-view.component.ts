@@ -20,9 +20,9 @@ export class JobHistoryViewComponent implements OnInit {
     this.displayedColumns = Object.keys(this.data.transactions[0]).slice(1)
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+  applyFilter(event?: Event) {
+      const filterValue = (event.target as HTMLInputElement).value;
+      this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   getTotal() {
@@ -36,6 +36,6 @@ export class JobHistoryViewComponent implements OnInit {
     const year = timestamp.getFullYear()
     const month = timestamp.getMonth()
     const date = timestamp.getDate()
-    return  new Date(year, month, date)
+    return new Date(year, month, date)
   }
 }

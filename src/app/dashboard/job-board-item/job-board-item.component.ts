@@ -19,63 +19,55 @@ import { MatSelectChange } from '@angular/material/select';
 export class JobBoardItemComponent implements OnInit {
   @Input() job: any
   @Input() statusOptions: { id: number, status: string }[]
+  @Input() showBoxField: boolean
   @Output('deleted') jobDeleted = new EventEmitter<number>()
   mailTo: string
   selectedStatus: { id: number, status: string }
+  selectedBox: { id: number, name: string }
+  boxOptions: { id: number, name: string }[]
   constructor(
     private backendService: BackendService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-  ) { }
+  ) {
+    this.boxOptions = new Array(10).fill(0).map((val, i) => ({ id: i + 1, name: i.toString() }))
+  }
 
   ngOnInit(): void {
     this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
     this.selectedStatus = this.statusOptions.find(option => option.id == this.job.statusId)
+    this.selectedBox = this.boxOptions.find(option => option.id == this.job.box)
   }
 
-
   onStatusChanged(value: MatSelectChange) {
-    this.backendService.updateData('job_transactions', {
-      set: { statusId: value.value.id },
-      where: { id: this.job.transactionId }
-    })
-      .subscribe(
-        resp => {
-          console.log(resp)
-        },
-        err => {
-          console.log(err)
-          showSnackbar(this.snackBar, err.error.error.sqlMessage)
-        },
-        () => showSnackbar(this.snackBar, "Job status updated")
-      )
+    this.job.statusId = value.value.id
+    this.updateTransaction('statusId', "Job status updated")
   }
 
   onSaveNote() {
-    this.backendService.updateData('job_transactions', {
-      set: { notes: this.job.notes },
-      where: { id: this.job.transactionId }
-    })
-      .subscribe(
-        resp => {
-          console.log(resp)
-        },
-        err => {
-          console.log(err)
-          showSnackbar(this.snackBar, err.error.error.sqlMessage)
-        },
-        () => showSnackbar(this.snackBar, "Note updated")
-      )
+    this.updateTransaction('notes', "Notes updated")
+  }
+
+  onBoxChanged(value: MatSelectChange) {
+    this.job.box = value.value.id
+    this.updateTransaction('box', "Box updated")
   }
 
   onOpenCurrentEstimate() {
-    this.backendService.getData('estimates_history', { estimateId: this.job.current_estimate_id })
-      .subscribe(resp => {
-        this.dialog.open(EstimateViewComponent, {
-          width: '700px',
-          data: { estimate: resp[0], job: this.job }
-        });
-      })
+    if (this.job.current_estimate_id) {
+      this.backendService.getData('estimates_history', { estimateId: this.job.current_estimate_id })
+        .subscribe(resp => {
+          this.dialog.open(EstimateViewComponent, {
+            width: '700px',
+            data: { estimate: resp[0], job: this.job }
+          });
+        })
+    } else {
+      this.dialog.open(EstimateViewComponent, {
+        width: '700px',
+        data: { estimate: null, job: this.job }
+      });
+    }
   }
 
   onEstimateHistory() {
@@ -116,6 +108,23 @@ export class JobBoardItemComponent implements OnInit {
           console.log(err)
           showSnackbar(this.snackBar, err.error.error.sqlMessage)
         }
+      )
+  }
+
+  updateTransaction(key: string, responseMessage: string) {
+    this.backendService.updateData('job_transactions', {
+      set: { [key]: this.job[key] },
+      where: { id: this.job.transactionId }
+    })
+      .subscribe(
+        resp => {
+          console.log(resp)
+        },
+        err => {
+          console.log(err)
+          showSnackbar(this.snackBar, err.error.error.sqlMessage)
+        },
+        () => showSnackbar(this.snackBar, responseMessage)
       )
   }
 }

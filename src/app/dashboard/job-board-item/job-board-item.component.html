@@ -25,6 +25,17 @@
       <p><strong>Total Estimates: </strong>{{job.total_estimates}}</p>
     </section>
 
+    <section *ngIf="showBoxField">
+      <mat-form-field>
+        <mat-label>Box</mat-label>
+        <mat-select [(ngModel)]="selectedBox" (selectionChange)="onBoxChanged($event)">
+          <mat-option *ngFor="let option of boxOptions" [value]="option">
+            {{option.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </section>
+
     <section *ngIf="job.statusId!=12 && job.statusId!=11">
       <mat-form-field>
         <mat-label>Current Status</mat-label>
@@ -43,15 +54,15 @@
         <button (click)="onSaveNote()" mat-mini-fab color="primary"
           style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
       </div>
-
     </section>
+
   </mat-card-content>
 
   <mat-card-actions
     style="display: flex; justify-content: space-around; align-items: flex-start; background: whitesmoke">
-    <button mat-button matTooltipPosition="above" matTooltip="Edit">
+    <!-- <button mat-button matTooltipPosition="above" matTooltip="Edit">
       <mat-icon>edit</mat-icon>
-    </button>
+    </button> -->
     <button mat-button matTooltipPosition="above" matTooltip="Estimate History" (click)="onEstimateHistory()">
       <mat-icon>payments</mat-icon>
     </button>

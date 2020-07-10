@@ -1,19 +1,31 @@
 <h1 mat-dialog-title>Help</h1>
 <div mat-dialog-content>
-  <form [formGroup]="helpFormGroup"  style="display: flex; flex-direction: column;">
+  <form [formGroup]="helpFormGroup" style="display: flex; flex-direction: column;">
     <mat-form-field>
       <mat-label>Name</mat-label>
       <input name="name" matInput formControlName="name">
+      <button mat-button *ngIf="helpFormGroup.get('name').value" matSuffix mat-icon-button aria-label="Clear"
+        (click)="helpFormGroup.patchValue({name: null})">
+        <mat-icon>close</mat-icon>
+      </button>
     </mat-form-field>
 
     <mat-form-field>
       <mat-label>Email</mat-label>
       <input name="email" matInput formControlName="email">
+      <button mat-button *ngIf="helpFormGroup.get('email').value" matSuffix mat-icon-button aria-label="Clear"
+        (click)="helpFormGroup.patchValue({email: null})">
+        <mat-icon>close</mat-icon>
+      </button>
     </mat-form-field>
 
     <mat-form-field>
       <mat-label>Phone</mat-label>
       <input name="phone" matInput formControlName="phone">
+      <button mat-button *ngIf="helpFormGroup.get('phone').value" matSuffix mat-icon-button aria-label="Clear"
+        (click)="helpFormGroup.patchValue({phone: null})">
+        <mat-icon>close</mat-icon>
+      </button>
     </mat-form-field>
 
     <mat-form-field>

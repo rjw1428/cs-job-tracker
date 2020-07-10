@@ -1,7 +1,12 @@
 <h1 mat-dialog-title style="margin:0">Current Estimate - {{data.job.projectName}}</h1>
 <h3>{{data.job.contractorName}}</h3>
 <div mat-dialog-content>
+  <div *ngIf="data.estimate">
     <div><strong>By: </strong>{{data.estimate.estimator}}</div>
     <div><strong>Total: </strong>{{data.estimate.project_value | currency}}</div>
-  <pre>{{data.estimate | json}}</pre>
+    <pre>{{data.estimate | json}}</pre>
+  </div>
+  <div *ngIf="!data.estimate" style="display: flex; justify-content: center; align-content: center;">
+    No Current Estimate
+  </div>
 </div>

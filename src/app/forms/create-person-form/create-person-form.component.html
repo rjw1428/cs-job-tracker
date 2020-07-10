@@ -20,6 +20,10 @@
       <mat-form-field>
         <mat-label>Name</mat-label>
         <input name="name" matInput formControlName="name">
+        <button mat-button *ngIf="newEstimatorForm.get('name').value" matSuffix mat-icon-button
+          aria-label="Clear" (click)="newEstimatorForm.patchValue({name: null})">
+          <mat-icon>close</mat-icon>
+        </button>
       </mat-form-field>
     </form>
     <button mat-mini-fab class="button-sm" color="primary" (click)="onNew()">+</button>

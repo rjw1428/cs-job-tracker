@@ -9,6 +9,10 @@
         <mat-form-field>
           <mat-label>Search</mat-label>
           <input matInput (keyup)="applyFilter($event, report.dataSource)" placeholder="Filter" #input>
+          <button mat-button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear"
+            (click)="input.value=null; report.dataSource.filter=null">
+            <mat-icon>close</mat-icon>
+          </button>
         </mat-form-field>
         <mat-table [dataSource]="report.dataSource" class="mat-elevation-z8">
 
