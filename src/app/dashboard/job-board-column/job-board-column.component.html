@@ -1,0 +1,15 @@
+<div class="wrapper">
+  <div class="title mat-elevation-z8">
+    <h3>{{columnConfig.name}}</h3>
+  </div>
+  <div class="wrapper list">
+    <app-job-board-item *ngFor="let item of columnConfig.items"
+      class="box"  
+      [job]="item" 
+      [statusOptions]="columnConfig.statusOptions"
+      cdkDrag 
+      (deleted)="onItemDeleted($event)">
+      <mat-icon cdkDragHandle>drag_indicator</mat-icon>
+    </app-job-board-item>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+<h1 mat-dialog-title>Create Invite For Bid</h1>
+<div mat-dialog-content>
+  <mat-vertical-stepper>
+    <mat-step [stepControl]="contractorFormGroup">
+      <form [formGroup]="contractorFormGroup">
+        <ng-template matStepLabel>General Contractor</ng-template>
+        <div style="display: flex; flex-direction: column;">
+          <mat-form-field>
+            <mat-label>General Contractor</mat-label>
+            <input name="companyName" matInput [matAutocomplete]="contractors" formControlName="contractor">
+            <mat-autocomplete autoActiveFirstOption #contractors="matAutocomplete" [displayWith]="contractorDisplayFn">
+              <mat-option *ngFor="let option of filteredContractors$ | async" [value]="option">
+                {{option.contractorName}} | <small>{{option.contactName}}</small>
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="projectFormGroup">
+      <form [formGroup]="projectFormGroup">
+        <ng-template matStepLabel>Project</ng-template>
+        <div style="display: flex; flex-direction: column;">
+          <mat-form-field>
+            <mat-label>Project</mat-label>
+            <input name="projectName" matInput [matAutocomplete]="projects" formControlName="project">
+            <mat-autocomplete autoActiveFirstOption #projects="matAutocomplete" [displayWith]="projectDisplayFn">
+              <mat-option *ngFor="let option of filteredProjects$ | async" [value]="option">
+                {{option.projectName}} | <small>{{option.city}} {{option.state}}</small>
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+          <!-- <p *ngIf="error" style="color: red;">ERROR: {{error}}</p> -->
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="timelineFormGroup">
+      <form [formGroup]="timelineFormGroup">
+        <ng-template matStepLabel>Timeline</ng-template>
+        <div style="display: flex; flex-direction: column;">
+          <mat-form-field>
+            <mat-label>Invitation Date</mat-label>
+            <input name="startDate" matInput [matDatepicker]="picker1" formControlName="dateAdded">
+            <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+            <mat-datepicker #picker1></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field *ngIf="!timelineFormGroup.get('isAsap').value">
+            <mat-label>Due Date</mat-label>
+            <input name="dueDate" matInput [matDatepicker]="picker2" formControlName="dateDue">
+            <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+            <mat-datepicker #picker2></mat-datepicker>
+          </mat-form-field>
+          <mat-checkbox labelPosition="before" formControlName="isAsap">ASAP</mat-checkbox>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button color="primary" (click)="onSave()">Save</button>
+          </div>
+          <p *ngIf="error" style="color: red;">ERROR: {{error}}</p>
+        </div>
+      </form>
+    </mat-step>
+  </mat-vertical-stepper>
+</div>

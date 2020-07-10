@@ -1,0 +1,28 @@
+<h1 mat-dialog-title>Manage Estimators</h1>
+<div mat-dialog-content>
+  <div *ngFor="let estimator of esitmators$ | async">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="width: 125px">{{estimator.name}}</div>
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <div><strong>Status:</strong></div>
+        <div>{{estimator.status}}</div>
+      </div>
+      <button *ngIf="estimator.isActive" mat-mini-fab class="button-sm" color="warn" (click)="onToggleStatus(estimator)">X</button>
+      <button *ngIf="!estimator.isActive" mat-mini-fab class="button-sm" color="primary"  (click)="onToggleStatus(estimator)">+</button>
+    </div>
+    <hr>
+  </div>
+</div>
+
+<div mat-dialog-actions >
+  <div style="display: flex; justify-content: space-between; align-items: center; width: 100%">
+    <form [formGroup]="newEstimatorForm">
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input name="name" matInput formControlName="name">
+      </mat-form-field>
+    </form>
+    <button mat-mini-fab class="button-sm" color="primary" (click)="onNew()">+</button>
+  </div>
+  <p *ngIf="error" style="color: red;">ERROR: {{error}}</p>
+</div>

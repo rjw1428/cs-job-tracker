@@ -1,0 +1,17 @@
+:host {
+    --padding: 10px
+}
+
+.wrapper {
+    width: 99vw;
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: stretch;
+}
+
+.content {
+    width: calc(100% - 2*var(--padding));
+    padding: var(--padding);
+    transition: all 100ms ease-in-out;
+}

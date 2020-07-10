@@ -1,0 +1,65 @@
+<mat-card class="mat-elevation-z8" style="margin-bottom: 10px;">
+  <mat-card-header style="display: flex; flex-direction: column-reverse;">
+    <div style="display: flex; justify-content: space-between;">
+      <mat-card-title [matTooltip]="job.jobId">{{job.projectName}}</mat-card-title>
+      <div style="width:50px; display:flex; justify-content: flex-end;">
+        <ng-content></ng-content>
+      </div>
+    </div>
+    <mat-card-subtitle>
+      <p style="margin: 0px">{{job.contractorName}}</p>
+      <a href="mailto:{{mailTo}}">{{job.contactName}}</a>
+      <p>{{job.contactNumber}}</p>
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <section>
+      <p style="margin: 0px"><strong>Invite: </strong>{{job.dateAdded | date : 'MM/dd/yyyy'}}</p>
+      <p *ngIf="job.dateDue!='ASAP'"><strong>Due: </strong>{{job.dateDue | date : 'MM/dd/yyyy'}}</p>
+      <p *ngIf="job.dateDue=='ASAP'"><strong>Due: </strong>{{job.dateDue}}</p>
+    </section>
+
+    <section *ngIf="job.statusId!=11">
+      <button color="primary" mat-button (click)="onOpenCurrentEstimate()">Current Estimate</button>
+      <p><strong>Total Estimates: </strong>{{job.total_estimates}}</p>
+    </section>
+
+    <section *ngIf="job.statusId!=12">
+      <mat-form-field>
+        <mat-label>Current Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onStatusChanged($event)">
+          <mat-option *ngFor="let option of statusOptions" [value]="option">
+            {{option.status}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div style="display: flex; justify-content: stretch; align-items: flex-end;">
+        <mat-form-field>
+          <mat-label>Notes</mat-label>
+          <input matInput [(ngModel)]="job.notes">
+        </mat-form-field>
+        <button (click)="onSaveNote()" mat-mini-fab color="primary"
+          style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
+      </div>
+
+    </section>
+  </mat-card-content>
+
+  <mat-card-actions
+    style="display: flex; justify-content: space-around; align-items: flex-start; background: whitesmoke">
+    <button mat-button matTooltipPosition="above" matTooltip="Edit">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button mat-button matTooltipPosition="above" matTooltip="Estimate History" (click)="onEstimateHistory()">
+      <mat-icon>payments</mat-icon>
+    </button>
+    <button mat-button matTooltipPosition="above" matTooltip="Job History" (click)="onJobHistory()">
+      <mat-icon>history</mat-icon>
+    </button>
+    <button mat-button matTooltipPosition="above" matTooltip="Delete" (click)="onDelete()">
+      <mat-icon>delete_outline</mat-icon>
+    </button>
+  </mat-card-actions>
+</mat-card>

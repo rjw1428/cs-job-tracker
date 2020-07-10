@@ -1,0 +1,24 @@
+<h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Reports</h1>
+
+
+<div class="wrapper">
+  <mat-form-field>
+    <mat-label>Filter</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="Filter" #input>
+  </mat-form-field>
+  <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+    <ng-container [matColumnDef]="columnDef" *ngFor="let columnDef of displayedColumns; let i = index">
+
+      <mat-header-cell *matHeaderCellDef> {{columnDef}} </mat-header-cell>
+
+      <mat-cell *matCellDef="let element">
+        <div>{{element[columnDef]}}</div>
+      </mat-cell>
+
+    </ng-container>
+
+    <mat-header-row class="sticky-row" *matHeaderRowDef="displayedColumns;  sticky: true"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+  </mat-table>
+</div>

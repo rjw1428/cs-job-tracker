@@ -1,0 +1,31 @@
+<h1 mat-dialog-title style="margin:0">Job History - {{data.job.projectName}}</h1>
+<h3>{{data.job.contractorName}}</h3>
+
+<!-- FILTER -->
+<mat-form-field>
+  <mat-label>Filter</mat-label>
+  <input matInput (keyup)="applyFilter($event)" placeholder="Filter" #input>
+</mat-form-field>
+
+<div mat-dialog-content>
+  <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+    <ng-container [matColumnDef]="columnDef" *ngFor="let columnDef of displayedColumns; let i = index">
+
+      <mat-header-cell *matHeaderCellDef> {{columnDef}} </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <div *ngIf="i==0">{{element[columnDef] | date : 'short'}}</div>
+        <div *ngIf="i!=0">{{element[columnDef]}}</div>
+      </mat-cell>
+      <mat-footer-cell *matFooterCellDef>
+        <div *ngIf="i==0"><strong>Total Days</strong></div>
+        <div *ngIf="i!=0">{{ getTotal() }}</div>
+      </mat-footer-cell>
+
+    </ng-container>
+
+    <mat-header-row class="sticky-row" *matHeaderRowDef="displayedColumns;  sticky: true"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    <mat-footer-row class="sticky-row" *matFooterRowDef="displayedColumns;  sticky: true"></mat-footer-row>
+  </mat-table>
+</div>

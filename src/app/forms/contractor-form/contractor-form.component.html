@@ -1,0 +1,47 @@
+<h1 mat-dialog-title>Add General Contractor</h1>
+<div mat-dialog-content>
+  <p>Enter General Contractor Info</p>
+  <mat-vertical-stepper>
+    <mat-step [stepControl]="companyInfoFormGroup">
+      <form [formGroup]="companyInfoFormGroup">
+        <ng-template matStepLabel>Company Info</ng-template>
+        <div style="display: flex; flex-direction: column;">
+          <mat-form-field>
+            <mat-label>Company Name</mat-label>
+            <input name="companyName" matInput formControlName="contractorName">
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="contactInfoFormGroup">
+      <form [formGroup]="contactInfoFormGroup">
+        <ng-template matStepLabel>Contact Info</ng-template>
+        <div style="display: flex; flex-direction: column;">
+          <mat-form-field>
+            <mat-label>Contact Name</mat-label>
+            <input name="name" matInput formControlName="contactName">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Contact Email</mat-label>
+            <input name="email" matInput formControlName="contactEmail">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Contact Phone Number</mat-label>
+            <input name="phone" matInput formControlName="contactNumber">
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button color="primary" (click)="onSave()">Save</button>
+          </div>
+          <p *ngIf="error" style="color: red;">ERROR: {{error}}</p>
+        </div>
+      </form>
+    </mat-step>
+  </mat-vertical-stepper>
+</div>

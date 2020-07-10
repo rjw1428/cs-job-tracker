@@ -1,0 +1,120 @@
+<h1 mat-dialog-title>Add Estimate</h1>
+<div mat-dialog-content>
+  <mat-vertical-stepper>
+    <mat-step [stepControl]="estimateFormGroup">
+      <form [formGroup]="estimateFormGroup">
+        <ng-template matStepLabel>Estimate</ng-template>
+        <div style="display: flex; flex-direction: column;">
+          <mat-form-field>
+            <mat-label>Estimator</mat-label>
+            <input name="estimatorName" matInput [matAutocomplete]="estimator" formControlName="estimatorName">
+            <mat-autocomplete autoActiveFirstOption #estimator="matAutocomplete" [displayWith]="estimatorDisplayFn">
+              <mat-option *ngFor="let option of filteredEstimators$ | async" [value]="option">
+                {{option.name}}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-radio-group color="primary" style="display: flex; justify-content: space-around"
+            formControlName="isInHouse">
+            <mat-radio-button value="true">In House</mat-radio-button>
+            <mat-radio-button value="false">Out of House</mat-radio-button>
+          </mat-radio-group>
+
+          <div *ngIf="estimateFormGroup.get('isInHouse').value == 'false'">
+            <mat-form-field>
+              <mat-label>Fee</mat-label>
+              <input name="fee" matInput type="number" formControlName="fee">
+            </mat-form-field>
+            <p><strong>Estimate Fee: </strong> {{projectCost$ | async | currency}}</p>
+          </div>
+          <div>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+          <!-- <p *ngIf="error" style="color: red;">ERROR: {{error}}</p> -->
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="costFormGroup">
+      <form [formGroup]="costFormGroup">
+        <ng-template matStepLabel>Proposal</ng-template>
+        <div style="display: flex; flex-direction: column;">
+          <mat-form-field>
+            <mat-label>Excavation Cost</mat-label>
+            <input name="excavationCost" matInput type="number" formControlName="excavationCost">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Concrete Cost</mat-label>
+            <input name="concreteCost" matInput type="number" formControlName="concreteCost">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>CMU Cost</mat-label>
+            <input name="cmuCost" matInput type="number" formControlName="cmuCost">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Brick Cost</mat-label>
+            <input name="brickCost" matInput type="number" formControlName="brickCost">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Other Cost</mat-label>
+            <input name="otherCost" matInput type="number" formControlName="otherCost">
+          </mat-form-field>
+
+          <p><strong>Project Value: </strong> {{projectValue$ | async | currency}}</p>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+          <!-- <p *ngIf="error" style="color: red;">ERROR: {{error}}</p> -->
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="jobFormGroup">
+      <form [formGroup]="jobFormGroup">
+        <ng-template matStepLabel>Select Jobs</ng-template>
+        <div style="display: flex; flex-direction: column;">
+          <mat-form-field>
+            <mat-chip-list #chipList>
+              <mat-chip *ngFor="let job of selectedJobs; let i=index" selectable=true removable=true
+                (removed)="onRemoveJob(i)">
+                {{job.projectName}} | <small>{{job.contractorName}}</small>
+                <mat-icon matChipRemove>cancel</mat-icon>
+              </mat-chip>
+            </mat-chip-list>
+
+            <input 
+                name="jobs" 
+                #jobsInput
+                matInput [matAutocomplete]="jobs" 
+                formControlName="jobs"
+                placeholder="Attach Jobs"
+                [matChipInputFor]="chipList"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                (matChipInputTokenEnd)="onAdd($event)"
+            >
+
+            <mat-autocomplete autoActiveFirstOption #jobs="matAutocomplete">
+              <mat-option *ngFor="let option of filteredJobs$ | async" [value]="option"
+                (click)="onOptionSelect(option)">
+                {{option.projectName}} | <small>{{option.contractorName}}</small>
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button #saveButton mat-button color="primary" (click)="onSave()">Save</button>
+          </div>
+
+        </div>
+        <p *ngIf="error" style="color: red;">ERROR: {{error}}</p>
+      </form>
+    </mat-step>
+  </mat-vertical-stepper>
+</div>

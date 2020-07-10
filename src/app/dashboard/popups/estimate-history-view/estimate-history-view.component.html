@@ -1,0 +1,38 @@
+<h1 mat-dialog-title style="margin:0">Estimate History - {{data.job.projectName}}</h1>
+<h3>{{data.job.contractorName}}</h3>
+<div mat-dialog-content>
+  <div *ngIf="data.estimates.length">
+    <button mat-button (click)="accordion.openAll()">Expand All</button>
+    <button mat-button (click)="accordion.closeAll()">Collapse All</button>
+  </div>
+  <div *ngIf="!data.estimates.length" style="display: flex; justify-content: center;">
+    <h3>No Estimates Saved Yet</h3>
+  </div>
+  <mat-accordion multi>
+    <mat-expansion-panel *ngFor="let estimate of data.estimates" expanded=false>
+
+      <!-- PANEL HEADER -->
+      <mat-expansion-panel-header style="background: whitesmoke;">
+        <mat-panel-title>
+          {{estimate.estimateDateCreated | date : 'short'}}
+        </mat-panel-title>
+        <mat-panel-description>
+          <div style="display: flex; justify-content: space-around; align-items: center; width: 100%;">
+            <div><strong>Completed By: </strong>{{estimate.estimator}}</div>
+            <div><strong>Project Value: </strong>{{estimate.project_value | currency}}</div>
+          </div>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+    <!-- PANEL CONTENT -->
+      <ng-template matExpansionPanelContent>
+        <div style="display: flex;">
+          <pre>{{estimate | json}}</pre>
+        </div>
+      </ng-template>
+
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
+
+

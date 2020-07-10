@@ -1,0 +1,11 @@
+<div class="wrapper" cdkDropListGroup>
+    <app-job-board-column *ngFor="let column of columns; let i=index"
+        cdkDropList
+        (cdkDropListDropped)="drop($event)"
+        [cdkDropListData]="column.items"
+        [id]="i"
+        class="wrapper divider"
+        style="flex-direction: column;"
+        [columnConfig]="column">
+    </app-job-board-column>
+</div>
