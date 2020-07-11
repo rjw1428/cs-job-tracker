@@ -22,7 +22,7 @@
       </mat-cell>
       <mat-footer-cell *matFooterCellDef>
         <div *ngIf="i==0"><strong>Total Days</strong></div>
-        <div *ngIf="i!=0">{{ getTotal() }}</div>
+        <div *ngIf="i==1">{{ getTotal() }}</div>
       </mat-footer-cell>
 
     </ng-container>

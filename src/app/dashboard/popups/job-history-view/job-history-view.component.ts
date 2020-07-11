@@ -27,8 +27,8 @@ export class JobHistoryViewComponent implements OnInit {
 
   getTotal() {
     const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-    const firstDate = this.convertTimestampToDate(new Date(this.data.transactions[0].date));
-    const lastDate = this.convertTimestampToDate(new Date(this.data.transactions[this.data.transactions.length - 1].date));
+    const firstDate = this.convertTimestampToDate(new Date(this.data.transactions[0].Date));
+    const lastDate = this.convertTimestampToDate(new Date(this.data.transactions[this.data.transactions.length - 1].Date));
     return Math.ceil((+lastDate - +firstDate) / oneDay) + 1
   }
 

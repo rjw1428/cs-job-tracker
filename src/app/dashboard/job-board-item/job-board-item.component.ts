@@ -40,12 +40,26 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   onStatusChanged(value: MatSelectChange) {
+    const responseMessage = "Status updated"
     this.job.statusId = value.value.id
-    this.updateTransaction('statusId', "Job status updated")
+    // this.updateTransaction('statusId', responseMessage)
+    const partialPayload = {
+      statusId: value.value.id,
+      box: this.job.box ? this.job.box : "",
+      notes: this.job.notes
+    }
+    this.saveTransaction(partialPayload, responseMessage)
   }
 
   onSaveNote() {
-    this.updateTransaction('notes', "Notes updated")
+    const responseMessage = "Notes updated"
+    // this.updateTransaction('notes',responseMessage)
+    const partialPayload = {
+      statusId: this.job.statusId,
+      box: this.job.box ? this.job.box : "",
+      notes: this.job.notes
+    }
+    this.saveTransaction(partialPayload, responseMessage)
   }
 
   onBoxChanged(value: MatSelectChange) {
@@ -126,5 +140,24 @@ export class JobBoardItemComponent implements OnInit {
         },
         () => showSnackbar(this.snackBar, responseMessage)
       )
+  }
+
+
+  saveTransaction(partialPayload: { statusId: number, box: number, notes: string }, responseMessage) {
+    this.backendService.saveData('job_transactions', {
+      jobId: this.job.jobId,
+      date: new Date().toISOString(),
+      ...partialPayload
+    }).subscribe(
+      resp => {
+        console.log(resp)
+        this.job.transactionId = resp['insertId']
+      },
+      err => {
+        console.log(err)
+        showSnackbar(this.snackBar, err.error.error.sqlMessage)
+      },
+      () => showSnackbar(this.snackBar, responseMessage)
+    )
   }
 }

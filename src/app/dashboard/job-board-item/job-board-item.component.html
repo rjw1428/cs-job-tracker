@@ -50,6 +50,10 @@
         <mat-form-field>
           <mat-label>Notes</mat-label>
           <input matInput [(ngModel)]="job.notes">
+          <button mat-button *ngIf="job.notes" matSuffix mat-icon-button aria-label="Clear"
+            (click)="job.notes=''; onSaveNote()">
+            <mat-icon>close</mat-icon>
+          </button>
         </mat-form-field>
         <button (click)="onSaveNote()" mat-mini-fab color="primary"
           style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
