@@ -15,10 +15,10 @@
 
     <ng-container [matColumnDef]="columnDef" *ngFor="let columnDef of displayedColumns; let i = index">
 
-      <mat-header-cell *matHeaderCellDef> {{columnDef}} </mat-header-cell>
+      <mat-header-cell *matHeaderCellDef> {{columnDef | titlecase}} </mat-header-cell>
       <mat-cell *matCellDef="let element">
         <div *ngIf="i==0">{{element[columnDef] | date : 'short'}}</div>
-        <div *ngIf="i!=0">{{element[columnDef]}}</div>
+        <div *ngIf="i!=0">{{element[columnDef] | titlecase}}</div>
       </mat-cell>
       <mat-footer-cell *matFooterCellDef>
         <div *ngIf="i==0"><strong>Total Days</strong></div>

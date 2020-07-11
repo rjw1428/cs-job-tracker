@@ -2,7 +2,9 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { BackendService } from '../service/backend.service';
 import { ActivatedRoute, Params } from '@angular/router';
-
+import { saveAs } from 'file-saver'
+import { D } from '@angular/cdk/keycodes';
+import { convertJsonToCSV } from '../shared/utility';
 
 export interface Report {
   id: string;
@@ -53,6 +55,13 @@ export class ReportsComponent implements OnInit {
         activeReport.displayedColumns = Object.keys(resp[0])
         activeReport.dataSource = new MatTableDataSource(resp);
       })
+  }
+
+  onExport(report) {
+    const csvData = convertJsonToCSV(report.dataSource.filteredData)
+    const blob = URL.createObjectURL(new Blob([csvData], { type: 'text/csv'}))
+    const fileName = report.id + " " + (new Date().toISOString()) + '.csv'
+    saveAs(blob, fileName)
   }
 
   updateRouterParams(reportId) {

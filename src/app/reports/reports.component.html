@@ -6,19 +6,22 @@
     <ng-template matTabContent>
 
       <div class="wrapper">
-        <mat-form-field>
-          <mat-label>Search</mat-label>
-          <input matInput (keyup)="applyFilter($event, report.dataSource)" placeholder="Filter" #input>
-          <button mat-button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear"
-            (click)="input.value=null; report.dataSource.filter=null">
-            <mat-icon>close</mat-icon>
-          </button>
-        </mat-form-field>
+        <div style="display: flex; justify-content: space-between;">
+          <mat-form-field>
+            <mat-label>Search</mat-label>
+            <input matInput (keyup)="applyFilter($event, report.dataSource)" placeholder="Filter" #input>
+            <button mat-button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="input.value=null; report.dataSource.filter=null">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+          <button mat-mini-fab color="primary" style="margin-top: 4px" (click)="onExport(report)"><mat-icon>system_update_alt</mat-icon></button>
+        </div>
         <mat-table [dataSource]="report.dataSource" class="mat-elevation-z8">
 
           <ng-container [matColumnDef]="columnDef" *ngFor="let columnDef of report.displayedColumns; let i = index">
 
-            <mat-header-cell *matHeaderCellDef style="background: whitesmoke;"> {{columnDef}} </mat-header-cell>
+            <mat-header-cell *matHeaderCellDef style="background: whitesmoke;"> {{columnDef | titlecase}} </mat-header-cell>
 
             <mat-cell *matCellDef="let element">
               <div>{{element[columnDef]}}</div>
