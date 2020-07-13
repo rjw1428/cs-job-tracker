@@ -22,6 +22,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LoadingWrapperComponent } from '../loading-wrapper/loading-wrapper.component';
 
 const modules = [
   CommonModule,
@@ -47,16 +49,20 @@ const modules = [
   MatChipsModule,
   MatExpansionModule,
   MatTableModule,
-  MatTabsModule
+  MatTabsModule,
+  MatProgressSpinnerModule
 ]
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    LoadingWrapperComponent
+  ],
   imports: [
     modules
   ],
   exports: [
-    modules
+    modules,
+    LoadingWrapperComponent
   ]
 })
 export class SharedModule { }

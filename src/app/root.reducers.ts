@@ -7,7 +7,7 @@ import { DashboardState } from './models/dashboard';
 export interface State {
     router: any,
     app: AppState,
-    dashboard: DashboardState
+    dashboard: DashboardState,
 }
 
 export const reducers: ActionReducerMap<any> = {

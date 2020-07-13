@@ -6,6 +6,9 @@ import { saveAs } from 'file-saver'
 import { D } from '@angular/cdk/keycodes';
 import { convertJsonToCSV } from '../shared/utility';
 import { MatSort } from '@angular/material/sort';
+import { Store } from '@ngrx/store';
+import { State } from '../root.reducers';
+import { AppActions } from '../shared/app.action-types';
 
 export interface Report {
   id: string;
@@ -38,7 +41,8 @@ export class ReportsComponent implements OnInit {
   @ViewChild(MatSort, { static: false }) sort: MatSort;
   constructor(
     private backendService: BackendService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private store: Store<State>,
   ) { }
 
   ngOnInit(): void {
@@ -53,6 +57,7 @@ export class ReportsComponent implements OnInit {
   }
 
   onTabChanged(tabNumber: number) {
+    this.store.dispatch(AppActions.startLoading())
     const activeReport = this.reports[tabNumber]
     this.updateRouterParams(this.reports[tabNumber].id)
     this.backendService.getData(activeReport.dataTableName)
@@ -60,6 +65,7 @@ export class ReportsComponent implements OnInit {
         activeReport.displayedColumns = Object.keys(resp[0])
         activeReport.dataSource = new MatTableDataSource(resp);
         activeReport.dataSource.sort = this.sort
+        this.store.dispatch(AppActions.stopLoading())
       })
   }
 

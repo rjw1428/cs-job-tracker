@@ -1,12 +1,12 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Store } from '@ngrx/store';
-import { map } from 'rxjs/operators';
+import { Store, select } from '@ngrx/store';
 import { State } from '../root.reducers';
 import { BackendService } from '../service/backend.service';
 import { ActivatedRoute, Params } from '@angular/router';
-import { MatTableDataSource } from '@angular/material/table';
 import { TitleCasePipe } from '@angular/common';
+import { AppActions } from '../shared/app.action-types';
+import { currentSidebarWidth } from '../shared/app.selectors';
 export interface Chart {
   id: string;
   name: string;
@@ -59,7 +59,7 @@ export class ChartsComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.sidebarWidth$ = this.store.pipe(map(state => state.app.sidebarWidth - state.app.defaultSidebarWidth))
+    this.sidebarWidth$ = this.store.pipe(select(currentSidebarWidth))
     this.route.paramMap.subscribe((paramsMap: Params) => {
       const selectedChartId = paramsMap.params.chartId
       const matchingIndex = this.charts.findIndex(chart => chart.id == selectedChartId)
@@ -69,6 +69,7 @@ export class ChartsComponent implements OnInit {
   }
 
   onTabChanged(tabNumber: number) {
+    this.store.dispatch(AppActions.startLoading())
     const titlePipe = new TitleCasePipe()
     const activeChart = this.charts[tabNumber]
     this.updateRouterParams(this.charts[tabNumber].id)
@@ -90,7 +91,7 @@ export class ChartsComponent implements OnInit {
             activeChart.dataSource = this.barChart(resp)
             break;
         }
-
+        this.store.dispatch(AppActions.stopLoading())
       })
   }
 

@@ -3,4 +3,5 @@ export interface AppState {
     sidebarWidth: number
     defaultSidebarWidth: number
     expandedSidebarWidth: number
+    loading: boolean
 }

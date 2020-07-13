@@ -10,6 +10,8 @@ import { State } from '../root.reducers';
 import { EstimateFormComponent } from '../forms/estimate-form/estimate-form.component';
 import { handleFormUpdate, showSnackbar } from '../shared/utility';
 import { ContractorFormComponent } from '../forms/contractor-form/contractor-form.component';
+import { DashboardActions } from '../shared/dashboard.action-types';
+import { AppActions } from '../shared/app.action-types';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,7 +28,7 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-
+    this.store.dispatch(AppActions.startLoading())
   }
 
   onCreateContractor() {

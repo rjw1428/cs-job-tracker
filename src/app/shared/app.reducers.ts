@@ -1,12 +1,12 @@
 import { createReducer, on } from '@ngrx/store'
 import { AppState } from '../models/app'
 import { AppActions } from './app.action-types'
-import { routerReducer } from '@ngrx/router-store'
 
 export const initialDashboardState: AppState = {
     sidebarWidth: 75,
     defaultSidebarWidth: 75,
-    expandedSidebarWidth: 200
+    expandedSidebarWidth: 200,
+    loading: false
 }
 
 export const appReducer = createReducer(
@@ -18,4 +18,10 @@ export const appReducer = createReducer(
     //     }
 
     // })
+    on(AppActions.startLoading, (state, action) => {
+        return { ...state, loading: true }
+    }),
+    on(AppActions.stopLoading, (state, action) => {
+        return { ...state, loading: false }
+    })
 )

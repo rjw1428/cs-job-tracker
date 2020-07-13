@@ -1,12 +1,13 @@
-import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy, AfterViewInit } from '@angular/core';
 import { moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { BackendService } from '../../service/backend.service';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/root.reducers';
 import { DashboardColumn } from 'src/app/models/dashboard-column';
-import { Observable, combineLatest, of, iif } from 'rxjs';
+import { Observable, combineLatest, of, iif, noop } from 'rxjs';
 import { map, first, switchMap, catchError, filter, mergeMap } from 'rxjs/operators';
 import { DashboardActions } from 'src/app/shared/dashboard.action-types';
+import { AppActions } from 'src/app/shared/app.action-types';
 
 @Component({
   selector: 'app-job-board',
@@ -24,11 +25,12 @@ export class JobBoardComponent implements OnInit {
 
   ngOnInit(): void {
     this.store.pipe(
-      mergeMap(state => iif(() => state.dashboard.requery || !this.isInitialized, this.queryForData(state)))
+      mergeMap(state => iif(() => state.dashboard.requery || !this.isInitialized, this.queryForData(state))),
     ).subscribe(
       cols => {
         this.columns = cols
         this.store.dispatch(DashboardActions.requeryComplete())
+        this.store.dispatch(AppActions.stopLoading())
       })
     this.isInitialized = true
   }
@@ -44,7 +46,7 @@ export class JobBoardComponent implements OnInit {
               const validOptions = (typeof options == 'object')
                 ? resp.filter(statusObj => options.includes(statusObj.id))
                 : [resp.find(statusObj => statusObj.id == options)]
-              
+
               return { ...col, statusOptions: validOptions }
             })
           })
