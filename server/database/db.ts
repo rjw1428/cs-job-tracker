@@ -7,7 +7,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: path.join(__dirname, "../.env") })
 
 const port = 3306
-const pool = mysql.createPool({
+const poolOptions = {
     connectionLimit: 3,
     port: port,
     host: process.env.DB_HOST,
@@ -15,19 +15,22 @@ const pool = mysql.createPool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_SCHEMA,
     waitForConnections: true
-});
+};
 
 function runQuery(query: string, callback) {
+    const pool = mysql.createPool(poolOptions)
     pool.getConnection((err, conn) => {
         if (err) {
             if (err.code == 'ER_USER_LIMIT_REACHED')
-            return callback({ error: err })
+                return callback({ error: err })
         }
         console.log(`MySQL connection made on port ${port}`)
         conn.query(query, (err, results, fields) => {
             conn.release()
-            console.log("connection released")
             if (err) callback({ error: err })
+            pool.end(err => {
+                if (err) callback({ error: err })
+            })
             callback({ results })
         })
     })
