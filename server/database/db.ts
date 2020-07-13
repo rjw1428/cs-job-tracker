@@ -8,7 +8,7 @@ dotenv.config({ path: path.join(__dirname, "../.env") })
 
 const port = 3306
 const pool = mysql.createPool({
-    connectionLimit: 10,
+    connectionLimit: 3,
     port: port,
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
