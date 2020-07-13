@@ -38,14 +38,14 @@ export class DashboardComponent implements OnInit {
 
   onCreateProject() {
     const dialogRef = this.dialog.open(ProjectFormComponent, {
-      width: '350px'
+      width: '400px'
     });
     handleFormUpdate(dialogRef, this.store, this.snackBar)
   }
 
   onCreateBid() {
     const dialogRef = this.dialog.open(BidFormComponent, {
-      width: '400px'
+      width: '500px'
     });
     handleFormUpdate(dialogRef, this.store, this.snackBar)
   }

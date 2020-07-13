@@ -1,0 +1,17 @@
+<h1 style="margin: 0px"mat-dialog-title>Modify Due Date</h1>
+<p style="color: rgb(0,0,0,.54)">{{job.projectName}}</p>
+<div mat-dialog-content>
+  <form [formGroup]="dueDateFormGroup" style="display: flex; flex-direction: column;">
+    <mat-form-field *ngIf="!dueDateFormGroup.get('isAsap').value">
+      <mat-label>Due Date</mat-label>
+      <input name="dueDate" matInput [matDatepicker]="picker2" formControlName="dateDue">
+      <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+      <mat-datepicker #picker2></mat-datepicker>
+    </mat-form-field>
+    <mat-checkbox labelPosition="before" formControlName="isAsap">ASAP</mat-checkbox>
+    <div style="display: flex; justify-content:center">
+      <button mat-button color="primary" (click)="onSave()">Save</button>
+    </div>
+    <p *ngIf="error" style="color: red;">ERROR: {{error}}</p>
+  </form>
+</div>

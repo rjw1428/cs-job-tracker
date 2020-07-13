@@ -25,7 +25,8 @@ function runQuery(query: string, callback) {
         }
         console.log(`MySQL connection made on port ${port}`)
         conn.query(query, (err, results, fields) => {
-            conn.release();
+            conn.release()
+            console.log("connection released")
             if (err) callback({ error: err })
             callback({ results })
         })

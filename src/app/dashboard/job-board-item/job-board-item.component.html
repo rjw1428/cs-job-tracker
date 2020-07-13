@@ -16,8 +16,8 @@
   <mat-card-content>
     <section>
       <p style="margin: 0px"><strong>Invite: </strong>{{job.dateAdded | date : 'MM/dd/yyyy'}}</p>
-      <p *ngIf="job.dateDue!='ASAP'"><strong>Due: </strong>{{job.dateDue | date : 'MM/dd/yyyy'}}</p>
-      <p *ngIf="job.dateDue=='ASAP'"><strong>Due: </strong>{{job.dateDue}}</p>
+      <p *ngIf="job.dateDue!='ASAP'" class="due-date" (click)="onDueDateSelected()"><strong>Due: </strong>{{job.dateDue | date : 'MM/dd/yyyy'}}</p>
+      <p *ngIf="job.dateDue=='ASAP'" class="due-date" (click)="onDueDateSelected()"><strong>Due: </strong>{{job.dateDue}}</p>
     </section>
 
     <section *ngIf="job.statusId!=11">

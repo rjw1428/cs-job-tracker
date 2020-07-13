@@ -19,6 +19,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { appReducer } from './shared/app.reducers';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { HelpComponent } from './forms/help/help.component';
+import { UpdateDueDateComponent } from './forms/update-due-date/update-due-date.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -28,6 +29,7 @@ import { HelpComponent } from './forms/help/help.component';
     ChartsComponent,
     SearchComponent,
     HelpComponent,
+    UpdateDueDateComponent,
   ],
   imports: [
     BrowserModule,

@@ -2,13 +2,15 @@ import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy
 import { BackendService } from 'src/app/service/backend.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmationSnackbarComponent } from '../popups/confirmation-snackbar/confirmation-snackbar.component';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
 import { showSnackbar } from 'src/app/shared/utility';
 import { MatDialog } from '@angular/material/dialog';
 import { EstimateViewComponent } from '../popups/estimate-view/estimate-view.component';
 import { EstimateHistoryViewComponent } from '../popups/estimate-history-view/estimate-history-view.component';
 import { JobHistoryViewComponent } from '../popups/job-history-view/job-history-view.component';
 import { MatSelectChange } from '@angular/material/select';
+import { UpdateDueDateComponent } from 'src/app/forms/update-due-date/update-due-date.component';
+import { iif, of, noop } from 'rxjs';
 
 @Component({
   selector: 'app-job-board-item',
@@ -30,7 +32,7 @@ export class JobBoardItemComponent implements OnInit {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
   ) {
-    this.boxOptions = new Array(10).fill(0).map((val, i) => ({ id: i + 1, name: (i+1).toString() }))
+    this.boxOptions = new Array(10).fill(0).map((val, i) => ({ id: i + 1, name: (i + 1).toString() }))
   }
 
   ngOnInit(): void {
@@ -82,6 +84,13 @@ export class JobBoardItemComponent implements OnInit {
         data: { estimate: null, job: this.job }
       });
     }
+  }
+
+  onDueDateSelected() {
+    this.dialog.open(UpdateDueDateComponent, {
+      width: '400px',
+      data: { ...this.job }
+    })
   }
 
   onEstimateHistory() {
