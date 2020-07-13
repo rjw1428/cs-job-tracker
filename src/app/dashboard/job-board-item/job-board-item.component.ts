@@ -30,7 +30,7 @@ export class JobBoardItemComponent implements OnInit {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
   ) {
-    this.boxOptions = new Array(10).fill(0).map((val, i) => ({ id: i + 1, name: i.toString() }))
+    this.boxOptions = new Array(10).fill(0).map((val, i) => ({ id: i + 1, name: (i+1).toString() }))
   }
 
   ngOnInit(): void {

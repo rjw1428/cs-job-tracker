@@ -1,10 +1,11 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { BackendService } from '../service/backend.service';
 import { ActivatedRoute, Params } from '@angular/router';
 import { saveAs } from 'file-saver'
 import { D } from '@angular/cdk/keycodes';
 import { convertJsonToCSV } from '../shared/utility';
+import { MatSort } from '@angular/material/sort';
 
 export interface Report {
   id: string;
@@ -25,14 +26,16 @@ export class ReportsComponent implements OnInit {
   selectedTabOnLoad: number
 
   reports: Report[] = [{
-    id: "active_projects",
-    name: "Report 1",
-    dataTableName: "projects_active"
+    id: "current_estimates",
+    name: "Estimate Board",
+    dataTableName: "report_current_estimates"
   }, {
-    id: "estimate_history",
-    name: "Report 2",
-    dataTableName: "estimates_history"
+    id: "award_history",
+    name: "Awarded Bids",
+    dataTableName: "report_awarded"
   }]
+  sortCol: string
+  @ViewChild(MatSort, { static: false }) sort: MatSort;
   constructor(
     private backendService: BackendService,
     private route: ActivatedRoute
@@ -45,6 +48,8 @@ export class ReportsComponent implements OnInit {
       this.selectedTabOnLoad = matchingIndex == -1 ? 0 : matchingIndex
       this.onTabChanged(this.selectedTabOnLoad)
     })
+
+
   }
 
   onTabChanged(tabNumber: number) {
@@ -54,12 +59,17 @@ export class ReportsComponent implements OnInit {
       .subscribe((resp: any[]) => {
         activeReport.displayedColumns = Object.keys(resp[0])
         activeReport.dataSource = new MatTableDataSource(resp);
+        activeReport.dataSource.sort = this.sort
       })
+  }
+
+  onSortChanged() {
+    this.sortCol = this.sort.active
   }
 
   onExport(report) {
     const csvData = convertJsonToCSV(report.dataSource.filteredData)
-    const blob = URL.createObjectURL(new Blob([csvData], { type: 'text/csv'}))
+    const blob = URL.createObjectURL(new Blob([csvData], { type: 'text/csv' }))
     const fileName = report.id + " " + (new Date().toISOString()) + '.csv'
     saveAs(blob, fileName)
   }

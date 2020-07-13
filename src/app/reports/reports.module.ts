@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReportsComponent } from './reports.component';
 import { Routes, RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
+import { MatSortModule } from '@angular/material/sort';
 
 export const routes: Routes = [
   {
@@ -22,6 +23,7 @@ export const routes: Routes = [
   imports: [
     CommonModule,
     SharedModule,
+    MatSortModule,
     RouterModule.forChild(routes),
   ]
 })

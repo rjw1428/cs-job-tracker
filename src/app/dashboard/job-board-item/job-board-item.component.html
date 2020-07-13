@@ -49,7 +49,7 @@
       <div style="display: flex; justify-content: stretch; align-items: flex-end;">
         <mat-form-field>
           <mat-label>Notes</mat-label>
-          <input matInput [(ngModel)]="job.notes">
+          <input matInput [(ngModel)]="job.notes" (keydown.enter)="onSaveNote()">
           <button mat-button *ngIf="job.notes" matSuffix mat-icon-button aria-label="Clear"
             (click)="job.notes=''; onSaveNote()">
             <mat-icon>close</mat-icon>
