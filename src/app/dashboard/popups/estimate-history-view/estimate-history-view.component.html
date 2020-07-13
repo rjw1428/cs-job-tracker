@@ -1,7 +1,7 @@
 <h1 mat-dialog-title style="margin:0">Estimate History - {{data.job.projectName}}</h1>
 <h3>{{data.job.contractorName}}</h3>
 <div mat-dialog-content>
-  <div *ngIf="data.estimates.length">
+  <div *ngIf="data.estimates.length" style="display:flex; justify-content: flex-end;">
     <button mat-button (click)="accordion.openAll()">Expand All</button>
     <button mat-button (click)="accordion.closeAll()">Collapse All</button>
   </div>

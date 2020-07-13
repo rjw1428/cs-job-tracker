@@ -11,6 +11,7 @@ import { JobHistoryViewComponent } from '../popups/job-history-view/job-history-
 import { MatSelectChange } from '@angular/material/select';
 import { UpdateDueDateComponent } from 'src/app/forms/update-due-date/update-due-date.component';
 import { iif, of, noop } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-job-board-item',
@@ -27,6 +28,7 @@ export class JobBoardItemComponent implements OnInit {
   selectedStatus: { id: number, status: string }
   selectedBox: { id: number, name: string }
   boxOptions: { id: number, name: string }[]
+  isDev: boolean = false;
   constructor(
     private backendService: BackendService,
     private snackBar: MatSnackBar,
@@ -36,6 +38,7 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.isDev = location.hostname == 'localhost'
     this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
     this.selectedStatus = this.statusOptions.find(option => option.id == this.job.statusId)
     this.selectedBox = this.boxOptions.find(option => option.id == this.job.box)

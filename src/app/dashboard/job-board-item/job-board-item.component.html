@@ -1,7 +1,7 @@
 <mat-card class="item mat-elevation-z8" style="margin-bottom: 10px;">
   <mat-card-header style="display: flex; flex-direction: column-reverse;">
     <div style="display: flex; justify-content: space-between;">
-      <mat-card-title [matTooltip]="job.jobId">{{job.projectName}}</mat-card-title>
+      <mat-card-title [matTooltip]="job.jobId" [matTooltipDisabled]="!isDev">{{job.projectName}}</mat-card-title>
       <div style="width:50px; display:flex; justify-content: flex-end;">
         <ng-content></ng-content>
       </div>
@@ -21,8 +21,8 @@
     </section>
 
     <section *ngIf="job.statusId!=11">
-      <button color="primary" mat-button (click)="onOpenCurrentEstimate()">Current Estimate</button>
       <p><strong>Total Estimates: </strong>{{job.total_estimates}}</p>
+      <button color="primary" mat-button (click)="onOpenCurrentEstimate()">Current Estimate</button>
     </section>
 
     <section *ngIf="showBoxField">
