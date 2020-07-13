@@ -21,7 +21,7 @@ export class ProjectFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.projectInfoFormGroup = this.formBuilder.group({
-      projectName: ['', Validators.required],
+      projectName: [this.data?this.data:"", Validators.required],
       city: [''],
       state: [''],
       zip: [''],

@@ -66,58 +66,72 @@ export class BidFormComponent implements OnInit {
       dateDue: this.timelineFormGroup.get('isAsap').value ? "ASAP" : this.timelineFormGroup.get('dateDue').value.toISOString(),
       bidDateCreated: new Date().toISOString()
     } as Bid
-    this.backendService.saveData('bid_invites', form).pipe(
-      switchMap(resp => {
-        const transaction = {
-          jobId: resp['insertId'],
-          date: new Date().toISOString(),
-          statusId: 11,
-          notes: ""
-        }
-        return forkJoin([
-          this.backendService.saveData('job_transactions', transaction),
-          this.backendService.saveData('job_state', { jobId: resp['insertId'] })
-        ])
-      })
-    )
-      .subscribe(
-        resp => {
-          console.log(resp)
-        },
-        err => {
-          console.log(err)
-          this.error = err.error.error.sqlMessage
-        },
-        () => {
-          this.dialogRef.close({ message: "Project Saved", requery: true })
-        }
+
+    if (!form.projectId)
+      this.onAddProject(this.projectFormGroup.get('project').value)
+    if (!form.contractorId)
+      this.onAddContractor(this.contractorFormGroup.get('contractor').value)
+
+    if (!form.contractorId || !form.projectId)
+      this.error = "Information was missing last time you selected save. Now that the data has been provided, please select save again"
+    else
+      this.backendService.saveData('bid_invites', form).pipe(
+        switchMap(resp => {
+          const transaction = {
+            jobId: resp['insertId'],
+            date: new Date().toISOString(),
+            statusId: 11,
+            notes: ""
+          }
+          return forkJoin([
+            this.backendService.saveData('job_transactions', transaction),
+            this.backendService.saveData('job_state', { jobId: resp['insertId'] })
+          ])
+        })
       )
+        .subscribe(
+          resp => {
+            console.log(resp)
+          },
+          err => {
+            console.log(err)
+            this.error = err.error.error.sqlMessage
+          },
+          () => {
+            this.dialogRef.close({ message: "Project Saved", requery: true })
+          }
+        )
   }
 
   onNoClick() {
     this.dialogRef.close();
   }
 
-  onAddContractor() {
+  onAddContractor(inputData?: string) {
     const dialogRef = this.dialog.open(ContractorFormComponent, {
       width: '500px',
+      data: inputData
     });
     const dialogResp = dialogRef.afterClosed()
     zip(dialogResp, this.contractors$)
       .pipe(
         map(val => {
-          const newEntry = val[0].value
-          val[1].push(newEntry)
-          return newEntry
+          if (val[0]) {
+            const newEntry = val[0].value
+            val[1].push(newEntry)
+            return newEntry
+          }
         })
       ).subscribe((value: any) => {
-        this.contractorFormGroup.patchValue({ contractor: value })
+        if (value)
+          this.contractorFormGroup.patchValue({ contractor: value })
       })
   }
 
-  onAddProject() {
+  onAddProject(inputData?: string) {
     const dialogRef = this.dialog.open(ProjectFormComponent, {
-      width: '350px'
+      width: '350px',
+      data: inputData
     });
 
     const dialogResp = dialogRef.afterClosed()

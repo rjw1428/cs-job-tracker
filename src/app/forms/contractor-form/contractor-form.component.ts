@@ -23,7 +23,7 @@ export class ContractorFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.companyInfoFormGroup = this.formBuilder.group({
-      contractorName: ['', Validators.required]
+      contractorName: [this.data?this.data:"", Validators.required]
     });
     this.contactInfoFormGroup = this.formBuilder.group({
       contactName: ['', Validators.required],
