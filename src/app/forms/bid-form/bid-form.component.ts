@@ -59,6 +59,9 @@ export class BidFormComponent implements OnInit {
   }
 
   onSave() {
+    if (!this.timelineFormGroup.valid)
+      return this.error = "Date Added must be in format MM/DD/YYYY"
+
     const form = {
       contractorId: this.contractorFormGroup.get('contractor').value.contractorId,
       projectId: this.projectFormGroup.get('project').value.projectId,
@@ -166,8 +169,8 @@ export class BidFormComponent implements OnInit {
 
     this.timelineFormGroup = this.formBuilder.group({
       dateAdded: ["", Validators.required],
-      dateDue: ["", Validators.required],
-      isAsap: [false, Validators.required]
+      dateDue: [""],
+      isAsap: [false]
     })
   }
 }
