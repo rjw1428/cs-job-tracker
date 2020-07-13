@@ -59,6 +59,7 @@ export class JobBoardComponent implements OnInit {
               }),
               catchError(err => {
                 console.log(`Unable to get a response from ${col.dataTable}`)
+                console.log(err)
                 return of({ ...col, items: [] } as DashboardColumn)
               })
             )

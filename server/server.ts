@@ -17,6 +17,10 @@ app.use(router)
 app.use(emailRoute)
 app.use(express.static(distDir));
 
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(distDir, 'index.html'));
+});
+
 server.listen(port, () => {
     console.log(`Server has started on port ${port}`)
 })

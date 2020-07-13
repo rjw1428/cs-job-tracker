@@ -19,7 +19,7 @@ const pool = mysql.createPool({
 function runQuery(query: string, callback) {
     pool.getConnection((err, conn) => {
         if (err) {
-            console.log(err)
+            if (err.code == 'ER_USER_LIMIT_REACHED')
             return callback({ error: err })
         }
         console.log(`MySQL connection made on port ${port}`)
