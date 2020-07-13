@@ -18,7 +18,10 @@ const pool = mysql.createPool({
 
 function runQuery(query: string, callback) {
     pool.getConnection((err, conn) => {
-        if (err) callback({ error: err })
+        if (err) {
+            console.log(err)
+            return callback({ error: err })
+        }
         console.log(`MySQL connection made on port ${port}`)
         conn.query(query, (err, results, fields) => {
             conn.release();
