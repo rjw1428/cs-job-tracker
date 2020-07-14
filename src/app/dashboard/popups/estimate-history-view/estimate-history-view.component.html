@@ -24,15 +24,11 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
 
-    <!-- PANEL CONTENT -->
+      <!-- PANEL CONTENT -->
       <ng-template matExpansionPanelContent>
-        <div style="display: flex;">
-          <pre>{{estimate | json}}</pre>
-        </div>
+        <estimate [estimate]="estimate"></estimate>
       </ng-template>
 
     </mat-expansion-panel>
   </mat-accordion>
 </div>
-
-

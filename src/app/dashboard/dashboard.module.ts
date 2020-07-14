@@ -17,6 +17,7 @@ import { ConfirmationSnackbarComponent } from './popups/confirmation-snackbar/co
 import { EstimateViewComponent } from './popups/estimate-view/estimate-view.component';
 import { EstimateHistoryViewComponent } from './popups/estimate-history-view/estimate-history-view.component';
 import { JobHistoryViewComponent } from './popups/job-history-view/job-history-view.component';
+import { EstimateComponent } from './estimate/estimate.component';
 
 export const routes: Routes = [
   {
@@ -38,6 +39,7 @@ export const routes: Routes = [
     EstimateViewComponent,
     EstimateHistoryViewComponent,
     JobHistoryViewComponent,
+    EstimateComponent,
   ],
   imports: [
     CommonModule,

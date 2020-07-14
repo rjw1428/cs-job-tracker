@@ -1,0 +1,24 @@
+<!-- <pre>{{estimate | json}}</pre> -->
+<div style="display: flex; flex-direction: row; justify-content: stretch;">
+  <div style="display: flex; flex-direction: column; align-items: stretch;  width: 100%">
+    <p><strong>Excavation Cost: </strong>{{estimate.excavationCost | currency}}</p>
+    <p><strong>Concrete Cost: </strong>{{estimate.concreteCost | currency}}</p>
+    <p><strong>Brick Cost: </strong>{{estimate.brickCost | currency}}</p>
+    <p><strong>CMU Cost: </strong>{{estimate.cmuCost | currency}}</p>
+    <p><strong>Other Cost: </strong>{{estimate.otherCost | currency}}</p>
+    <mat-divider></mat-divider>
+    <h3><strong>Project Cost: </strong>{{estimate.project_value | currency}}</h3>
+  </div>
+
+  <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; width: 100%">
+    <!-- <div>
+      <p style="margin-bottom: 0px;"><strong>Created By: </strong>{{estimate.estimator}}</p>
+      <p *ngIf="estimate.fee"><small><strong>Fee: </strong>{{estimate.fee | currency}}</small></p>
+    </div> -->
+      <div>
+        <p style="margin-bottom: 0px;"><strong>By: </strong>{{estimate.estimator}}</p>
+        <p *ngIf="estimate.fee"><small><strong>Fee: </strong>{{estimate.fee | currency}}</small></p>
+      </div>
+      <p style="font-style: italic;">Created On: {{estimate.estimateDateCreated | date : 'MM/dd/yyyy HH:mm' }}</p>
+  </div>
+</div>

@@ -6,5 +6,8 @@ export interface Estimate {
     concreteCost?: number
     brickCost?: number
     otherCost?: number
+    cmuCost?: number
     estimateDateCreated: string
+    estimator?: string
+    project_value?: number
 }
