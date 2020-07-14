@@ -19,6 +19,6 @@
         <p style="margin-bottom: 0px;"><strong>By: </strong>{{estimate.estimator}}</p>
         <p *ngIf="estimate.fee"><small><strong>Fee: </strong>{{estimate.fee | currency}}</small></p>
       </div>
-      <p style="font-style: italic;">Created On: {{estimate.estimateDateCreated | date : 'MM/dd/yyyy HH:mm' }}</p>
+      <p style="font-style: italic;">Created On: {{estimate.estimateDateCreated | date : 'short' }}</p>
   </div>
 </div>
