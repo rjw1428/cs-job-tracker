@@ -48,6 +48,12 @@ export class ChartsComponent implements OnInit {
     dataTableName: 'chart_awards_by_month',
     chartType: "single_line",
     seriesName: "Awards"
+  }, {
+    id: 'estimates_outsourced_by_month',
+    name: 'Estimate Outsourcing Cost',
+    dataTableName: 'chart_estimate_outsource_cost',
+    chartType: "single_line",
+    seriesName: "Bidding Enterprise"
   }]
   constructor(
     private store: Store<State>,
