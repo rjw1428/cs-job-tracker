@@ -21,7 +21,7 @@ export class SidebarComponent implements OnInit {
   defaultWidth$: Observable<number>
   width$: Observable<number>
   activeButton: string;
-  version = "0.1.0"
+  version = "0.2.0"
   isExpanded: boolean = false
   constructor(
     private router: Router,
