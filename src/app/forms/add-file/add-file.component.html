@@ -1,0 +1,28 @@
+<h1 mat-dialog-title>Attach Files</h1>
+<div mat-dialog-content style="padding: 5px; margin: 0 5px">
+  <div class="dropzone" DragNDrop (fileDropped)="onFilesSelected($event)">
+    <input type="file" #fileDropRef (change)="onFilesSelected($event.target.files)">
+    <h3>Drag and drop files here</h3>
+    <h3>or</h3>
+    <label>Browse for files</label>
+  </div>
+
+
+  <div class="file-list">
+    <div class="single-file" *ngFor="let file of files; let i = index">
+      <mat-icon style="font-size: 48px;  width: 50px;">insert_drive_file</mat-icon>
+      <div class="info">
+        <h4 class="name">{{file?.name}}</h4>
+        <p class="size">
+          {{ formatBytes(file?.size) }}
+        </p>
+        <mat-progress-bar mode="determinate" [value]="percentage[i]"></mat-progress-bar>
+      </div>
+      <div style="width: 36px; display: flex; align-items:center; justify-content: center">
+        <button mat-icon-button (click)="cancelUpload(i)">
+          <mat-icon>remove_circle_outline</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

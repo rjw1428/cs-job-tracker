@@ -12,6 +12,8 @@ import { MatSelectChange } from '@angular/material/select';
 import { UpdateDueDateComponent } from 'src/app/forms/update-due-date/update-due-date.component';
 import { iif, of, noop } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { AddFileComponent } from 'src/app/forms/add-file/add-file.component';
+import { FileListComponent } from '../popups/file-list/file-list.component';
 
 @Component({
   selector: 'app-job-board-item',
@@ -113,6 +115,20 @@ export class JobBoardItemComponent implements OnInit {
           width: '700px',
           data: { transactions: resp, job: this.job }
         });
+      })
+  }
+
+
+  onViewFileList() {
+    this.backendService.getData("job_files", { jobId: this.job.jobId })
+      .subscribe(resp => {
+        this.dialog.open(FileListComponent, {
+          width: '500px',
+          data: { job: this.job, fileList: resp }
+        }).afterClosed().subscribe(uploadedFileCount => {
+          if (uploadedFileCount)
+            this.job.attachedFileCount += uploadedFileCount
+        })
       })
   }
 

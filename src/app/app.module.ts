@@ -20,6 +20,9 @@ import { appReducer } from './shared/app.reducers';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { HelpComponent } from './forms/help/help.component';
 import { UpdateDueDateComponent } from './forms/update-due-date/update-due-date.component';
+import { AddFileComponent } from './forms/add-file/add-file.component';
+import { DragNDropDirective } from './directives/drag-n-drop.directive';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -30,6 +33,8 @@ import { UpdateDueDateComponent } from './forms/update-due-date/update-due-date.
     SearchComponent,
     HelpComponent,
     UpdateDueDateComponent,
+    AddFileComponent,
+    DragNDropDirective,
   ],
   imports: [
     BrowserModule,

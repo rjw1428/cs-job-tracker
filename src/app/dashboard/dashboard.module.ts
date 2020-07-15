@@ -18,6 +18,8 @@ import { EstimateViewComponent } from './popups/estimate-view/estimate-view.comp
 import { EstimateHistoryViewComponent } from './popups/estimate-history-view/estimate-history-view.component';
 import { JobHistoryViewComponent } from './popups/job-history-view/job-history-view.component';
 import { EstimateComponent } from './estimate/estimate.component';
+import { FileListComponent } from './popups/file-list/file-list.component';
+import { DecodeURIPipe } from '../pipes/decode-uri.pipe';
 
 export const routes: Routes = [
   {
@@ -40,6 +42,9 @@ export const routes: Routes = [
     EstimateHistoryViewComponent,
     JobHistoryViewComponent,
     EstimateComponent,
+    FileListComponent,
+    DecodeURIPipe,
+
   ],
   imports: [
     CommonModule,

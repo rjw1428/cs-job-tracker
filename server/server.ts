@@ -5,6 +5,7 @@ import { Application } from "express";
 import { createServer } from 'http'
 import { router } from './database/db'
 import { emailRoute } from './email'
+import { fileShareRoute } from './fileio';
 
 //npm install --save-dev ts-node nodemon cors
 const port = process.env.PORT || 9000
@@ -15,6 +16,7 @@ app.use(cors())
 app.use(express.json())
 app.use(router)
 app.use(emailRoute)
+app.use(fileShareRoute)
 app.use(express.static(distDir));
 
 app.get('*', (req, res) => {

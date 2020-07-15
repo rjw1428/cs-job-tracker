@@ -1,0 +1,12 @@
+<h1 mat-dialog-title style="margin:0">File List - {{data.job.projectName}}</h1>
+<h3>{{data.job.contractorName}}</h3>
+<div style="display: flex; justify-content: space-between;" *ngFor="let file of data.fileList">
+  <h4 style="cursor: pointer" (click)="getFileLink(file)">{{ file.fileName | decodeURI }}</h4>
+  <p>{{file.dateCreated | date : 'short'}}</p>
+</div>
+
+<div mat-dialog-actions style="display:flex; justify-content: flex-end">
+  <button mat-mini-fab color="primary" matTooltipPosition="above" matTooltip="Add Files" (click)="onAddFiles()">
+    <mat-icon>post_add</mat-icon>
+  </button>
+</div>

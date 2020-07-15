@@ -23,15 +23,19 @@ function runQuery(query: string, callback) {
             if (err.code == 'ER_USER_LIMIT_REACHED')
                 return callback({ error: err })
         }
-        console.log(`MySQL connection made on port ${poolOptions.port}`)
-        conn.query(query, (err, results, fields) => {
-            conn.release()
-            if (err) callback({ error: err })
-            pool.end(err => {
+        try {
+            console.log(`MySQL connection made on port ${poolOptions.port}`)
+            conn.query(query, (err, results, fields) => {
+                conn.release()
                 if (err) callback({ error: err })
+                pool.end(err => {
+                    if (err) callback({ error: err })
+                })
+                callback({ results })
             })
-            callback({ results })
-        })
+        } catch (err) {
+            callback({ error: err })
+        }
     })
 }
 
@@ -102,4 +106,14 @@ function createSetClause(setObj: {}) {
     return Object.keys(setObj).map(key => {
         return `${key} = '${setObj[key]}'`
     }).join(", ")
+}
+
+export function saveFile(jobId, fileName, date, callback) {
+    const _table = "job_files"
+    const _fields = ["jobId", "fileName", "fileLocation", "dateCreated"].join(',')
+    const _values = [`'${jobId}'`, `'${fileName}'`,`'${jobId}/${fileName}'`, `'${date}'`].join(',')
+    runQuery(`REPLACE INTO ${_table} (${_fields}) VALUES (${_values})`, ({ error, results }) => {
+        if (error) callback({ error })
+        callback(results)
+    })
 }

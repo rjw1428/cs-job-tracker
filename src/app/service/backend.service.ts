@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { tap, catchError, first, shareReplay } from 'rxjs/operators'
-import { HttpClient } from '@angular/common/http';
+import { tap, catchError, first, shareReplay, map } from 'rxjs/operators'
+import { HttpClient, HttpRequest } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-
+import { saveAs } from 'file-saver'
 @Injectable({
   providedIn: 'root'
 })
@@ -26,7 +26,23 @@ export class BackendService {
   }
 
   sendEmail(message: string) {
-    return this.http.post(`${environment.apiUrl}/email`, {message})
+    return this.http.post(`${environment.apiUrl}/email`, { message })
+  }
+
+  getFile(jobId, fileName) {
+    this.http.get(`${environment.apiUrl}/download/${jobId}/${fileName}`, { responseType: 'blob' })
+      .subscribe((resp: any) => {
+        saveAs(resp, decodeURIComponent(fileName))
+      })
+  }
+
+  sendFile(jobId, file, fileIndex) {
+    const formData: any = new FormData()
+    formData.append("document", file, file.fileName);
+    const req = new HttpRequest('POST', `${environment.apiUrl}/upload/${jobId}`, formData, {
+      reportProgress: true
+    });
+    return this.http.request(req).pipe(map(resp => ({ response: resp, index: fileIndex })))
   }
 
   convertObjToParma(obj: {}) {

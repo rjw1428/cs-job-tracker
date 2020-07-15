@@ -64,9 +64,13 @@
 
   <mat-card-actions
     style="display: flex; justify-content: space-around; align-items: flex-start; background: whitesmoke">
-    <!-- <button mat-button matTooltipPosition="above" matTooltip="Edit">
-      <mat-icon>edit</mat-icon>
-    </button> -->
+    <button mat-button matTooltipPosition="above" matTooltip="View Attached File" (click)="onViewFileList()">
+      <mat-icon       
+        [matBadge]="job.attachedFileCount" 
+        matBadgeSize="small">
+          attach_file
+      </mat-icon>
+    </button>
     <button mat-button matTooltipPosition="above" matTooltip="Estimate History" (click)="onEstimateHistory()">
       <mat-icon>payments</mat-icon>
     </button>
