@@ -29,6 +29,10 @@ export class ReportsComponent implements OnInit {
   selectedTabOnLoad: number
 
   reports: Report[] = [{
+    id: "report_summary",
+    name: "Summary",
+    dataTableName: "report_overall_jobs"
+  }, {
     id: "current_estimates",
     name: "Estimate Board",
     dataTableName: "report_current_estimates"
