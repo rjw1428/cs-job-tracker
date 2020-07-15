@@ -6,11 +6,14 @@ import * as fs from 'fs';
 import { saveFile } from './database/db';
 
 
+export const fileShareRoute = express.Router()
+
+const storageFolder = 'storage'
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const subfolder = req.params.jobId
-        const dir = path.join(__dirname, `files/${subfolder}`)
+        const dir = path.join(__dirname, `${storageFolder}/${subfolder}`)
         fs.exists(dir, exist => {
             if (!exist)
                 return fs.mkdir(dir, error => cb(error, dir))
@@ -23,8 +26,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage })
-
-export const fileShareRoute = express.Router()
 
 fileShareRoute.post('/upload/:jobId', upload.single('document'), async (req, resp) => {
     const now = new Date()
@@ -42,7 +43,7 @@ fileShareRoute.get('/download/:jobId/:fileName', async (req, res) => {
     try {
         const jobId = req.params.jobId
         const fileName = req.params.fileName
-        res.download(path.join(__dirname, `files/${jobId}/${fileName}`));
+        res.download(path.join(__dirname, `${storageFolder}/${jobId}/${fileName}`));
     } catch (e) {
         res.status(404).send(e)
     }
