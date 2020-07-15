@@ -1,7 +1,8 @@
-<div class="wrapper" cdkDropListGroup>
+<div class="wrapper" cdkDropListGroup [ngStyle]="{'cursor':isDragging?'grabbing':'auto'}">
     <app-job-board-column *ngFor="let column of columns; let i=index"
         cdkDropList
         (cdkDropListDropped)="drop($event)"
+        (isDragging)="onIsDragging($event)"
         [cdkDropListData]="column.items"
         [id]="i"
         class="wrapper divider"

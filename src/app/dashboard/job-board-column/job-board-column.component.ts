@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
 import { DashboardColumn } from 'src/app/models/dashboard-column';
 
 @Component({
@@ -9,6 +9,7 @@ import { DashboardColumn } from 'src/app/models/dashboard-column';
 })
 export class JobBoardColumnComponent implements OnInit {
   @Input() columnConfig: DashboardColumn
+  @Output() isDragging = new EventEmitter<boolean>()
   itemStatusOptions: Object[]
   constructor() { }
 
@@ -21,4 +22,11 @@ export class JobBoardColumnComponent implements OnInit {
     this.columnConfig.items.splice(index, 1)
   }
 
+  onDragStart() {
+    this.isDragging.emit(true)
+  }
+
+  onDragRelease() {
+    this.isDragging.emit(false)
+  }
 }

@@ -24,6 +24,8 @@ export class FileListComponent implements OnInit {
   onAddFiles() {
     this.dialog.open(AddFileComponent, {
       width: '500px',
+      minHeight: '500px',
+      height: 'auto',
       data: { ...this.data.job }
     }).afterClosed().subscribe(resp => {
       this.dialogRef.close(resp)

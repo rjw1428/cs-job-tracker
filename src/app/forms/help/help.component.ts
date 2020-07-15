@@ -29,10 +29,10 @@ export class HelpComponent implements OnInit {
   }
 
   onSubmit() {
+    if (!this.helpFormGroup.valid) return this.error = "Information missing"
     const msg = Object.keys(this.helpFormGroup.value).map(key => {
       return `${this.titleCase.transform(key)}: ${this.helpFormGroup.value[key]}`
     }).join('\n')
-    console.log(msg)
     this.backendService.sendEmail(msg)
       .subscribe(
         resp => {

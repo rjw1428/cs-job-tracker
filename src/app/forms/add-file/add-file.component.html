@@ -1,13 +1,13 @@
-<h1 mat-dialog-title>Attach Files</h1>
-<div mat-dialog-content style="padding: 5px; margin: 0 5px">
+<div mat-dialog-title>
+  <h1>Attach Files - {{job.projectName}}</h1>
   <div class="dropzone" DragNDrop (fileDropped)="onFilesSelected($event)">
     <input type="file" #fileDropRef (change)="onFilesSelected($event.target.files)">
     <h3>Drag and drop files here</h3>
     <h3>or</h3>
-    <label>Browse for files</label>
+    <label style="cursor: pointer;">Browse for files</label>
   </div>
-
-
+</div>
+<div mat-dialog-content style="padding: 5px; margin: 0 5px">
   <div class="file-list">
     <div class="single-file" *ngFor="let file of files; let i = index">
       <mat-icon style="font-size: 48px;  width: 50px;">insert_drive_file</mat-icon>
@@ -20,7 +20,9 @@
       </div>
       <div style="width: 36px; display: flex; align-items:center; justify-content: center">
         <button mat-icon-button (click)="cancelUpload(i)">
-          <mat-icon>remove_circle_outline</mat-icon>
+          <mat-icon [ngStyle]="{'color': percentage[i]==100?'green':'red'}">
+            {{percentage[i]==100?'check_circle_outline':'remove_circle_outline'}}
+          </mat-icon>
         </button>
       </div>
     </div>

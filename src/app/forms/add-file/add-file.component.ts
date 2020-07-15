@@ -59,7 +59,9 @@ export class AddFileComponent implements OnInit {
     if (this.uploadSubscription[index]) {
       this.uploadSubscription[index].unsubscribe();
     }
-    this.files.splice(index, 1)
+    if (this.percentage[index] != 100)
+      this.files.splice(index, 1)
+
   }
 
 

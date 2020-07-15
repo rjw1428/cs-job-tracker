@@ -18,6 +18,7 @@ export class JobBoardComponent implements OnInit {
   @Output() boardUpdated = new EventEmitter<any>()
   columns: DashboardColumn[] = []
   isInitialized = false
+  isDragging = false
   constructor(
     private backendService: BackendService,
     private store: Store<State>
@@ -106,5 +107,9 @@ export class JobBoardComponent implements OnInit {
       // MOVE ITEMS WITHIN SAME LIST
       // moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     }
+  }
+
+  onIsDragging(event) {
+    this.isDragging = event
   }
 }

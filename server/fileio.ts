@@ -30,7 +30,7 @@ const upload = multer({ storage: storage })
 fileShareRoute.post('/upload/:jobId', upload.single('document'), async (req, resp) => {
     const now = new Date()
     console.log(req.body)
-    saveFile(req.params.jobId, encodeURIComponent(req['file'].filename), now.toISOString(), async (dbResult: any) => {
+    saveFile(req.params.jobId, req['file'].filename, now.toISOString(), async (dbResult: any) => {
         if (dbResult.error)
             resp.status(500).send({ error: dbResult.error })
         resp.send(dbResult)

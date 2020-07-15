@@ -36,8 +36,8 @@
 </div>
 
 <div mat-dialog-actions>
+  <p *ngIf="error" style="color: red;">ERROR: {{error}}</p>
   <div style="display: flex; justify-content: center; align-items: center; width: 100%">
     <button mat-raised-button color="primary" (click)="onSubmit()">Request Help</button>
   </div>
-  <p *ngIf="error" style="color: red;">ERROR: {{error}}</p>
 </div>
