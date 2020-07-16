@@ -10,15 +10,16 @@
     <h3><strong>Project Cost: </strong>{{estimate.project_value | currency}}</h3>
   </div>
 
-  <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; width: 100%">
-    <!-- <div>
-      <p style="margin-bottom: 0px;"><strong>Created By: </strong>{{estimate.estimator}}</p>
-      <p *ngIf="estimate.fee"><small><strong>Fee: </strong>{{estimate.fee | currency}}</small></p>
-    </div> -->
+  <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; width: 100%">
+    <button mat-button matTooltipPosition="above" matTooltip="Delete" (click)="onDelete(estimate)">
+      <mat-icon>delete_outline</mat-icon>
+    </button>
+    <div>
       <div>
         <p style="margin-bottom: 0px;"><strong>By: </strong>{{estimate.estimator}}</p>
         <p *ngIf="estimate.fee"><small><strong>Fee: </strong>{{estimate.fee | currency}}</small></p>
       </div>
       <p style="font-style: italic;">Created On: {{estimate.estimateDateCreated | date : 'short' }}</p>
+    </div>
   </div>
 </div>

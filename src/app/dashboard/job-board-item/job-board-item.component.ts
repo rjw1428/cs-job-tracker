@@ -15,6 +15,9 @@ import { environment } from 'src/environments/environment';
 import { AddFileComponent } from 'src/app/forms/add-file/add-file.component';
 import { FileListComponent } from '../popups/file-list/file-list.component';
 import { AttachedFile } from 'src/app/models/attached-file';
+import { AppState } from 'src/app/models/app';
+import { Store } from '@ngrx/store';
+import { DashboardActions } from 'src/app/shared/dashboard.action-types';
 
 @Component({
   selector: 'app-job-board-item',
@@ -36,6 +39,7 @@ export class JobBoardItemComponent implements OnInit {
     private backendService: BackendService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
+    private store: Store<AppState>
   ) {
     this.boxOptions = new Array(10).fill(0).map((val, i) => ({ id: i + 1, name: (i + 1).toString() }))
   }
@@ -105,7 +109,10 @@ export class JobBoardItemComponent implements OnInit {
         this.dialog.open(EstimateHistoryViewComponent, {
           width: '700px',
           data: { estimates: resp, job: this.job }
-        });
+        }).afterClosed().subscribe(estimateCountChange => {
+          if (estimateCountChange)
+            this.store.dispatch(DashboardActions.requery())
+        })
       })
   }
 
@@ -126,9 +133,10 @@ export class JobBoardItemComponent implements OnInit {
         this.dialog.open(FileListComponent, {
           width: '800px',
           data: { job: this.job, fileList: resp }
-        }).afterClosed().subscribe(uploadedFileCount => {
-          if (uploadedFileCount)
-            this.job.attachedFileCount += uploadedFileCount
+        }).afterClosed().subscribe(fileCountChanged => {
+          console.log(fileCountChanged)
+          if (fileCountChanged)
+            this.store.dispatch(DashboardActions.requery())
         })
       })
   }

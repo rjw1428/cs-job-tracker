@@ -93,6 +93,18 @@ router.post('/api/update/:table', (req, resp) => {
     })
 })
 
+
+//DELETE FROM TABLE
+router.post('/api/delete/:table', (req, resp) => {
+    const _whereObj = req.body
+    const _table = req.params.table
+    const _whereClause = Object.keys(_whereObj).map(key => `${key} = ${_whereObj[key]}`)[0]
+    runQuery(`DELETE FROM ${_table} WHERE ${_whereClause}`, ({ error, results }) => {
+        if (error) resp.status(500).send({ error })
+        resp.send(results)
+    })
+})
+
 function createWhereClauses(obj: {}): string {
     if (Object.keys(obj).length === 0) return ""
     return "WHERE " + Object.keys(obj).map(key => {

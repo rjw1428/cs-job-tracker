@@ -20,6 +20,7 @@ export class FileListComponent implements OnInit {
   displayedColumns = ["open", "fileName", "dateCreated", "remove"];
   sortCol = "dateCreated"
   dataSource: MatTableDataSource<any>
+  initialFileCount: number
   @ViewChild(MatSort, { static: false }) sort: MatSort;
   constructor(
     private backendService: BackendService,
@@ -30,7 +31,11 @@ export class FileListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.initialFileCount = this.data.fileList.length
     this.dataSource = new MatTableDataSource(this.data.fileList)
+    this.dialogRef.beforeClosed().subscribe(() => {
+      this.dialogRef.close(this.initialFileCount != this.data.fileList.length)
+    })
   }
 
   onAddFiles() {
@@ -39,8 +44,10 @@ export class FileListComponent implements OnInit {
       minHeight: '500px',
       height: 'auto',
       data: { ...this.data.job }
-    }).afterClosed().subscribe(resp => {
-      this.dialogRef.close(resp)
+    }).afterClosed().subscribe(successCount => {
+      //GET NEW ATTACHED FILES FROM LIST INSTEAD OF CLOSING OUT
+      this.initialFileCount -=successCount
+      this.dialogRef.close()
     })
   }
 
@@ -49,12 +56,13 @@ export class FileListComponent implements OnInit {
   }
 
   onDelete(file: AttachedFile) {
-    this.snackBar.openFromComponent(ConfirmationSnackbarComponent).onAction().pipe(
-      switchMap(() => {
-        return this.backendService.deleteData("job_files", { fileId: file.fileId }
-        )
-      })
-    )
+    this.snackBar.openFromComponent(ConfirmationSnackbarComponent).onAction()
+      .pipe(
+        switchMap(() => {
+          return this.backendService.deleteData("job_files", { fileId: file.fileId }
+          )
+        })
+      )
       .subscribe(
         resp => {
           const matchingFileIndex = this.data.fileList.findIndex(f => f.fileId == file.fileId)
