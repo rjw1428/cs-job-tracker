@@ -6,6 +6,10 @@ import { noop } from 'rxjs';
 import { AttachedFile } from 'src/app/models/attached-file';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmationSnackbarComponent } from '../confirmation-snackbar/confirmation-snackbar.component';
+import { switchMap } from 'rxjs/operators';
+import { showSnackbar } from 'src/app/shared/utility';
 
 @Component({
   selector: 'app-file-list',
@@ -21,6 +25,7 @@ export class FileListComponent implements OnInit {
     private backendService: BackendService,
     private dialog: MatDialog,
     private dialogRef: MatDialogRef<FileListComponent>,
+    private snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: { job: any, fileList: AttachedFile[] }
   ) { }
 
@@ -44,7 +49,24 @@ export class FileListComponent implements OnInit {
   }
 
   onDelete(file: AttachedFile) {
-    console.log(file.fileId)
+    this.snackBar.openFromComponent(ConfirmationSnackbarComponent).onAction().pipe(
+      switchMap(() => {
+        return this.backendService.deleteData("job_files", { fileId: file.fileId }
+        )
+      })
+    )
+      .subscribe(
+        resp => {
+          const matchingFileIndex = this.data.fileList.findIndex(f => f.fileId == file.fileId)
+          this.data.fileList.splice(matchingFileIndex, 1)
+          this.dataSource = new MatTableDataSource(this.data.fileList)
+          showSnackbar(this.snackBar, `File has been removed`)
+        },
+        err => {
+          console.log(err)
+          showSnackbar(this.snackBar, err.error.error.sqlMessage)
+        }
+      )
   }
 
   onSortChanged() {

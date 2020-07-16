@@ -25,6 +25,10 @@ export class BackendService {
     return this.http.post(`${environment.apiUrl}/api/update/${table}`, changes)
   }
 
+  deleteData(table: string, where: {}) {
+    return this.http.post(`${environment.apiUrl}/api/delete/${table}`, where)
+  }
+
   sendEmail(message: string) {
     return this.http.post(`${environment.apiUrl}/email`, { message })
   }
