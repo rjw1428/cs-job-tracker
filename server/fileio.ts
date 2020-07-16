@@ -42,7 +42,7 @@ fileShareRoute.post('/upload/:jobId', upload.single('document'), async (req, res
 fileShareRoute.get('/download/:jobId/:fileName', async (req, res) => {
     try {
         const jobId = req.params.jobId
-        const fileName = req.params.fileName
+        const fileName = encodeURIComponent(req.params.fileName)
         res.download(path.join(__dirname, `${storageFolder}/${jobId}/${fileName}`));
     } catch (e) {
         res.status(404).send(e)
