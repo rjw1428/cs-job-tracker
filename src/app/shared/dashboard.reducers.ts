@@ -37,7 +37,7 @@ export const initialDashboardState: DashboardState = {
         dataTable: "projects_active",
         items: [],
         defaultStatusId: 1,
-        queryParams: { statusId: 1 }
+        queryParams: { statusId: [1,13,14,15] }
     },
     {
         name: "Awarded",
