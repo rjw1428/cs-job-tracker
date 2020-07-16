@@ -14,6 +14,7 @@ import { iif, of, noop } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AddFileComponent } from 'src/app/forms/add-file/add-file.component';
 import { FileListComponent } from '../popups/file-list/file-list.component';
+import { AttachedFile } from 'src/app/models/attached-file';
 
 @Component({
   selector: 'app-job-board-item',
@@ -121,9 +122,9 @@ export class JobBoardItemComponent implements OnInit {
 
   onViewFileList() {
     this.backendService.getData("job_files", { jobId: this.job.jobId })
-      .subscribe(resp => {
+      .subscribe((resp: AttachedFile[]) => {
         this.dialog.open(FileListComponent, {
-          width: '500px',
+          width: '800px',
           data: { job: this.job, fileList: resp }
         }).afterClosed().subscribe(uploadedFileCount => {
           if (uploadedFileCount)

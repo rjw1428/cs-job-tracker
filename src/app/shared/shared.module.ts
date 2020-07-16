@@ -26,6 +26,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingWrapperComponent } from '../loading-wrapper/loading-wrapper.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatSortModule } from '@angular/material/sort';
 
 const modules = [
   CommonModule,
@@ -54,7 +55,8 @@ const modules = [
   MatTabsModule,
   MatProgressSpinnerModule,
   MatProgressBarModule,
-  MatBadgeModule
+  MatBadgeModule,
+  MatSortModule,
 ]
 
 @NgModule({
