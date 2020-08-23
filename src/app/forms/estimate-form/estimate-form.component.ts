@@ -8,6 +8,7 @@ import { Estimate } from 'src/app/models/estimate';
 import { filterList } from 'src/app/shared/utility';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatButton } from '@angular/material/button';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-estimate-form',
@@ -15,13 +16,13 @@ import { MatButton } from '@angular/material/button';
   styleUrls: ['./estimate-form.component.scss']
 })
 export class EstimateFormComponent implements OnInit {
-  estimateFormGroup: FormGroup
   costFormGroup: FormGroup
   jobFormGroup: FormGroup
   estimators$: Observable<any>
   jobs$: Observable<any>
   filteredEstimators$: Observable<any>
   filteredJobs$: Observable<any>
+  estimateTypes$: Observable<any>
   projectValue$ = new BehaviorSubject<number>(0)
   projectCost$ = new BehaviorSubject<number>(0)
   selectedJobs = []
@@ -30,9 +31,10 @@ export class EstimateFormComponent implements OnInit {
   @ViewChild('jobsInput') jobsInput: ElementRef<HTMLInputElement>
   @ViewChild('saveButton') saveButton: MatButton
   readonly estimatorTableName = 'estimators_active'
-  readonly jobsTableName = 'projects_ready_for_estimate'
+  readonly jobsTableName = 'projects_ready_for_proposal'
   readonly dataTableName = 'estimates'
-  readonly mappingTableName = 'estimates_to_jobs'
+  readonly mappingTableName = 'proposal_to_jobs'
+  readonly proposalTypesTableName = 'options_estimate_types'
   //readonly numericRegex = /\-?\d*\.?\d{1,2}/g
 
   constructor(
@@ -44,6 +46,7 @@ export class EstimateFormComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForms()
     this.estimators$ = this.backendService.getData(this.estimatorTableName)
+    this.estimateTypes$ = this.backendService.getData(this.proposalTypesTableName)
     this.jobs$ = this.backendService.getData(this.jobsTableName).pipe(
       map((jobs: Object[]) => {
         return jobs.map((job: any, i) => {
@@ -56,7 +59,7 @@ export class EstimateFormComponent implements OnInit {
     )
 
     // Create filtered estimator list by watching jobs form valueChanges
-    this.filteredEstimators$ = this.estimateFormGroup.get('estimatorName')
+    this.filteredEstimators$ = this.costFormGroup.get('estimator')
       .valueChanges.pipe(
         startWith(""),
         switchMap(val => {
@@ -86,32 +89,32 @@ export class EstimateFormComponent implements OnInit {
       )
 
     // Weird way to set the value as 0 before any valueChanges occur
-    this.estimateFormGroup.valueChanges.pipe(
-      map(formValues => {
-        this.projectCost$.next(
-          formValues.fee ? formValues.fee : 0
-        )
-      })
-    ).subscribe(noop)
+    // this.estimateFormGroup.valueChanges.pipe(
+    //   map(formValues => {
+    //     this.projectCost$.next(
+    //       formValues.fee ? formValues.fee : 0
+    //     )
+    //   })
+    // ).subscribe(noop)
 
     // Weird way to set the value as 0 before any valueChanges occur
-    this.costFormGroup.valueChanges.pipe(
-      map(formValues => {
-        this.projectValue$.next(
-          Object.values(formValues)
-            .reduce((acc: number, curr: number) => acc += curr ? curr : 0, 0) as number
-        )
-      })
-    ).subscribe(noop)
+    // this.costFormGroup.valueChanges.pipe(
+    //   map(formValues => {
+    //     this.projectValue$.next(
+    //       Object.values(formValues)
+    //         .reduce((acc: number, curr: number) => acc += curr ? curr : 0, 0) as number
+    //     )
+    //   })
+    // ).subscribe(noop)
   }
 
   onSave() {
     const form = {
-      ...this.costFormGroup.value,
-      estimatorId: this.estimateFormGroup.get('estimatorName').value.id,
-      isInHouse: this.estimateFormGroup.get('isInHouse').value,
-      fee: this.estimateFormGroup.get('fee').value,
-      estimateDateCreated: new Date().toISOString()
+      // ...this.costFormGroup.value,
+      // estimatorId: this.estimateFormGroup.get('estimatorName').value.id,
+      // isInHouse: this.estimateFormGroup.get('isInHouse').value,
+      // fee: this.estimateFormGroup.get('fee').value,
+      // estimateDateCreated: new Date().toISOString()
     } as Estimate
     this.backendService.saveData(this.dataTableName, form).pipe(
       switchMap(resp => {
@@ -154,17 +157,12 @@ export class EstimateFormComponent implements OnInit {
   }
 
   initializeForms() {
-    this.estimateFormGroup = this.formBuilder.group({
-      estimatorName: ["", Validators.required],
-      isInHouse: ["true", Validators.required],
-      fee: [""]
-    })
     this.costFormGroup = this.formBuilder.group({
-      excavationCost: ["", Validators.pattern],
-      concreteCost: [""],
-      cmuCost: [""],
-      brickCost: [""],
-      otherCost: [""],
+      estimateType: ["", Validators.required],
+      cost: ["", Validators.required],
+      estimator: ["", Validators.required],
+      inHouse: ["true", Validators.required],
+      fee: [""]
     })
     this.jobFormGroup = this.formBuilder.group({
       jobs: [""]
@@ -173,6 +171,11 @@ export class EstimateFormComponent implements OnInit {
 
   estimatorDisplayFn(estimator): string {
     return estimator.name
+  }
+
+  estimateTypeDisplayFn(estimateType): string{
+    const titlePipe = new TitleCasePipe()
+    return titlePipe.transform(estimateType.type)
   }
 
   jobsDisplayFn(jobs: any[]): string {

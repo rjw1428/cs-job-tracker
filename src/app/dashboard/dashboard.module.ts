@@ -20,7 +20,9 @@ import { JobHistoryViewComponent } from './popups/job-history-view/job-history-v
 import { EstimateComponent } from './estimate/estimate.component';
 import { FileListComponent } from './popups/file-list/file-list.component';
 import { DecodeURIPipe } from '../pipes/decode-uri.pipe';
-
+import { AwardTimelineComponent } from './triggered-forms/award-timeline/award-timeline.component';
+import { AwardDiscountComponent } from './triggered-forms/award-discount/award-discount.component';
+// import * as PopupModule from '@ui-widgets-js/popup-menu'
 export const routes: Routes = [
   {
     path: '',
@@ -44,7 +46,9 @@ export const routes: Routes = [
     EstimateComponent,
     FileListComponent,
     DecodeURIPipe,
-
+    AwardTimelineComponent,
+    AwardDiscountComponent,
+    // PopupModule
   ],
   imports: [
     CommonModule,

@@ -18,7 +18,9 @@ export class BackendService {
   }
 
   saveData(table: string, values: any) {
-    return this.http.post(`${environment.apiUrl}/api/${table}`, values)
+    return this.http.post(`${environment.apiUrl}/api/${table}`, values).pipe(
+      shareReplay()
+    )
   }
 
   updateData(table: string, changes: { set: {}, where: {} }) {

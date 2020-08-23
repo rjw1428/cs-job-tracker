@@ -11,7 +11,7 @@ import { CreatePersonFormComponent } from '../forms/create-person-form/create-pe
 import { showSnackbar, handleFormUpdate } from '../shared/utility';
 import { HelpComponent } from '../forms/help/help.component';
 import { sidebarWidth, defaultSidebarWidth } from '../shared/app.selectors';
-
+import { environment } from '../../environments/environment'
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
@@ -21,7 +21,7 @@ export class SidebarComponent implements OnInit {
   defaultWidth$: Observable<number>
   width$: Observable<number>
   activeButton: string;
-  version = "0.2.0"
+  version = environment.version
   isExpanded: boolean = false
   constructor(
     private router: Router,

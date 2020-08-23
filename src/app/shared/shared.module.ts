@@ -27,6 +27,8 @@ import { LoadingWrapperComponent } from '../loading-wrapper/loading-wrapper.comp
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatSortModule } from '@angular/material/sort';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatMenuModule } from '@angular/material/menu';
 
 const modules = [
   CommonModule,
@@ -57,6 +59,8 @@ const modules = [
   MatProgressBarModule,
   MatBadgeModule,
   MatSortModule,
+  MatSlideToggleModule,
+  MatMenuModule
 ]
 
 @NgModule({

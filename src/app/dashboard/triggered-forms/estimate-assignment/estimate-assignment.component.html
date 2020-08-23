@@ -1,0 +1,31 @@
+<h1 mat-dialog-title style="margin:0">Assign Job - {{data.job.projectName}}</h1>
+<h3>{{data.job.contractorName}}</h3>
+<div mat-dialog-content>
+
+  <section style="display:flex; justify-content: stretch; width: 100%;">
+    <mat-form-field style="width: 100%">
+      <mat-label>Assigned To:</mat-label>
+      <mat-select [(ngModel)]="selectedEstimator">
+        <mat-option *ngFor="let option of data.estimators" [value]="option.id">
+          {{option.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field style="width: 64px">
+      <mat-label>Box:</mat-label>
+      <mat-select [(ngModel)]="selectedBox">
+        <mat-option *ngFor="let option of data.boxOptions" [value]="option.id">
+          {{option.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </section>
+</div>
+
+<div mat-dialog-actions style="width: 100%;">
+  <div style="display: flex; justify-content: center; width: 100%">
+    <button mat-raised-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="onSave()">Save</button>
+  </div>
+</div>

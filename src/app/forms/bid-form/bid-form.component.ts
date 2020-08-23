@@ -61,6 +61,8 @@ export class BidFormComponent implements OnInit {
   onSave() {
     if (!this.timelineFormGroup.valid)
       return this.error = "Date Added must be in format MM/DD/YYYY"
+    if (!this.timelineFormGroup.get('dateDue').value && !this.timelineFormGroup.get('isAsap').value) 
+      return this.error = "There must be a due date"
 
     const form = {
       contractorId: this.contractorFormGroup.get('contractor').value.contractorId,
@@ -88,7 +90,7 @@ export class BidFormComponent implements OnInit {
           }
           return forkJoin([
             this.backendService.saveData('job_transactions', transaction),
-            this.backendService.saveData('job_state', { jobId: resp['insertId'] })
+            this.backendService.saveData('job_isActive', { jobId: resp['insertId'] })
           ])
         })
       )

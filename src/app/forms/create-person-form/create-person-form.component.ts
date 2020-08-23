@@ -35,8 +35,6 @@ export class CreatePersonFormComponent implements OnInit {
           })
         })
       )
-
-    this.esitmators$.subscribe(console.log)
   }
 
   onToggleStatus(estimator) {

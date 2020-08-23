@@ -3,11 +3,12 @@
 }
 
 .wrapper {
-    width: 99vw;
+    // width: 99vw;
     height: 100vh;
     box-sizing: border-box;
     display: flex;
     justify-content: stretch;
+    overflow-x: hidden;
 }
 
 .content {

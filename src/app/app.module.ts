@@ -22,6 +22,7 @@ import { HelpComponent } from './forms/help/help.component';
 import { UpdateDueDateComponent } from './forms/update-due-date/update-due-date.component';
 import { AddFileComponent } from './forms/add-file/add-file.component';
 import { DragNDropDirective } from './directives/drag-n-drop.directive';
+import { EstimateAssignmentComponent } from './dashboard/triggered-forms/estimate-assignment/estimate-assignment.component';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import { DragNDropDirective } from './directives/drag-n-drop.directive';
     UpdateDueDateComponent,
     AddFileComponent,
     DragNDropDirective,
+    EstimateAssignmentComponent,
   ],
   imports: [
     BrowserModule,

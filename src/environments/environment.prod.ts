@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://cs-work-tracker.herokuapp.com'
+  apiUrl: 'https://cs-work-tracker.herokuapp.com',
+  version: "0.3.0"
 };

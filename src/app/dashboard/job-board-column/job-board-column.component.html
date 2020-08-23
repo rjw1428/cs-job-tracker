@@ -1,13 +1,19 @@
 <div class="wrapper">
-  <div class="title mat-elevation-z8">
+  <div class="title mat-elevation-z8" style="display: flex; justify-content: space-around;">
+    <div></div>
     <h3>{{columnConfig.name}}</h3>
+    <button mat-icon-button [matMenuTriggerFor]="menu" style="color: white;">
+      <mat-icon>sort</mat-icon>
+    </button>
   </div>
   <div class="wrapper list">
     <app-job-board-item *ngFor="let item of columnConfig.items"
       class="box"  
       [job]="item" 
       [statusOptions]="columnConfig.statusOptions"
-      [showBoxField]="columnConfig.defaultStatusId == 3"
+      [columnId]="columnConfig.id"
+      [boxOptions]="boxOptions"
+      [estimatorOptions]="estimatorOptions"
       cdkDrag
       (cdkDragStarted)="onDragStart()"
       (cdkDragReleased)="onDragRelease()"
@@ -16,3 +22,40 @@
     </app-job-board-item>
   </div>
 </div>
+
+
+<mat-menu #menu="matMenu">
+  <ng-template matMenuContent>
+    <p style="font-weight: bold; font-style: italic; margin-bottom: 0; padding-left: 16px;">Sort</p>
+    <button mat-menu-item
+      [ngStyle]="{'font-weight': sortKey == 'projectName' && sortDirection == 'asc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('projectName', 'asc')">
+      <span>Project Name (Asc)</span>
+    </button>
+    <button mat-menu-item 
+      [ngStyle]="{'font-weight': sortKey == 'projectName' && sortDirection == 'desc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('projectName', 'desc')">
+      <span>Project Name (Desc)</span>
+    </button>
+    <button mat-menu-item 
+      [ngStyle]="{'font-weight': sortKey == 'dateAdded' && sortDirection == 'asc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('dateAdded', 'asc')">
+      <span>Invite Date (Asc) </span>
+    </button>
+    <button mat-menu-item 
+      [ngStyle]="{'font-weight': sortKey == 'dateAdded' && sortDirection == 'desc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('dateAdded', 'desc')">
+      <span>Invite Date (Desc) </span>
+    </button>
+    <button mat-menu-item 
+      [ngStyle]="{'font-weight': sortKey == 'dateDue' && sortDirection == 'asc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('dateDue', 'asc')">
+      <span>Due Date (Asc) </span>
+    </button>
+    <button mat-menu-item 
+      [ngStyle]="{'font-weight': sortKey == 'dateDue' && sortDirection == 'desc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('dateDue', 'desc')">
+      <span>Due Date (Desc) </span>
+    </button>
+  </ng-template>
+</mat-menu>
