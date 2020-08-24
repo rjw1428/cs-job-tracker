@@ -87,6 +87,7 @@ router.post('/api/update/:table', (req, resp) => {
     const _setClause = createSetClause(_setObj)
     console.log(_setClause)
     const _whereClause = Object.keys(_whereObj).map(key => `${key} = ${_whereObj[key]}`)[0]
+    console.log(_whereClause)
     runQuery(`UPDATE ${_table} SET ${_setClause} WHERE ${_whereClause}`, ({ error, results }) => {
         if (error) resp.status(500).send({ error })
         resp.send(results)

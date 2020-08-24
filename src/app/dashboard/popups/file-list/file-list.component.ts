@@ -46,7 +46,7 @@ export class FileListComponent implements OnInit {
       data: { ...this.data.job }
     }).afterClosed().subscribe(successCount => {
       //GET NEW ATTACHED FILES FROM LIST INSTEAD OF CLOSING OUT
-      this.initialFileCount -=successCount
+      this.initialFileCount -= successCount
       this.dialogRef.close()
     })
   }
@@ -56,7 +56,9 @@ export class FileListComponent implements OnInit {
   }
 
   onDelete(file: AttachedFile) {
-    this.snackBar.openFromComponent(ConfirmationSnackbarComponent).onAction()
+    this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
+      data: { message: `Are you sure you want to delete ${decodeURI(file.fileName)}?`, action: "Delete" }
+    }).onAction()
       .pipe(
         switchMap(() => {
           return this.backendService.deleteData("job_files", { fileId: file.fileId }

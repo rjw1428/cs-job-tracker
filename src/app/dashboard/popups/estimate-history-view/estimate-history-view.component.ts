@@ -31,7 +31,9 @@ export class EstimateHistoryViewComponent implements OnInit {
   }
 
   onEstimateDeleted(estimate: Estimate) {
-    this.snackBar.openFromComponent(ConfirmationSnackbarComponent).onAction()
+    this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
+      data: {message: "Are you sure you want to remove this estimate?", action: "Delete"}
+    }).onAction()
       .pipe(
         switchMap(() => {
           return this.backendService.deleteData("estimates_to_jobs", { mapId: estimate.mapId }

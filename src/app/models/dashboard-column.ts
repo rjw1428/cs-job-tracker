@@ -5,7 +5,7 @@ export interface DashboardColumn {
     items: any[];
     defaultStatusId: number;
     statusOptions?: {id: number, status: string} []
-    queryParams: {};
+    queryParams?: {};
 }
 
 export enum columnIds{

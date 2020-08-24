@@ -3,7 +3,7 @@
 <div mat-dialog-content [formGroup]="finalCostFormGroup">
 
   <section style="display:flex; flex-direction: column; align-content: stretch; width: 100%;">
-    <p><strong>Current Project Value: </strong>{{ getProjectCost() | currency }}</p>
+    <p><strong>Current Project Value: </strong>{{ job.project_value | currency }}</p>
     
     <mat-form-field>
       <mat-label>Final Price:</mat-label>

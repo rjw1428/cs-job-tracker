@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { MatSnackBarRef } from '@angular/material/snack-bar';
+import { Component, OnInit, Inject } from '@angular/core';
+import { MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-confirmation-snackbar',
@@ -10,6 +11,7 @@ export class ConfirmationSnackbarComponent implements OnInit {
 
   constructor(
     public snackBarRef: MatSnackBarRef<ConfirmationSnackbarComponent>,
+    @Inject(MAT_SNACK_BAR_DATA) public data: {message: string, action: string}
   ) { }
 
   ngOnInit(): void {

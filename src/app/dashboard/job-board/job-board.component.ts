@@ -4,13 +4,16 @@ import { BackendService } from '../../service/backend.service';
 import { Store } from '@ngrx/store';
 import { State } from 'src/app/root.reducers';
 import { DashboardColumn, columnIds } from 'src/app/models/dashboard-column';
-import { Observable, combineLatest, of, iif, noop } from 'rxjs';
+import { Observable, combineLatest, of, iif, noop, throwError } from 'rxjs';
 import { map, first, switchMap, catchError, filter, mergeMap } from 'rxjs/operators';
 import { DashboardActions } from 'src/app/shared/dashboard.action-types';
 import { AppActions } from 'src/app/shared/app.action-types';
 import { EstimateAssignmentComponent } from '../triggered-forms/estimate-assignment/estimate-assignment.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AwardTimelineComponent } from '../triggered-forms/award-timeline/award-timeline.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ConfirmationSnackbarComponent } from '../popups/confirmation-snackbar/confirmation-snackbar.component';
+import { Estimate } from 'src/app/models/estimate';
 
 @Component({
   selector: 'app-job-board',
@@ -25,10 +28,13 @@ export class JobBoardComponent implements OnInit {
   boxOptions: { id: number, name: string }[]
   estimators: { id: number, name: string }[]
   readonly estimatorsTableName = 'estimators'
+  readonly currentProposalTableName = 'proposals_current'
+  readonly proposalWriteTableName = 'map_proposals_sent'
   constructor(
     private backendService: BackendService,
     private dialog: MatDialog,
-    private store: Store<State>
+    private store: Store<State>,
+    private snackBar: MatSnackBar,
   ) {
     this.boxOptions = new Array(10).fill(0).map((val, i) => ({ id: i + 1, name: (i + 1).toString() }))
     this.backendService.getData(this.estimatorsTableName, { isActive: 1 }).subscribe(resp => {
@@ -53,30 +59,31 @@ export class JobBoardComponent implements OnInit {
     return of(state).pipe(
       map(state => state.dashboard.columns),
       switchMap(cols => {
-        return this.backendService.getData('options_job_status').pipe(
-          map((resp: any[]) => {
-            return cols.map(col => {
-              const options = col.queryParams["statusId"]
-              const validOptions = (typeof options == 'object')
-                ? resp.filter(statusObj => options.includes(statusObj.id))
-                : [resp.find(statusObj => statusObj.id == options)]
-
-              return { ...col, statusOptions: validOptions }
-            })
-          })
-        )
-      }),
-      switchMap(cols => {
         return combineLatest(cols.map(col => {
-          return this.backendService.getData(col.dataTable, col.queryParams)
+          return this.backendService.getData(col.dataTable).pipe(
+            map((resp: any) => {
+              return { ...col, items: resp } as DashboardColumn
+            }),
+            catchError(err => {
+              console.log(`Unable to get a response from ${col.dataTable}`)
+              console.log(err)
+              return of({ ...col, items: [] } as DashboardColumn)
+            })
+          )
+        }))
+      }),
+      switchMap((cols: DashboardColumn[]) => {
+        return combineLatest(cols.map(col => {
+          const statusTable = `status_options_${col.id}`
+          return this.backendService.getData(statusTable)
             .pipe(
-              map((resp: any) => {
-                return { ...col, items: resp } as DashboardColumn
+              map((resp: any[]) => {
+                return { ...col, statusOptions: resp }
               }),
               catchError(err => {
-                console.log(`Unable to get a response from ${col.dataTable}`)
+                console.log(`Unable to get a response from ${statusTable}`)
                 console.log(err)
-                return of({ ...col, items: [] } as DashboardColumn)
+                return of({ ...col, statusOptions: [] } as DashboardColumn)
               })
             )
         }))
@@ -101,7 +108,7 @@ export class JobBoardComponent implements OnInit {
             disableClose: true
           }).afterClosed().subscribe((resp: { boxId: number, estimatorId: number }) => {
             if (resp) {
-              this.saveMove(event, resp)
+              this.saveMove(event, false, resp)
             }
           })
           break;
@@ -121,6 +128,18 @@ export class JobBoardComponent implements OnInit {
             }
           })
           break;
+        case (columnIds.PROPOSAL):
+          if (selectedJob.total_estimates == 0)
+            this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
+              data: { message: "There are no estimates currently attached to this job. Are you sure you want to move to Proposal Sent?", action: "Move" }
+            }).onAction().subscribe(
+              () => {
+                this.saveProposal(selectedJob.jobId, event)
+              })
+          else {
+            this.saveProposal(selectedJob.jobId, event)
+          }
+          break;
         default:
           this.saveMove(event)
           break;
@@ -129,6 +148,39 @@ export class JobBoardComponent implements OnInit {
       // MOVE ITEMS WITHIN SAME LIST
       // moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     }
+  }
+
+
+  private saveProposal(jobId: number, event: CdkDragDrop<any>) {
+    this.backendService.getData(this.currentProposalTableName, { jobId }).pipe(
+      switchMap((resp: Estimate[]) => {
+        const concreteEstimate = resp.find(estimate => estimate.type == 'concrete')
+        const brickEstimate = resp.find(estimate => estimate.type == 'brick')
+        const cmuEstimate = resp.find(estimate => estimate.type == 'cmu')
+        const excavationEstimate = resp.find(estimate => estimate.type == 'excavation')
+        const otherEstimate = resp.find(estimate => estimate.type == 'other')
+        const proposal = {
+          jobId,
+          concreteId: concreteEstimate ? concreteEstimate.estimateId : null,
+          brickId: brickEstimate ? brickEstimate.estimateId : null,
+          cmuId: cmuEstimate ? cmuEstimate.estimateId : null,
+          excavationId: excavationEstimate ? excavationEstimate.estimateId : null,
+          otherId: otherEstimate ? otherEstimate.estimateId : null,
+          dateSent: new Date().toISOString()
+        }
+        return this.backendService.saveData(this.proposalWriteTableName, proposal)
+      }),
+      catchError(err => throwError(err)),
+    ).subscribe(resp => {
+      console.log(resp)
+      this.saveMove(event, true, { boxId: null, estimatorId: null, proposalId: resp['insertId'] })
+    },
+      err => {
+        console.log(err)
+      },
+      () => {
+        this.boardUpdated.emit("Proposal Saved")
+      })
   }
 
   private saveAwardTimeline(form: { startTime: string, endTime: string }, job: any) {
@@ -145,7 +197,7 @@ export class JobBoardComponent implements OnInit {
         })
   }
 
-  private saveMove(event: CdkDragDrop<any>, assignmentForm?: { boxId: number, estimatorId: number }) {
+  private saveMove(event: CdkDragDrop<any>, mute?: boolean, assignmentForm?: { boxId: number, estimatorId: number, proposalId?: number }) {
     // Set new status code for job
     event.previousContainer.data[event.previousIndex].statusId = this.columns[event.container.id].defaultStatusId
 
@@ -164,7 +216,8 @@ export class JobBoardComponent implements OnInit {
       statusId: this.columns[event.container.id].defaultStatusId,
       notes: event.container.data[event.currentIndex].notes,
       box: assignmentForm ? assignmentForm.boxId : null,
-      assignedTo: assignmentForm ? assignmentForm.estimatorId : null
+      assignedTo: assignmentForm ? assignmentForm.estimatorId : null,
+      proposalId: assignmentForm ? assignmentForm.proposalId : null
     }
     this.backendService.saveData('job_transactions', payload)
       .subscribe(resp => {
@@ -176,7 +229,8 @@ export class JobBoardComponent implements OnInit {
         },
         () => {
           this.store.dispatch(DashboardActions.requery())
-          this.boardUpdated.emit("Job board updated")
+          if (!mute)
+            this.boardUpdated.emit("Job board updated")
         })
   }
 

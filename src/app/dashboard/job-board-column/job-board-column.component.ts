@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
-import { DashboardColumn } from 'src/app/models/dashboard-column';
+import { DashboardColumn, columnIds } from 'src/app/models/dashboard-column';
 
 @Component({
   selector: 'app-job-board-column',
@@ -15,10 +15,12 @@ export class JobBoardColumnComponent implements OnInit {
   itemStatusOptions: Object[]
   sortDirection: "asc" | "desc" = "asc"
   sortKey: string = 'projectName'
+  isAwardedCol: boolean = false
   constructor() { }
 
   ngOnInit(): void {
-    this.itemStatusOptions = this.columnConfig.queryParams['statusId']
+    this.isAwardedCol = this.columnConfig.id == columnIds.AWARDED
+    this.itemStatusOptions = this.columnConfig.statusOptions
     this.columnConfig = {
       ...this.columnConfig,
       items: this.columnConfig.items.sort((a,b)=>this.sortFn(a,b, this.sortKey, this.sortDirection))

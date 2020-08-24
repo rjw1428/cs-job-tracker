@@ -8,50 +8,44 @@ export const initialDashboardState: DashboardState = {
     columns: [{
         id: columnIds.INVITATION,
         name: "Invitation",
-        dataTable: "projects_active",
+        dataTable: "column_invitation",
         items: [],
-        defaultStatusId: 11,
-        queryParams: { statusId: 11 }
+        defaultStatusId: 11
     },
     {
         id: columnIds.ESTIMATING,
         name: "Estimating",
-        dataTable: "projects_active",
+        dataTable: "column_estimating",
         items: [],
-        defaultStatusId: 3,
-        queryParams: { statusId: [2, 3, 4, 5] }
+        defaultStatusId: 3
     },
     {
         id: columnIds.PROPOSAL,
         name: "Proposal Sent",
-        dataTable: "projects_active",
+        dataTable: "column_proposal",
         items: [],
         defaultStatusId: 6,
-        queryParams: { statusId: [6, 7, 8] }
     },
     {
         id: columnIds.HOLD,
         name: "On Hold",
-        dataTable: "projects_active",
+        dataTable: "column_hold",
         items: [],
-        defaultStatusId: 10,
-        queryParams: { statusId: [9, 10] }
+        defaultStatusId: 10
     },
     {
         id: columnIds.NOTAWARDED,
         name: "Not Awarded",
-        dataTable: "projects_active",
+        dataTable: "column_not_awarded",
         items: [],
         defaultStatusId: 14,
-        queryParams: { statusId: [1,13,14,15] }
     },
     {
         id: columnIds.AWARDED,
         name: "Awarded",
-        dataTable: "projects_active",
+        dataTable: "column_awarded",
         items: [],
         defaultStatusId: 12,
-        queryParams: { statusId: 12 }
     }]
 }
 

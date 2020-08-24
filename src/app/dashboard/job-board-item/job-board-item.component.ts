@@ -21,6 +21,7 @@ import { DashboardActions } from 'src/app/shared/dashboard.action-types';
 import { columnIds } from 'src/app/models/dashboard-column';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { AwardDiscountComponent } from '../triggered-forms/award-discount/award-discount.component';
+import { AwardTimelineComponent } from '../triggered-forms/award-timeline/award-timeline.component';
 
 @Component({
   selector: 'app-job-board-item',
@@ -44,6 +45,8 @@ export class JobBoardItemComponent implements OnInit {
   isBiddingCol: boolean
   isAwardedCol: boolean
   isDev: boolean = false;
+  readonly awardTimelineTableName = 'awards_timeline'
+  readonly currentProposalTableName = 'proposals_current'
   constructor(
     private backendService: BackendService,
     private snackBar: MatSnackBar,
@@ -57,12 +60,11 @@ export class JobBoardItemComponent implements OnInit {
     this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
     this.selectedStatus = this.statusOptions.find(option => option.id == this.job.statusId)
     this.selectedBox = this.boxOptions.find(option => option.id == this.job.box)
-    this.assignedTo = this.estimatorOptions.find(estimator => estimator.id == this.job.assignedTo)
+    this.assignedTo = this.estimatorOptions ? this.estimatorOptions.find(estimator => estimator.id == this.job.assignedTo) : null
     this.noBidStatus = this.job.noBid
     this.isEstimatingCol = this.columnId == columnIds.ESTIMATING
     this.isBiddingCol = this.columnId == columnIds.INVITATION
     this.isAwardedCol = this.columnId == columnIds.AWARDED
-
   }
 
   onStatusChanged(value: MatSelectChange) {
@@ -88,7 +90,7 @@ export class JobBoardItemComponent implements OnInit {
 
   onNoBid(event: MatSlideToggleChange) {
     this.job.noBid = +event.checked
-    this.updateBid('noBid', "No Bid status updated")
+    this.saveNoBid("No Bid status updated",)
   }
 
   onBoxChanged(value: MatSelectChange) {
@@ -108,26 +110,50 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   onOpenCurrentEstimate() {
-    if (this.job.current_estimate_id) {
-      this.backendService.getData('estimates_history', { estimateId: this.job.current_estimate_id })
-        .subscribe(resp => {
-          this.dialog.open(EstimateViewComponent, {
-            width: '700px',
-            data: { estimate: resp[0], job: this.job }
-          });
-        })
-    } else {
-      this.dialog.open(EstimateViewComponent, {
-        width: '700px',
-        data: { estimate: null, job: this.job }
-      });
-    }
+    this.backendService.getData(this.currentProposalTableName, { jobId: this.job.jobId })
+      .subscribe(resp => {
+        this.dialog.open(EstimateViewComponent, {
+          width: '700px',
+          data: { estimates: resp, job: this.job }
+        });
+      })
   }
 
   onDueDateSelected() {
     this.dialog.open(UpdateDueDateComponent, {
       width: '400px',
       data: { ...this.job }
+    })
+  }
+
+  onStartEndDateSelected() {
+    this.dialog.open(AwardTimelineComponent, {
+      width: '350px',
+      data: { job: this.job }
+    }).afterClosed().subscribe((resp: { startTime: string, endTime: string }) => {
+      if (resp) {
+        this.job = {
+          ...this.job,
+          ...resp
+        }
+        const set = ['startTime', 'endTime'].map(key => ({ [key]: this.job[key] }))
+          .reduce((acc, cur) => ({ ...acc, ...cur }), {})
+        this.backendService.updateData(this.awardTimelineTableName, {
+          set,
+          where: { jobId: this.job.jobId }
+        })
+          .subscribe(
+            resp => {
+              console.log(resp)
+            },
+            err => {
+              console.log(err)
+              showSnackbar(this.snackBar, err.error.error.sqlMessage)
+            },
+            () => showSnackbar(this.snackBar, "Timeline updated for" + this.job.projectName)
+          )
+        this.store.dispatch(DashboardActions.requery())
+      }
     })
   }
 
@@ -169,7 +195,9 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   onDelete() {
-    this.snackBar.openFromComponent(ConfirmationSnackbarComponent).onAction().pipe(
+    this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
+      data: { message: `Are you sure you want to delete ${this.job.projectName}?`, action: "Delete" }
+    }).onAction().pipe(
       switchMap(() => {
         return this.backendService.updateData("job_isActive", {
           set: { isActive: 0 },
@@ -212,7 +240,8 @@ export class JobBoardItemComponent implements OnInit {
         err => {
           console.log(err)
           showSnackbar(this.snackBar, err.error.error.sqlMessage)
-        }
+        },
+        () =>this.store.dispatch(DashboardActions.requery())
       )
   }
 
@@ -234,8 +263,8 @@ export class JobBoardItemComponent implements OnInit {
   }
 
 
-  saveTransaction(partialPayload: { statusId: number, box: number, notes: string, assignedTo?: number }, responseMessage) {
-    this.backendService.saveData('job_transactions', {
+  saveTransaction(partialPayload: { statusId: number, box?: number, notes?: string, assignedTo?: number }, responseMessage, table?: string) {
+    this.backendService.saveData(table ? table : 'job_transactions', {
       jobId: this.job.jobId,
       date: new Date().toISOString(),
       ...partialPayload
@@ -252,20 +281,28 @@ export class JobBoardItemComponent implements OnInit {
     )
   }
 
-  updateBid(key: string, responseMessage: string) {
-    this.backendService.updateData('bid_invites', {
-      set: { [key]: this.job[key] },
-      where: { jobId: this.job.jobId }
-    })
-      .subscribe(
-        resp => {
-          console.log(resp)
-        },
-        err => {
-          console.log(err)
-          showSnackbar(this.snackBar, err.error.error.sqlMessage)
-        },
-        () => showSnackbar(this.snackBar, responseMessage)
-      )
+  saveNoBid(responseMessage) {
+    this.backendService.saveData('job_noBid', {
+      jobId: this.job.jobId,
+      noBid: this.job.noBid,
+      date: new Date().toISOString()
+    }).pipe(
+      switchMap(resp => {
+        return this.backendService.saveData('job_transactions', {
+          jobId: this.job.jobId,
+          date: new Date().toISOString(),
+          statusId: 1
+        })
+      })
+    ).subscribe(
+      resp => {
+        console.log(resp)
+      },
+      err => {
+        console.log(err)
+        showSnackbar(this.snackBar, err.error.error.sqlMessage)
+      },
+      () => showSnackbar(this.snackBar, responseMessage)
+    )
   }
 }

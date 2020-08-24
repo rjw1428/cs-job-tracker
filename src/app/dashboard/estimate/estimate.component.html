@@ -1,25 +1,55 @@
 <!-- <pre>{{estimate | json}}</pre> -->
-<div style="display: flex; flex-direction: row; justify-content: stretch;">
-  <div style="display: flex; flex-direction: column; align-items: stretch;  width: 100%">
-    <p><strong>Excavation Cost: </strong>{{estimate.excavationCost | currency}}</p>
-    <p><strong>Concrete Cost: </strong>{{estimate.concreteCost | currency}}</p>
-    <p><strong>Brick Cost: </strong>{{estimate.brickCost | currency}}</p>
-    <p><strong>CMU Cost: </strong>{{estimate.cmuCost | currency}}</p>
-    <p><strong>Other Cost: </strong>{{estimate.otherCost | currency}}</p>
-    <mat-divider></mat-divider>
-    <h3><strong>Project Cost: </strong>{{estimate.project_value | currency}}</h3>
-  </div>
 
-  <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; width: 100%">
-    <button mat-button matTooltipPosition="above" matTooltip="Delete" (click)="onDelete(estimate)">
-      <mat-icon>delete_outline</mat-icon>
-    </button>
-    <div>
-      <div>
-        <p style="margin-bottom: 0px;"><strong>By: </strong>{{estimate.estimator}}</p>
-        <p *ngIf="estimate.fee"><small><strong>Fee: </strong>{{estimate.fee | currency}}</small></p>
-      </div>
-      <p style="font-style: italic;">Created On: {{estimate.estimateDateCreated | date : 'short' }}</p>
+<div style="display: flex; flex-direction: column; align-items: stretch;" *ngIf="estimates.length; else noEstimates">
+  <div style="display: flex; flex-direction: row; justify-content: space-between;">
+    <div style="width: 30%">
+      <p><strong>Type</strong></p>
+    </div>
+    <div style="width: 20%">
+      <p><strong>Date Created</strong></p>
+    </div>
+    <div style="width: 20%">
+      <p><strong>Completed By</strong></p>
+    </div>
+    <div style="width: 10%">
+      <p><strong>Fee</strong></p>
     </div>
   </div>
+
+  <mat-divider></mat-divider>
+
+  <div *ngFor="let estimate of estimates">
+    <ng-container *ngTemplateOutlet="rowTemplate;context:estimate"></ng-container>
+  </div>
+
+
+  <mat-divider></mat-divider>
+  <div style="display: flex; flex-direction: row; justify-content: space-between;">
+    <h2><strong>Project Value: </strong>{{projectValue | currency}}</h2>
+    <h4 *ngIf="outsourceCost"><strong>Outsource Cost: </strong>{{outsourceCost | currency}}</h4>
+  </div>
 </div>
+
+<ng-template #rowTemplate let-type="type" let-cost="cost" let-dateCreated="dateCreated" let-estimator="estimator"
+  let-fee="fee">
+  <div style="display: flex; flex-direction: row; justify-content: space-between;" *ngIf="cost">
+    <div style="width: 30%">
+      <p><strong>{{type | titlecase}} Cost: </strong>{{cost | currency}}</p>
+    </div>
+    <div style="width: 20%">
+      <p>{{dateCreated | date : 'MM/dd/yy'}}</p>
+    </div>
+    <div style="width: 20%">
+      <p>{{estimator}}</p>
+    </div>
+    <div style="width: 10%">
+      <p>{{fee | currency}}</p>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #noEstimates>
+  <div style="display: flex; justify-content: center;">
+    <h3 style="color: gray;">No Estimates Added</h3>
+  </div>
+</ng-template>

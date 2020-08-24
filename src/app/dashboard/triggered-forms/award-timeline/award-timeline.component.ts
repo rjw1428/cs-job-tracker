@@ -18,8 +18,8 @@ export class AwardTimelineComponent implements OnInit {
 
   ngOnInit(): void {
     this.timelineFormGroup = this.formBuilder.group({
-      startTime: ["", Validators.required],
-      endTime: ["", Validators.required]
+      startTime: [this.data.job.startTime ? this.data.job.startTime : "", Validators.required],
+      endTime: [this.data.job.endTime ? this.data.job.endTime : "", Validators.required]
     })
   }
 

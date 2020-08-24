@@ -1,7 +1,7 @@
 <h1 mat-dialog-title style="margin:0">File List - {{data.job.projectName}}</h1>
 <h3>{{data.job.contractorName}}</h3>
 
-<mat-table [dataSource]="dataSource" matSort [matSortActive]="sortCol" matSortDisableClear (matSortChange)="onSortChanged()">
+<mat-table [dataSource]="dataSource" matSort [matSortActive]="sortCol" matSortDisableClear (matSortChange)="onSortChanged()" *ngIf="initialFileCount>0; else noData">
   <ng-container matColumnDef="open">
     <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header style="flex: 5%"></mat-header-cell>
     <mat-cell *matCellDef="let element" style="flex: 5%; padding: 0">
@@ -38,6 +38,12 @@
   <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
 
 </mat-table>
+
+<ng-template #noData>
+  <div style="display: flex; justify-content: center;">
+    <h3 style="color:gray">No Files Attached</h3>
+  </div>
+</ng-template>
 
 <div mat-dialog-actions style="display:flex; justify-content: flex-end">
   <button mat-mini-fab color="primary" matTooltipPosition="above" matTooltip="Add Files" (click)="onAddFiles()">

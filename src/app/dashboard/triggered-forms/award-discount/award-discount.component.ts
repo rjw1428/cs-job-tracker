@@ -33,8 +33,4 @@ export class AwardDiscountComponent implements OnInit {
   onCancel() {
     this.dialogRef.close()
   }
-
-  getProjectCost() {
-    return "0.00"
-  }
 }

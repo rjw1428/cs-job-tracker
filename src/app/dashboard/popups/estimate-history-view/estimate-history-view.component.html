@@ -6,7 +6,7 @@
     <button mat-button (click)="accordion.closeAll()">Collapse All</button>
   </div>
   <div *ngIf="!data.estimates.length" style="display: flex; justify-content: center;">
-    <h3>No Estimates Saved Yet</h3>
+    <h3 style="color: gray">No Estimates Saved Yet</h3>
   </div>
   <mat-accordion multi>
     <mat-expansion-panel *ngFor="let estimate of data.estimates" expanded=false>
@@ -26,7 +26,7 @@
 
       <!-- PANEL CONTENT -->
       <ng-template matExpansionPanelContent>
-        <estimate [estimate]="estimate" (deleted)="onEstimateDeleted($event)"></estimate>
+        <estimate [estimates]="estimate" (deleted)="onEstimateDeleted($event)"></estimate>
       </ng-template>
 
     </mat-expansion-panel>

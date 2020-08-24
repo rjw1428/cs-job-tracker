@@ -1,10 +1,13 @@
 <mat-card class="item mat-elevation-z8" style="margin-bottom: 10px;" [ngStyle]="{'opacity': 1-noBidStatus*.5}">
   <mat-card-header style="display: flex; flex-direction: column-reverse;">
-    <div style="display: flex; justify-content: space-between;">
-      <mat-card-title [matTooltip]="job.jobId" [matTooltipDisabled]="!isDev">{{job.projectName}}</mat-card-title>
-      <div style="width:50px; display:flex; justify-content: flex-end;" *ngIf="!noBidStatus">
-        <ng-content></ng-content>
+    <div style="display: flex; flex-direction: column-reverse;">
+      <div style="display: flex; justify-content: space-between;">
+        <mat-card-title [matTooltip]="job.jobId" [matTooltipDisabled]="!isDev">{{job.projectName}}</mat-card-title>
+        <div style="width:50px; display:flex; justify-content: flex-end;" *ngIf="!noBidStatus">
+          <ng-content></ng-content>
+        </div>
       </div>
+      <div style="font-style: italic;">{{job.displayJobId}}</div>
     </div>
     <mat-card-subtitle>
       <p style="margin: 0px">{{job.contractorName}}</p>
@@ -16,13 +19,27 @@
   <mat-card-content>
     <section>
       <p style="margin: 0px"><strong>Invite: </strong>{{job.dateAdded | date : 'MM/dd/yyyy'}}</p>
-      <p *ngIf="job.dateDue!='ASAP' && !isAwardedCol" class="due-date" (click)="onDueDateSelected()"><strong>Due:
-        </strong>{{job.dateDue | date : 'MM/dd/yyyy'}}</p>
-      <p *ngIf="job.dateDue=='ASAP' && !isAwardedCol" class="due-date" (click)="onDueDateSelected()"><strong>Due:
-        </strong>{{job.dateDue}}</p>
-      <p style="margin: 0px" *ngIf="isAwardedCol"><strong>Start Date: </strong>{{job.startTime | date : 'MM/dd/yyyy'}}
-      </p>
-      <p style="margin: 0px" *ngIf="isAwardedCol"><strong>End Date: </strong>{{job.endTime | date : 'MM/dd/yyyy'}}</p>
+      <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue!='ASAP' && !isAwardedCol">
+        <p class="due-date" (click)="onDueDateSelected()"><strong>Due:
+          </strong>{{job.dateDue | date : 'MM/dd/yyyy'}}</p>
+        <mat-icon class="due-date-hidden">create</mat-icon>
+      </div>
+      <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue=='ASAP' && !isAwardedCol">
+        <p class="due-date" (click)="onDueDateSelected()"><strong>Due: </strong>{{job.dateDue}}</p>
+        <mat-icon class="due-date-hidden">create</mat-icon>
+      </div>
+      <div style="display: flex; justify-content: space-between;" *ngIf="isAwardedCol">
+        <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>Start Date:
+          </strong>{{job.startTime | date : 'MM/dd/yyyy'}}
+        </p>
+        <mat-icon class="award-timeline-hidden">create</mat-icon>
+      </div>
+      <div style="display: flex; justify-content: space-between;" *ngIf="isAwardedCol">
+        <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>End Date:
+          </strong>{{job.endTime | date : 'MM/dd/yyyy'}}
+        </p>
+        <mat-icon class="award-timeline-hidden">create</mat-icon>
+      </div>
     </section>
 
     <section *ngIf="isBiddingCol" style="display: flex; justify-content: flex-end;">
@@ -30,11 +47,12 @@
     </section>
 
     <section *ngIf="job.statusId!=11">
-      <p><strong>Total Estimates: </strong>{{job.total_estimates}}</p>
+      <p *ngIf="!isAwardedCol"><strong>Total Estimates: </strong>{{job.total_estimates}}</p>
+      <p *ngIf="isAwardedCol"><strong>Project Value: </strong>{{job.project_value | currency}}</p>
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <button color="primary" mat-button (click)="onOpenCurrentEstimate()">Current Estimate</button>
-        <button *ngIf="isAwardedCol" matTooltip="Edit Final Price" (click)="onDiscount()" mat-mini-fab color="primary"  
-        style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;">
+        <button color="primary" mat-button (click)="onOpenCurrentEstimate()">Current Proposal</button>
+        <button *ngIf="isAwardedCol" matTooltip="Edit Final Price" (click)="onDiscount()" mat-mini-fab color="primary"
+          style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;">
           <mat-icon>monetization_on_outline</mat-icon>
         </button>
       </div>
@@ -94,7 +112,7 @@
       </mat-icon>
     </button>
     <button mat-button matTooltipPosition="above" matTooltip="Estimate History" (click)="onEstimateHistory()">
-      <mat-icon>payments</mat-icon>
+      <mat-icon>library_books</mat-icon>
     </button>
     <button mat-button matTooltipPosition="above" matTooltip="Job History" (click)="onJobHistory()">
       <mat-icon>history</mat-icon>

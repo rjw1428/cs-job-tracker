@@ -4,52 +4,55 @@
     <mat-step [stepControl]="costFormGroup">
       <form [formGroup]="costFormGroup">
         <ng-template matStepLabel>Proposal Type</ng-template>
-        <mat-form-field>
-          <mat-label>Estimate Type</mat-label>
-          <input name="estimateType" matInput [matAutocomplete]="estimateType" formControlName="estimateType">
-          <button mat-button *ngIf="costFormGroup.get('estimateType').value" matSuffix mat-icon-button
-            aria-label="Clear" (click)="costFormGroup.patchValue({estimateType: {}})">
-            <mat-icon>close</mat-icon>
-          </button>
-          <mat-autocomplete autoActiveFirstOption #estimateType="matAutocomplete" [displayWith]="estimateTypeDisplayFn">
-            <mat-option *ngFor="let option of estimateTypes$ | async" [value]="option">
-              {{option.type | titlecase}}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
+        <div style="display: flex; justify-content: space-evenly;">
+          <mat-form-field style="width: 25%">
+            <mat-label>Estimate Type</mat-label>
+            <input name="estimateType" matInput [matAutocomplete]="estimateType" formControlName="estimateType">
+            <button mat-button *ngIf="costFormGroup.get('estimateType').value" matSuffix mat-icon-button
+              aria-label="Clear" (click)="costFormGroup.patchValue({estimateType: {}})">
+              <mat-icon>close</mat-icon>
+            </button>
+            <mat-autocomplete autoActiveFirstOption #estimateType="matAutocomplete"
+              [displayWith]="estimateTypeDisplayFn">
+              <mat-option *ngFor="let option of estimateTypes$ | async" [value]="option">
+                {{option.type | titlecase}}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
 
 
-        <mat-form-field>
-          <mat-label>Cost</mat-label>
-          <input name="cost" matInput type="number" formControlName="cost">
-          <button mat-button *ngIf="costFormGroup.get('cost').value" matSuffix mat-icon-button
-            aria-label="Clear" (click)="costFormGroup.patchValue({cost: null})">
-            <mat-icon>close</mat-icon>
-          </button>
-        </mat-form-field>
+          <mat-form-field style="width: 25%">
+            <mat-label>Cost</mat-label>
+            <input name="cost" matInput type="number" formControlName="cost">
+            <button mat-button *ngIf="costFormGroup.get('cost').value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="costFormGroup.patchValue({cost: null})">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
 
 
-        <mat-form-field>
-          <mat-label>Estimator</mat-label>
-          <input name="estimator" matInput [matAutocomplete]="estimator" formControlName="estimator">
-          <button mat-button *ngIf="costFormGroup.get('estimator').value" matSuffix mat-icon-button
-            aria-label="Clear" (click)="costFormGroup.patchValue({estimator: {}})">
-            <mat-icon>close</mat-icon>
-          </button>
-          <mat-autocomplete autoActiveFirstOption #estimator="matAutocomplete" [displayWith]="estimatorDisplayFn">
-            <mat-option *ngFor="let option of filteredEstimators$ | async" [value]="option">
-              {{option.name}}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
+          <mat-form-field style="width: 25%">
+            <mat-label>Estimator</mat-label>
+            <input name="estimator" matInput [matAutocomplete]="estimator" formControlName="estimator">
+            <button mat-button *ngIf="costFormGroup.get('estimator').value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="costFormGroup.patchValue({estimator: {}})">
+              <mat-icon>close</mat-icon>
+            </button>
+            <mat-autocomplete autoActiveFirstOption #estimator="matAutocomplete" [displayWith]="estimatorDisplayFn">
+              <mat-option *ngFor="let option of filteredEstimators$ | async" [value]="option">
+                {{option.name}}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
 
         <mat-radio-group color="primary" style="display: flex; justify-content: space-around"
-          formControlName="inHouse">
+          formControlName="isInHouse">
           <mat-radio-button value="true">In House</mat-radio-button>
           <mat-radio-button value="false">Out of House</mat-radio-button>
         </mat-radio-group>
 
-        <div *ngIf="costFormGroup.get('inHouse').value == 'false'">
+        <div *ngIf="costFormGroup.get('isInHouse').value == 'false'">
           <mat-form-field>
             <mat-label>Fee</mat-label>
             <input name="fee" matInput type="number" formControlName="fee">
@@ -67,7 +70,7 @@
       </form>
 
       <!-- <p *ngIf="error" style="color: red;">ERROR: {{error}}</p> -->
-    </mat-step>          
+    </mat-step>
 
     <mat-step [stepControl]="jobFormGroup">
       <form [formGroup]="jobFormGroup">

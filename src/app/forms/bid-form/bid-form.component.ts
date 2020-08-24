@@ -80,20 +80,7 @@ export class BidFormComponent implements OnInit {
     if (!form.contractorId || !form.projectId)
       this.error = "Information was missing last time you selected save. Now that the data has been provided, please select save again"
     else
-      this.backendService.saveData('bid_invites', form).pipe(
-        switchMap(resp => {
-          const transaction = {
-            jobId: resp['insertId'],
-            date: new Date().toISOString(),
-            statusId: 11,
-            notes: ""
-          }
-          return forkJoin([
-            this.backendService.saveData('job_transactions', transaction),
-            this.backendService.saveData('job_isActive', { jobId: resp['insertId'] })
-          ])
-        })
-      )
+      this.backendService.saveData('bid_invites', form)
         .subscribe(
           resp => {
             console.log(resp)

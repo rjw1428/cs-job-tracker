@@ -33,7 +33,7 @@ export class EstimateFormComponent implements OnInit {
   readonly estimatorTableName = 'estimators_active'
   readonly jobsTableName = 'projects_ready_for_proposal'
   readonly dataTableName = 'estimates'
-  readonly mappingTableName = 'proposal_to_jobs'
+  readonly mappingTableName = 'map_estimates_to_jobs'
   readonly proposalTypesTableName = 'options_estimate_types'
   //readonly numericRegex = /\-?\d*\.?\d{1,2}/g
 
@@ -109,13 +109,18 @@ export class EstimateFormComponent implements OnInit {
   }
 
   onSave() {
+    if (!this.costFormGroup.valid)
+      return this.error = "Information missing from Proposal Type section"
+    if (!this.jobFormGroup.valid)
+    return this.error = "Must select at least one job to assign the estimate to"
     const form = {
-      // ...this.costFormGroup.value,
-      // estimatorId: this.estimateFormGroup.get('estimatorName').value.id,
-      // isInHouse: this.estimateFormGroup.get('isInHouse').value,
-      // fee: this.estimateFormGroup.get('fee').value,
-      // estimateDateCreated: new Date().toISOString()
-    } as Estimate
+      cost: this.costFormGroup.get('cost').value,
+      estimateTypeId: this.costFormGroup.get('estimateType').value.id,
+      estimatorId: this.costFormGroup.get('estimator').value.id,
+      isInHouse: this.costFormGroup.get('isInHouse').value,
+      fee: this.costFormGroup.get('fee').value,
+      estimateDateCreated: new Date().toISOString()
+    }
     this.backendService.saveData(this.dataTableName, form).pipe(
       switchMap(resp => {
         return forkJoin(this.selectedJobs.map(job => {
@@ -161,11 +166,11 @@ export class EstimateFormComponent implements OnInit {
       estimateType: ["", Validators.required],
       cost: ["", Validators.required],
       estimator: ["", Validators.required],
-      inHouse: ["true", Validators.required],
+      isInHouse: ["true", Validators.required],
       fee: [""]
     })
     this.jobFormGroup = this.formBuilder.group({
-      jobs: [""]
+      jobs: ["", Validators.required]
     })
   }
 

@@ -5,7 +5,8 @@
 <mat-form-field>
   <mat-label>Filter</mat-label>
   <input matInput (keyup)="applyFilter($event)" placeholder="Filter" #input>
-  <button mat-button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear" (click)="input.value=null; dataSource.filter=null">
+  <button mat-button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear"
+    (click)="input.value=null; dataSource.filter=null">
     <mat-icon>close</mat-icon>
   </button>
 </mat-form-field>
@@ -16,10 +17,17 @@
     <ng-container [matColumnDef]="columnDef" *ngFor="let columnDef of displayedColumns; let i = index">
 
       <mat-header-cell *matHeaderCellDef> {{columnDef | titlecase}} </mat-header-cell>
+
       <mat-cell *matCellDef="let element">
         <div *ngIf="i==0">{{element[columnDef] | date : 'short'}}</div>
-        <div *ngIf="i!=0">{{element[columnDef] | titlecase}}</div>
+        <div *ngIf="element[columnDef] == 'proposal sent';else normal">
+          <span style="color: rgb(13, 34, 153); cursor: pointer;" (click)="onProposalSelected(element)">{{element[columnDef] | titlecase}}</span>
+        </div>
+        <ng-template #normal>
+          <div *ngIf="i!=0">{{element[columnDef] | titlecase}}</div>
+        </ng-template>
       </mat-cell>
+
       <mat-footer-cell *matFooterCellDef>
         <div *ngIf="i==0"><strong>Total Days</strong></div>
         <div *ngIf="i==1">{{ getTotal() }}</div>

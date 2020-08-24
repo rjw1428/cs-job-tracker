@@ -9,7 +9,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 export class EstimateViewComponent implements OnInit {
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { estimate: any, job: any }
+    @Inject(MAT_DIALOG_DATA) public data: { estimates: any, job: any }
   ) { }
 
   ngOnInit(): void {
