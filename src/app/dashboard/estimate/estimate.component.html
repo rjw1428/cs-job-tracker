@@ -1,5 +1,3 @@
-<!-- <pre>{{estimate | json}}</pre> -->
-
 <div style="display: flex; flex-direction: column; align-items: stretch;" *ngIf="estimates.length; else noEstimates">
   <div style="display: flex; flex-direction: row; justify-content: space-between;">
     <div style="width: 30%">
@@ -27,6 +25,9 @@
   <div style="display: flex; flex-direction: row; justify-content: space-between;">
     <h2><strong>Project Value: </strong>{{projectValue | currency}}</h2>
     <h4 *ngIf="outsourceCost"><strong>Outsource Cost: </strong>{{outsourceCost | currency}}</h4>
+    <button *ngIf="deletable" mat-button matTooltipPosition="above" matTooltip="Delete" (click)="onDelete()">
+      <mat-icon>delete_outline</mat-icon>
+    </button>
   </div>
 </div>
 

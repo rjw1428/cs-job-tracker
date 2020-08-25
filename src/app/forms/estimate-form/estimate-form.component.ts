@@ -1,14 +1,15 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Observable, of, iif, BehaviorSubject, noop, forkJoin } from 'rxjs';
+import { Observable, of, iif, BehaviorSubject, noop, forkJoin, throwError } from 'rxjs';
 import { BackendService } from 'src/app/service/backend.service';
 import { MatDialogRef } from '@angular/material/dialog';
-import { map, mergeMap, switchMap, startWith, first, take, tap, shareReplay } from 'rxjs/operators';
+import { map, mergeMap, switchMap, startWith, first, take, tap, shareReplay, catchError } from 'rxjs/operators';
 import { Estimate } from 'src/app/models/estimate';
 import { filterList } from 'src/app/shared/utility';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatButton } from '@angular/material/button';
 import { TitleCasePipe } from '@angular/common';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-estimate-form',
@@ -30,11 +31,7 @@ export class EstimateFormComponent implements OnInit {
   error = ""
   @ViewChild('jobsInput') jobsInput: ElementRef<HTMLInputElement>
   @ViewChild('saveButton') saveButton: MatButton
-  readonly estimatorTableName = 'estimators_active'
-  readonly jobsTableName = 'projects_ready_for_proposal'
-  readonly dataTableName = 'estimates'
-  readonly mappingTableName = 'map_estimates_to_jobs'
-  readonly proposalTypesTableName = 'options_estimate_types'
+
   //readonly numericRegex = /\-?\d*\.?\d{1,2}/g
 
   constructor(
@@ -45,9 +42,11 @@ export class EstimateFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForms()
-    this.estimators$ = this.backendService.getData(this.estimatorTableName)
-    this.estimateTypes$ = this.backendService.getData(this.proposalTypesTableName)
-    this.jobs$ = this.backendService.getData(this.jobsTableName).pipe(
+    this.estimators$ = this.backendService.getData(environment.estimatorTableName).pipe(
+      map((estimators: { id: number, name: string }[]) => estimators.sort((a, b) => a.name.localeCompare(b.name)))
+    )
+    this.estimateTypes$ = this.backendService.getData(environment.proposalTypesTableName)
+    this.jobs$ = this.backendService.getData(environment.jobsTableName).pipe(
       map((jobs: Object[]) => {
         return jobs.map((job: any, i) => {
           return {
@@ -112,7 +111,7 @@ export class EstimateFormComponent implements OnInit {
     if (!this.costFormGroup.valid)
       return this.error = "Information missing from Proposal Type section"
     if (!this.jobFormGroup.valid)
-    return this.error = "Must select at least one job to assign the estimate to"
+      return this.error = "Must select at least one job to assign the estimate to"
     const form = {
       cost: this.costFormGroup.get('cost').value,
       estimateTypeId: this.costFormGroup.get('estimateType').value.id,
@@ -121,7 +120,7 @@ export class EstimateFormComponent implements OnInit {
       fee: this.costFormGroup.get('fee').value,
       estimateDateCreated: new Date().toISOString()
     }
-    this.backendService.saveData(this.dataTableName, form).pipe(
+    this.backendService.saveData(environment.dataTableName, form).pipe(
       switchMap(resp => {
         return forkJoin(this.selectedJobs.map(job => {
           const mapping = {
@@ -129,9 +128,26 @@ export class EstimateFormComponent implements OnInit {
             estimateId: resp['insertId'],
             dateCreated: new Date().toISOString()
           }
-          return this.backendService.saveData(this.mappingTableName, mapping)
+          return this.backendService.saveData(environment.mappingTableName, mapping)
         }))
-      })
+      }),
+      catchError(err => throwError(err)),
+      switchMap(resp => {
+        return forkJoin(this.selectedJobs.map(job => {
+          console.log(job)
+          const mapping = {
+            jobId: job.jobId,
+            statusId: job.statusId,
+            box: job.box,
+            assignedTo: job.assignedTo,
+            notes: job.notes,
+            historyOnlyNotes: `${this.costFormGroup.get('estimateType').value.type} estimate added`,
+            date: new Date().toISOString()
+          }
+          return this.backendService.saveData(environment.transactionTableName, mapping)
+        }))
+      }),
+      catchError(err => throwError(err))
     )
       .subscribe(
         resp => {
@@ -178,7 +194,7 @@ export class EstimateFormComponent implements OnInit {
     return estimator.name
   }
 
-  estimateTypeDisplayFn(estimateType): string{
+  estimateTypeDisplayFn(estimateType): string {
     const titlePipe = new TitleCasePipe()
     return titlePipe.transform(estimateType.type)
   }

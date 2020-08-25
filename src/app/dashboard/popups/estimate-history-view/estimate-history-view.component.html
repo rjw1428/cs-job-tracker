@@ -1,32 +1,41 @@
-<h1 mat-dialog-title style="margin:0">Estimate History - {{data.job.projectName}}</h1>
+<h1 mat-dialog-title style="margin:0">Proposal History - {{data.job.projectName}}</h1>
 <h3>{{data.job.contractorName}}</h3>
 <div mat-dialog-content>
-  <div *ngIf="data.estimates.length" style="display:flex; justify-content: flex-end;">
+  <div *ngIf="data.proposals.length" style="display:flex; justify-content: flex-end;">
     <button mat-button (click)="accordion.openAll()">Expand All</button>
     <button mat-button (click)="accordion.closeAll()">Collapse All</button>
   </div>
-  <div *ngIf="!data.estimates.length" style="display: flex; justify-content: center;">
-    <h3 style="color: gray">No Estimates Saved Yet</h3>
+  <div *ngIf="!data.proposals.length" style="display: flex; justify-content: center;">
+    <h3 style="color: gray">No Proposals Saved Yet</h3>
   </div>
   <mat-accordion multi>
-    <mat-expansion-panel *ngFor="let estimate of data.estimates" expanded=false>
+    <mat-expansion-panel *ngFor="let proposal of data.proposals; let i=index" [expanded]="i==data.proposals.length-1">
 
       <!-- PANEL HEADER -->
       <mat-expansion-panel-header style="background: whitesmoke;">
-        <mat-panel-title>
-          {{estimate.estimateDateCreated | date : 'short'}}
+        <mat-panel-title *ngIf="proposal.dateSent!='current'; else isCurrent">
+          {{proposal.dateSent | date : 'short'}}
         </mat-panel-title>
+        <ng-template #isCurrent>
+          <mat-panel-title>
+            {{proposal.dateSent | uppercase}}
+          </mat-panel-title>
+        </ng-template>
         <mat-panel-description>
           <div style="display: flex; justify-content: space-around; align-items: center; width: 100%;">
-            <div><strong>Completed By: </strong>{{estimate.estimator}}</div>
-            <div><strong>Project Value: </strong>{{estimate.project_value | currency}}</div>
+            <div><strong>Project Value: </strong>{{proposal.projectValue | currency}}</div>
           </div>
         </mat-panel-description>
       </mat-expansion-panel-header>
 
       <!-- PANEL CONTENT -->
       <ng-template matExpansionPanelContent>
-        <estimate [estimates]="estimate" (deleted)="onEstimateDeleted($event)"></estimate>
+        <estimate 
+          [proposalId]="proposal.id" 
+          [estimates]="proposal.estimates" 
+          [deletable]="i!=data.proposals.length-1" 
+          (deleted)="onEstimateDeleted($event)">
+      </estimate>
       </ng-template>
 
     </mat-expansion-panel>

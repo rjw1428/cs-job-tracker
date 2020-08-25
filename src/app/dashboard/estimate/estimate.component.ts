@@ -8,8 +8,10 @@ import { Estimate } from 'src/app/models/estimate';
   styleUrls: ['./estimate.component.scss']
 })
 export class EstimateComponent implements OnInit {
+  @Input() proposalId: number
   @Input() estimates: Estimate[] = []
-  @Output() deleted = new EventEmitter<Estimate>()
+  @Input() deletable: boolean = false
+  @Output() deleted = new EventEmitter<number>()
   projectValue: number = 0
   outsourceCost: number = 0
   constructor(
@@ -20,10 +22,8 @@ export class EstimateComponent implements OnInit {
     this.outsourceCost = this.estimates.map(estimate => +estimate.fee).reduce((acc, cur) => acc += cur, 0)
   }
 
-
-
-  onDelete(estimate: Estimate) {
-    this.deleted.emit(estimate)
+  onDelete() {
+    this.deleted.emit(this.proposalId)
   }
 
 }

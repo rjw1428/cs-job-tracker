@@ -31,7 +31,7 @@ export class AddFileComponent implements OnInit {
     let fileIndex = this.files.length
     for (const item of files) {
       this.files.push(item)
-      this.uploadSubscription[fileIndex] = this.backendService.sendFile(this.job.displayJobId, item, fileIndex)
+      this.uploadSubscription[fileIndex] = this.backendService.sendFile(this.job.jobId, item, fileIndex, this.job.displayJobId)
         .pipe(
           map((data: any) => {
             return this.getEventMessage(data.response, data.index);

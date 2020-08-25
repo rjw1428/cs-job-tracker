@@ -121,10 +121,10 @@ function createSetClause(setObj: {}) {
     }).join(", ")
 }
 
-export function saveFile(jobId, fileName, date, callback) {
+export function saveFile(jobId, folderName, fileName, date, callback) {
     const _table = "job_files"
-    const _fields = ["jobId", "fileName", "fileLocation", "dateCreated"].join(',')
-    const _values = [`'${jobId}'`, `'${fileName}'`,`'${jobId}/${fileName}'`, `'${date}'`].join(',')
+    const _fields = ["jobId", "displayId", "fileName", "fileLocation", "dateCreated"].join(',')
+    const _values = [`'${jobId}'`,`'${folderName}'` , `'${fileName}'`,`'${folderName}/${fileName}'`, `'${date}'`].join(',')
     runQuery(`REPLACE INTO ${_table} (${_fields}) VALUES (${_values})`, ({ error, results }) => {
         if (error) callback({ error })
         callback(results)

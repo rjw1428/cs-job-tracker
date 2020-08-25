@@ -35,17 +35,18 @@ export class BackendService {
     return this.http.post(`${environment.apiUrl}/email`, { message })
   }
 
-  getFile(jobId, fileName) {
-    this.http.get(`${environment.apiUrl}/download/${jobId}/${fileName}`, { responseType: 'blob' })
+  getFile(jobId, fileName, displayId) {
+    console.log(displayId)
+    this.http.get(`${environment.apiUrl}/download/${jobId}/${fileName}?folder=${displayId}`, { responseType: 'blob' })
       .subscribe((resp: any) => {
         saveAs(resp, decodeURIComponent(fileName))
       })
   }
 
-  sendFile(jobId, file, fileIndex) {
+  sendFile(jobId, file, fileIndex, displayId) {
     const formData: any = new FormData()
     formData.append("document", file, file.fileName);
-    const req = new HttpRequest('POST', `${environment.apiUrl}/upload/${jobId}`, formData, {
+    const req = new HttpRequest('POST', `${environment.apiUrl}/upload/${jobId}?folder=${displayId}`, formData, {
       reportProgress: true
     });
     return this.http.request(req).pipe(map(resp => ({ response: resp, index: fileIndex })))

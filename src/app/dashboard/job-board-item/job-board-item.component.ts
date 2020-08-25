@@ -45,8 +45,7 @@ export class JobBoardItemComponent implements OnInit {
   isBiddingCol: boolean
   isAwardedCol: boolean
   isDev: boolean = false;
-  readonly awardTimelineTableName = 'awards_timeline'
-  readonly currentProposalTableName = 'proposals_current'
+
   constructor(
     private backendService: BackendService,
     private snackBar: MatSnackBar,
@@ -110,7 +109,7 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   onOpenCurrentEstimate() {
-    this.backendService.getData(this.currentProposalTableName, { jobId: this.job.jobId })
+    this.backendService.getData(environment.currentProposalTableName, { jobId: this.job.jobId })
       .subscribe(resp => {
         this.dialog.open(EstimateViewComponent, {
           width: '700px',
@@ -138,7 +137,7 @@ export class JobBoardItemComponent implements OnInit {
         }
         const set = ['startTime', 'endTime'].map(key => ({ [key]: this.job[key] }))
           .reduce((acc, cur) => ({ ...acc, ...cur }), {})
-        this.backendService.updateData(this.awardTimelineTableName, {
+        this.backendService.updateData(environment.awardTimelineTableName, {
           set,
           where: { jobId: this.job.jobId }
         })
@@ -157,12 +156,71 @@ export class JobBoardItemComponent implements OnInit {
     })
   }
 
-  onEstimateHistory() {
-    this.backendService.getData('estimates_history', { jobId: this.job.jobId })
+  onProposalHistory() {
+    this.backendService.getData(environment.proposalSnapshotTableName, { jobId: this.job.jobId }).pipe(
+      map((resps: any[]) => {
+        return resps.map(resp => {
+          const concreteEstimate = {
+            type: "concrete",
+            cost: resp['concreteCost'],
+            fee: resp['concreteFee'],
+            estimator: resp['concreteEstimator'],
+            dateCreated: resp['concreteDateCreated'],
+          }
+
+          const excavationEstimate = {
+            type: "excavation",
+            cost: resp['excavationCost'],
+            fee: resp['excavationFee'],
+            estimator: resp['excavationEstimator'],
+            dateCreated: resp['excavationDateCreated'],
+          }
+
+          const brickEstimate = {
+            type: "brick",
+            cost: resp['brickCost'],
+            fee: resp['brickFee'],
+            estimator: resp['brickEstimator'],
+            dateCreated: resp['brickDateCreated'],
+          }
+
+          const cmuEstimate = {
+            type: "cmu",
+            cost: resp['cmuCost'],
+            fee: resp['cmuFee'],
+            estimator: resp['cmuEstimator'],
+            dateCreated: resp['cmuDateCreated'],
+          }
+          const otherEstimate = {
+            type: "other",
+            cost: resp['otherCost'],
+            fee: resp['otherFee'],
+            estimator: resp['otherEstimator'],
+            dateCreated: resp['otherDateCreated'],
+          }
+          return {
+            id: resp['id'],
+            estimates: [concreteEstimate, excavationEstimate, brickEstimate, cmuEstimate, otherEstimate],
+            dateSent: resp['dateSent'],
+            projectValue: resp['project_value'],
+            outsourceCost: resp['outsource_cost']
+          }
+        })
+      }),
+      switchMap((proposalHistory: any[]) => {
+        return this.backendService.getData(environment.currentProposalTableName, { jobId: this.job.jobId }).pipe(
+          map((currentProposals: any[]) => {
+            const projectValue = currentProposals.map(prop => +prop.cost).reduce((a, b) => a += b, 0)
+            const outsourceCost = currentProposals.map(prop => +prop.fee).reduce((a, b) => a += b, 0)
+            return proposalHistory.concat([{ id: -1, estimates: currentProposals, dateSent: "current", projectValue, outsourceCost }])
+          })
+        )
+      })
+    )
       .subscribe(resp => {
         this.dialog.open(EstimateHistoryViewComponent, {
           width: '700px',
-          data: { estimates: resp, job: this.job }
+          data: { proposals: resp, job: this.job }
         }).afterClosed().subscribe(estimateCountChange => {
           if (estimateCountChange)
             this.store.dispatch(DashboardActions.requery())
@@ -171,7 +229,7 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   onJobHistory() {
-    this.backendService.getData('job_history', { jobId: this.job.jobId })
+    this.backendService.getData(environment.jobHistoryTableName, { jobId: this.job.jobId })
       .subscribe(resp => {
         this.dialog.open(JobHistoryViewComponent, {
           width: '700px',
@@ -182,7 +240,7 @@ export class JobBoardItemComponent implements OnInit {
 
 
   onViewFileList() {
-    this.backendService.getData("job_files", { jobId: this.job.jobId })
+    this.backendService.getData(environment.jobFileTableName, { jobId: this.job.jobId })
       .subscribe((resp: AttachedFile[]) => {
         this.dialog.open(FileListComponent, {
           width: '800px',
@@ -199,7 +257,7 @@ export class JobBoardItemComponent implements OnInit {
       data: { message: `Are you sure you want to delete ${this.job.projectName}?`, action: "Delete" }
     }).onAction().pipe(
       switchMap(() => {
-        return this.backendService.updateData("job_isActive", {
+        return this.backendService.updateData(environment.jobIsActiveTableName, {
           set: { isActive: 0 },
           where: { jobId: this.job.jobId }
         })
@@ -224,7 +282,7 @@ export class JobBoardItemComponent implements OnInit {
     }).afterClosed().pipe(
       switchMap((resp: { amount: number, note: string }) => {
         return resp
-          ? this.backendService.saveData("job_final_cost", {
+          ? this.backendService.saveData(environment.jobFinalCostTableName, {
             jobId: this.job.jobId,
             amount: resp.amount,
             note: resp.note
@@ -241,12 +299,12 @@ export class JobBoardItemComponent implements OnInit {
           console.log(err)
           showSnackbar(this.snackBar, err.error.error.sqlMessage)
         },
-        () =>this.store.dispatch(DashboardActions.requery())
+        () => this.store.dispatch(DashboardActions.requery())
       )
   }
 
   updateTransaction(key: string, responseMessage: string) {
-    this.backendService.updateData('job_transactions', {
+    this.backendService.updateData(environment.transactionTableName, {
       set: { [key]: this.job[key] },
       where: { id: this.job.transactionId }
     })
@@ -264,7 +322,7 @@ export class JobBoardItemComponent implements OnInit {
 
 
   saveTransaction(partialPayload: { statusId: number, box?: number, notes?: string, assignedTo?: number }, responseMessage, table?: string) {
-    this.backendService.saveData(table ? table : 'job_transactions', {
+    this.backendService.saveData(table ? table : environment.transactionTableName, {
       jobId: this.job.jobId,
       date: new Date().toISOString(),
       ...partialPayload
@@ -282,13 +340,13 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   saveNoBid(responseMessage) {
-    this.backendService.saveData('job_noBid', {
+    this.backendService.saveData(environment.jobNoBidTableName, {
       jobId: this.job.jobId,
       noBid: this.job.noBid,
       date: new Date().toISOString()
     }).pipe(
       switchMap(resp => {
-        return this.backendService.saveData('job_transactions', {
+        return this.backendService.saveData(environment.transactionTableName, {
           jobId: this.job.jobId,
           date: new Date().toISOString(),
           statusId: 1

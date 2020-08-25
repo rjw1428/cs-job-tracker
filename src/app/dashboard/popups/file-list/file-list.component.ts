@@ -52,7 +52,7 @@ export class FileListComponent implements OnInit {
   }
 
   getFileLink(file: AttachedFile) {
-    this.backendService.getFile(this.data.job.jobId, file.fileName)
+    this.backendService.getFile(this.data.job.jobId, file.fileName, file.displayId)
   }
 
   onDelete(file: AttachedFile) {

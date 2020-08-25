@@ -6,7 +6,6 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class DecodeURIPipe implements PipeTransform {
 
   transform(value: string): string {
-    console.log(value)
     return decodeURIComponent(value);
   }
 

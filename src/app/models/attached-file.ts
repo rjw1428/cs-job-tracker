@@ -4,4 +4,5 @@ export interface AttachedFile {
     fileLocation: string;
     fileName: string;
     jobId: number;
+    displayId: string
 }

@@ -14,6 +14,7 @@ import { AwardTimelineComponent } from '../triggered-forms/award-timeline/award-
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmationSnackbarComponent } from '../popups/confirmation-snackbar/confirmation-snackbar.component';
 import { Estimate } from 'src/app/models/estimate';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-job-board',
@@ -27,9 +28,7 @@ export class JobBoardComponent implements OnInit {
   isDragging = false
   boxOptions: { id: number, name: string }[]
   estimators: { id: number, name: string }[]
-  readonly estimatorsTableName = 'estimators'
-  readonly currentProposalTableName = 'proposals_current'
-  readonly proposalWriteTableName = 'map_proposals_sent'
+
   constructor(
     private backendService: BackendService,
     private dialog: MatDialog,
@@ -37,8 +36,9 @@ export class JobBoardComponent implements OnInit {
     private snackBar: MatSnackBar,
   ) {
     this.boxOptions = new Array(10).fill(0).map((val, i) => ({ id: i + 1, name: (i + 1).toString() }))
-    this.backendService.getData(this.estimatorsTableName, { isActive: 1 }).subscribe(resp => {
+    this.backendService.getData(environment.estimatorsTableName, { isActive: 1 }).subscribe(resp => {
       this.estimators = resp as { id: number, name: string }[]
+      this.estimators.sort((a, b) => a.name.localeCompare(b.name))
     })
 
   }
@@ -152,7 +152,7 @@ export class JobBoardComponent implements OnInit {
 
 
   private saveProposal(jobId: number, event: CdkDragDrop<any>) {
-    this.backendService.getData(this.currentProposalTableName, { jobId }).pipe(
+    this.backendService.getData(environment.currentProposalTableName, { jobId }).pipe(
       switchMap((resp: Estimate[]) => {
         const concreteEstimate = resp.find(estimate => estimate.type == 'concrete')
         const brickEstimate = resp.find(estimate => estimate.type == 'brick')
@@ -168,7 +168,7 @@ export class JobBoardComponent implements OnInit {
           otherId: otherEstimate ? otherEstimate.estimateId : null,
           dateSent: new Date().toISOString()
         }
-        return this.backendService.saveData(this.proposalWriteTableName, proposal)
+        return this.backendService.saveData(environment.proposalWriteTableName, proposal)
       }),
       catchError(err => throwError(err)),
     ).subscribe(resp => {

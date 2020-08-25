@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-create-person-form',
@@ -14,7 +15,6 @@ export class CreatePersonFormComponent implements OnInit {
   esitmators$: Observable<any>
   newEstimatorForm: FormGroup
   error = ""
-  readonly dataTableName = 'estimators'
   constructor(
     private backendService: BackendService,
     private formBuilder: FormBuilder,
@@ -27,7 +27,7 @@ export class CreatePersonFormComponent implements OnInit {
       isActive: [1]
     })
 
-    this.esitmators$ = this.backendService.getData(this.dataTableName)
+    this.esitmators$ = this.backendService.getData(environment.estimatorsTableName)
       .pipe(
         map((resp: any[]) => {
           return resp.map(estimator => {
@@ -44,7 +44,7 @@ export class CreatePersonFormComponent implements OnInit {
     }
     estimator.isActive = estimator.isActive ? 0 : 1
     estimator.status = estimator['isActive'] ? "Active" : "Deactivated"
-    this.backendService.updateData(this.dataTableName, changes)
+    this.backendService.updateData(environment.estimatorsTableName, changes)
       .subscribe(
         resp => {
           console.log(resp)
@@ -55,7 +55,7 @@ export class CreatePersonFormComponent implements OnInit {
   onNew() {
     const estimator = this.newEstimatorForm.value
     if (!estimator.name) return this.error = "Missing Name"
-    this.backendService.saveData(this.dataTableName, estimator)
+    this.backendService.saveData(environment.estimatorsTableName, estimator)
       .subscribe(
         resp => {
           console.log(resp)
