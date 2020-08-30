@@ -210,16 +210,27 @@ export class JobBoardComponent implements OnInit {
     );
 
     //Save Changes
-    const payload = {
+    let payload = {
       jobId: event.container.data[event.currentIndex].jobId,
       date: new Date().toISOString(),
       statusId: this.columns[event.container.id].defaultStatusId,
       notes: event.container.data[event.currentIndex].notes,
+      reportOnlyNotes: event.container.data[event.currentIndex].reportOnlyNotes,
       box: assignmentForm ? assignmentForm.boxId : null,
       assignedTo: assignmentForm ? assignmentForm.estimatorId : null,
       proposalId: assignmentForm ? assignmentForm.proposalId : null
     }
-    this.backendService.saveData('job_transactions', payload)
+
+    if (assignmentForm && assignmentForm.estimatorId)
+      payload['historyOnlyNotes'] = `Assigned to ${this.estimators.find(estimator => estimator.id == assignmentForm.estimatorId).name}`
+
+    //Update old transaction to have the end date
+    this.backendService.updateData('job_transactions', {
+      set: { dateEnded: new Date().toISOString() },
+      where: { id: event.container.data[event.currentIndex].transactionId }
+    }).pipe(mergeMap(() => {
+      return this.backendService.saveData('job_transactions', payload)
+    }))
       .subscribe(resp => {
         console.log(resp)
       },

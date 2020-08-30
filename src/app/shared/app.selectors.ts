@@ -24,3 +24,13 @@ export const sidebarWidth = createSelector(
     selectAppState,
     state => state.sidebarWidth
 )
+
+export const chartSelector = createSelector(
+    selectAppState,
+    state => state.charts
+)
+
+export const reportSelector = createSelector(
+    selectAppState,
+    state => state.reports
+)

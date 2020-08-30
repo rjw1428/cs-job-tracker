@@ -121,6 +121,7 @@ export class EstimateFormComponent implements OnInit {
       estimateDateCreated: new Date().toISOString()
     }
     this.backendService.saveData(environment.dataTableName, form).pipe(
+      // Save table mapping
       switchMap(resp => {
         return forkJoin(this.selectedJobs.map(job => {
           const mapping = {
@@ -132,9 +133,19 @@ export class EstimateFormComponent implements OnInit {
         }))
       }),
       catchError(err => throwError(err)),
+      // Save previous transaction end date
       switchMap(resp => {
         return forkJoin(this.selectedJobs.map(job => {
           console.log(job)
+          return this.backendService.updateData(environment.transactionTableName, {
+            set: { dateEnded: new Date().toISOString() },
+            where: { id: job.transactionId }
+          })
+        }))
+      }),
+      // Save job transaction
+      switchMap(resp => {
+        return forkJoin(this.selectedJobs.map(job => {
           const mapping = {
             jobId: job.jobId,
             statusId: job.statusId,

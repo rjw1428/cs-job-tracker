@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy
 import { BackendService } from 'src/app/service/backend.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmationSnackbarComponent } from '../popups/confirmation-snackbar/confirmation-snackbar.component';
-import { switchMap, map, shareReplay } from 'rxjs/operators';
+import { switchMap, map, shareReplay, mergeMap } from 'rxjs/operators';
 import { showSnackbar } from 'src/app/shared/utility';
 import { MatDialog } from '@angular/material/dialog';
 import { EstimateViewComponent } from '../popups/estimate-view/estimate-view.component';
@@ -12,7 +12,6 @@ import { MatSelectChange } from '@angular/material/select';
 import { UpdateDueDateComponent } from 'src/app/forms/update-due-date/update-due-date.component';
 import { iif, of, noop, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { AddFileComponent } from 'src/app/forms/add-file/add-file.component';
 import { FileListComponent } from '../popups/file-list/file-list.component';
 import { AttachedFile } from 'src/app/models/attached-file';
 import { AppState } from 'src/app/models/app';
@@ -44,6 +43,8 @@ export class JobBoardItemComponent implements OnInit {
   isEstimatingCol: boolean
   isBiddingCol: boolean
   isAwardedCol: boolean
+  isProposalCol: boolean
+  isHoldCol: boolean
   isDev: boolean = false;
 
   constructor(
@@ -64,6 +65,8 @@ export class JobBoardItemComponent implements OnInit {
     this.isEstimatingCol = this.columnId == columnIds.ESTIMATING
     this.isBiddingCol = this.columnId == columnIds.INVITATION
     this.isAwardedCol = this.columnId == columnIds.AWARDED
+    this.isProposalCol = this.columnId == columnIds.PROPOSAL
+    this.isHoldCol = this.columnId == columnIds.HOLD
   }
 
   onStatusChanged(value: MatSelectChange) {
@@ -72,7 +75,8 @@ export class JobBoardItemComponent implements OnInit {
     const partialPayload = {
       statusId: value.value.id,
       box: this.job.box ? this.job.box : "",
-      notes: this.job.notes
+      notes: this.job.notes,
+      reportOnlyNotes: this.job.reportOnlyNotes
     }
     this.saveTransaction(partialPayload, responseMessage)
   }
@@ -82,7 +86,8 @@ export class JobBoardItemComponent implements OnInit {
     const partialPayload = {
       statusId: this.job.statusId,
       box: this.job.box ? this.job.box : "",
-      notes: this.job.notes
+      notes: this.job.notes,
+      reportOnlyNotes: this.job.reportOnlyNotes
     }
     this.saveTransaction(partialPayload, responseMessage)
   }
@@ -97,13 +102,21 @@ export class JobBoardItemComponent implements OnInit {
     this.updateTransaction('box', "Box updated")
   }
 
+  onTitleClicked() {
+    if (this.isDev) {
+      console.log(this.job)
+    }
+  }
+
   onAssignedToChanged(value: MatSelectChange) {
     const responseMessage = `${value.value.name} assigned to ${this.job.projectName}`
     const partialPayload = {
       statusId: this.job.statusId,
       box: this.job.box ? this.job.box : "",
       notes: this.job.notes,
-      assignedTo: value.value.id
+      assignedTo: value.value.id,
+      historyOnlyNotes: `Assigned to ${value.value.name}`,
+      reportOnlyNotes: this.job.reportOnlyNotes
     }
     this.saveTransaction(partialPayload, responseMessage)
   }
@@ -322,21 +335,28 @@ export class JobBoardItemComponent implements OnInit {
 
 
   saveTransaction(partialPayload: { statusId: number, box?: number, notes?: string, assignedTo?: number }, responseMessage, table?: string) {
-    this.backendService.saveData(table ? table : environment.transactionTableName, {
-      jobId: this.job.jobId,
-      date: new Date().toISOString(),
-      ...partialPayload
-    }).subscribe(
-      resp => {
-        console.log(resp)
-        this.job.transactionId = resp['insertId']
-      },
-      err => {
-        console.log(err)
-        showSnackbar(this.snackBar, err.error.error.sqlMessage)
-      },
-      () => showSnackbar(this.snackBar, responseMessage)
-    )
+    this.backendService.updateData(environment.transactionTableName, {
+      set: { dateEnded: new Date().toISOString() },
+      where: { id: this.job.transactionId }
+    }).pipe(
+      mergeMap(() => {
+      return this.backendService.saveData(table ? table : environment.transactionTableName, {
+        jobId: this.job.jobId,
+        date: new Date().toISOString(),
+        ...partialPayload
+      })
+    }))
+      .subscribe(
+        resp => {
+          console.log(resp)
+          this.job.transactionId = resp['insertId']
+        },
+        err => {
+          console.log(err)
+          showSnackbar(this.snackBar, err.error.error.sqlMessage)
+        },
+        () => showSnackbar(this.snackBar, responseMessage)
+      )
   }
 
   saveNoBid(responseMessage) {

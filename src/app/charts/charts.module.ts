@@ -17,7 +17,8 @@ export const routes: Routes = [
 ]
 
 @NgModule({
-  declarations: [],
+  declarations: [
+  ],
   imports: [
     CommonModule,
     SharedModule,

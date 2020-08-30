@@ -1,10 +1,7 @@
-<!-- <div [ngStyle]="{'margin-left': (sidebarWidth$ | async)+'px'}"> -->
-<!-- </div> -->
-
 <h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Charts</h1>
 
 
-<mat-tab-group (selectedIndexChange)="onTabChanged($event)" [selectedIndex]="selectedTabOnLoad">
+<mat-tab-group (selectedIndexChange)="onTabChanged($event)" [selectedIndex]="selectedTabOnLoad$ | async">
   <mat-tab *ngFor="let chart of charts">
     <ng-template mat-tab-label>{{chart.name}}</ng-template>
     <ng-template matTabContent>
@@ -57,8 +54,19 @@
           </ngx-charts-advanced-pie-chart>
         </div>
 
+
+        <div *ngSwitchCase="'gantt'" class="wrapper">
+          <ng-container *ngTemplateOutlet="gantt"></ng-container>
+        </div>
+
       </div>
     </ng-template>
   </mat-tab>
 </mat-tab-group>
 <loading-wrapper></loading-wrapper>
+
+<ng-template #gantt>
+  <div style="display: flex; flex-direction: column; height: 100%; box-sizing:border-box">
+    <div id="chartDiv" style="flex-grow: 2;"></div>
+  </div>
+</ng-template>

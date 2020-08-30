@@ -6,7 +6,9 @@ export const initialDashboardState: AppState = {
     sidebarWidth: 75,
     defaultSidebarWidth: 75,
     expandedSidebarWidth: 200,
-    loading: false
+    loading: false,
+    reports: [],
+    charts: []
 }
 
 export const appReducer = createReducer(
@@ -23,5 +25,11 @@ export const appReducer = createReducer(
     }),
     on(AppActions.stopLoading, (state, action) => {
         return { ...state, loading: false }
+    }),
+    on(AppActions.setReports, (state, action) => {
+        return { ...state, reports: action.reports }
+    }),
+    on(AppActions.setCharts, (state, action) => {
+        return { ...state, charts: action.charts }
     })
 )

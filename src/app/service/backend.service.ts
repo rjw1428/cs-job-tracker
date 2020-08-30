@@ -3,6 +3,8 @@ import { tap, catchError, first, shareReplay, map } from 'rxjs/operators'
 import { HttpClient, HttpRequest } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { saveAs } from 'file-saver'
+import { Report } from '../reports/reports.component';
+import { Chart } from '../charts/charts.component';
 @Injectable({
   providedIn: 'root'
 })
@@ -10,6 +12,9 @@ export class BackendService {
 
   constructor(private http: HttpClient) { }
 
+  initializeApp() {
+    return this.http.get<{reports: Report[], charts: Chart[]}>(`${environment.apiUrl}/init/`)
+  }
   getData(table: string, params?: {}) {
     const paramString = (params) ? this.convertObjToParma(params) : ""
     return this.http.get(`${environment.apiUrl}/api/${table}${paramString}`).pipe(

@@ -23,6 +23,8 @@ import { UpdateDueDateComponent } from './forms/update-due-date/update-due-date.
 import { AddFileComponent } from './forms/add-file/add-file.component';
 import { DragNDropDirective } from './directives/drag-n-drop.directive';
 import { EstimateAssignmentComponent } from './dashboard/triggered-forms/estimate-assignment/estimate-assignment.component';
+import { EffectsModule } from '@ngrx/effects';
+import { AppEffects } from './shared/app.effects';
 
 @NgModule({
   declarations: [
@@ -53,6 +55,7 @@ import { EstimateAssignmentComponent } from './dashboard/triggered-forms/estimat
         strictActionSerializability: true
       }
     }),
+    EffectsModule.forRoot([AppEffects]),
     StoreModule.forFeature('app', appReducer),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],

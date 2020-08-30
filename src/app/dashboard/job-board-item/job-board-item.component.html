@@ -2,7 +2,7 @@
   <mat-card-header style="display: flex; flex-direction: column-reverse;">
     <div style="display: flex; flex-direction: column-reverse;">
       <div style="display: flex; justify-content: space-between;">
-        <mat-card-title [matTooltip]="job.jobId" [matTooltipDisabled]="!isDev">{{job.projectName}}</mat-card-title>
+        <mat-card-title [matTooltip]="job.jobId" [matTooltipDisabled]="!isDev" (click)="onTitleClicked()">{{job.projectName}}</mat-card-title>
         <div style="width:50px; display:flex; justify-content: flex-end;" *ngIf="!noBidStatus">
           <ng-content></ng-content>
         </div>
@@ -91,9 +91,21 @@
       <div style="display: flex; justify-content: stretch; align-items: flex-end;">
         <mat-form-field>
           <mat-label>Notes:</mat-label>
-          <input matInput [(ngModel)]="job.notes" (keydown.enter)="onSaveNote()">
+          <input name="note" matInput [(ngModel)]="job.notes" (keydown.enter)="onSaveNote()">
           <button mat-button *ngIf="job.notes" matSuffix mat-icon-button aria-label="Clear"
             (click)="job.notes=''; onSaveNote()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+        <button (click)="onSaveNote()" mat-mini-fab color="primary"
+          style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
+      </div>
+      <div style="display: flex; justify-content: stretch; align-items: flex-end;" *ngIf="isProposalCol || isHoldCol">
+        <mat-form-field>
+          <mat-label>Follow Up Info:</mat-label>
+          <input name="reportNote" matInput [(ngModel)]="job.reportOnlyNotes" (keydown.enter)="onSaveNote()">
+          <button mat-button *ngIf="job.reportOnlyNotes" matSuffix mat-icon-button aria-label="Clear"
+            (click)="job.reportOnlyNotes=''; onSaveNote()">
             <mat-icon>close</mat-icon>
           </button>
         </mat-form-field>

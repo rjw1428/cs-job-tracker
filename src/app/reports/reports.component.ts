@@ -9,6 +9,10 @@ import { MatSort } from '@angular/material/sort';
 import { Store } from '@ngrx/store';
 import { State } from '../root.reducers';
 import { AppActions } from '../shared/app.action-types';
+import { CurrencyPipe } from '@angular/common';
+import { reportSelector } from '../shared/app.selectors';
+import { Observable, throwError } from 'rxjs';
+import { switchMap, first, map, catchError } from 'rxjs/operators';
 
 export interface Report {
   id: string;
@@ -16,6 +20,7 @@ export interface Report {
   dataTableName: string;
   displayedColumns?: string[];
   dataSource?: MatTableDataSource<any>
+  footer?: string
 }
 @Component({
   selector: 'app-reports',
@@ -26,22 +31,11 @@ export interface Report {
 export class ReportsComponent implements OnInit {
   displayedColumns: string[]
   dataSource: any
-  selectedTabOnLoad: number
+  selectedTabOnLoad$: Observable<number>
 
-  reports: Report[] = [{
-    id: "report_summary",
-    name: "Summary",
-    dataTableName: "report_overall_jobs"
-  }, {
-    id: "current_estimates",
-    name: "Estimate Board",
-    dataTableName: "report_current_estimates"
-  }, {
-    id: "award_history",
-    name: "Awarded Bids",
-    dataTableName: "report_awarded"
-  }]
+  reports: Report[] = []
   sortCol: string
+  footer: string
   @ViewChild(MatSort, { static: false }) sort: MatSort;
   constructor(
     private backendService: BackendService,
@@ -50,14 +44,24 @@ export class ReportsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((paramsMap: Params) => {
-      const selectedReportId = paramsMap.params.reportId
-      const matchingIndex = this.reports.findIndex(report => report.id == selectedReportId)
-      this.selectedTabOnLoad = matchingIndex == -1 ? 0 : matchingIndex
-      this.onTabChanged(this.selectedTabOnLoad)
-    })
-
-
+    this.selectedTabOnLoad$ = this.store.select(reportSelector).pipe(
+      switchMap(reports => {
+        console.log(reports)
+        this.reports = JSON.parse(JSON.stringify(reports))
+        const onLoadIndex = this.route.paramMap.pipe(
+          first(),
+          map((paramsMap: Params) => {
+            const selectedReportId = paramsMap.params.reportId
+            const matchingIndex = reports.findIndex(report => report.id == selectedReportId)
+            const resultingIndex = matchingIndex == -1 ? 0 : matchingIndex
+            if (reports.length)
+              this.onTabChanged(resultingIndex)
+            return resultingIndex
+          })
+        )
+        return onLoadIndex
+      }),
+      catchError(err => throwError(err)))
   }
 
   onTabChanged(tabNumber: number) {
@@ -66,11 +70,35 @@ export class ReportsComponent implements OnInit {
     this.updateRouterParams(this.reports[tabNumber].id)
     this.backendService.getData(activeReport.dataTableName)
       .subscribe((resp: any[]) => {
-        activeReport.displayedColumns = Object.keys(resp[0])
-        activeReport.dataSource = new MatTableDataSource(resp);
-        activeReport.dataSource.sort = this.sort
-        this.store.dispatch(AppActions.stopLoading())
+        this.setReportFromData(resp, activeReport)
       })
+  }
+
+  setReportFromData(resp: any[], report: Report) {
+    if (resp.length) {
+      report.displayedColumns = Object.keys(resp[0])
+      if (report.footer) {
+        if (report.footer == 'project value') {
+          const sum = resp.map(row => row[report.footer]).reduce((acc, cur) => acc += +cur, 0)
+          this.footer = sum//new CurrencyPipe('en-US').transform(sum)
+        }
+        else {
+          // Average Estimate Hours
+          const sum = resp.map(row => {
+            return row[report.footer]
+              .split(":")
+              .map(val => +val)
+              .reduce((acc, cur, i) => acc += i == 0 ? cur * 60 : cur, 0)
+          }).reduce((acc, cur) => acc += cur, 0)
+          const min = Math.floor(sum / resp.length) % 60
+          const hrs = Math.floor((sum / resp.length) / 60)
+          this.footer = (hrs < 10 ? '0' + hrs : hrs) + ":" + (min < 10 ? '0' + min : min)
+        }
+      }
+      report.dataSource = new MatTableDataSource(resp);
+      report.dataSource.sort = this.sort
+    }
+    this.store.dispatch(AppActions.stopLoading())
   }
 
   onSortChanged() {
