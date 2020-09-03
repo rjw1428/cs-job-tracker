@@ -1,6 +1,6 @@
 <h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Reports</h1>
 
-<mat-tab-group (selectedIndexChange)="onTabChanged($event)" [selectedIndex]="selectedTabOnLoad$ | async">
+<mat-tab-group (selectedIndexChange)="onTabChanged($event, true)" [selectedIndex]="selectedTabOnLoad$ | async">
   <mat-tab *ngFor="let report of reports">
     <ng-template mat-tab-label>{{report.name}}</ng-template>
     <ng-template matTabContent>
@@ -15,6 +15,11 @@
               <mat-icon>close</mat-icon>
             </button>
           </mat-form-field>
+          <div style="width: 75%">
+            <app-filter [shortcuts]="timeShortcuts$ | async" [selectedShortcut]="selectedShortcut"
+              (dateRange)="onDateRangeSet($event)">
+            </app-filter>
+          </div>
           <button mat-mini-fab color="primary" style="margin-top: 4px" (click)="onExport(report)">
             <mat-icon>system_update_alt</mat-icon>
           </button>
@@ -28,14 +33,17 @@
               {{columnDef | titlecase}} </mat-header-cell>
 
             <mat-cell *matCellDef="let element">
-              <div *ngIf="columnDef == 'project value'">{{element[columnDef] | currency}}</div>
-              <div *ngIf="columnDef != 'project value'">{{element[columnDef]}}</div>
+              <div>{{(columnDef != 'project value')?element[columnDef]:element[columnDef] | currency}}</div>
             </mat-cell>
 
             <ng-container *ngIf="report.footer">
               <mat-footer-cell *matFooterCellDef>
-                <div *ngIf="i==report.displayedColumns.length-2 && report.footer=='project value'"><strong>Total Value</strong></div>
-                <div *ngIf="i==report.displayedColumns.length-2 && report.footer!=='project value'"><strong>Average Estimate Time</strong></div>
+                <div *ngIf="i==report.displayedColumns.length-2 && report.footer=='project value'">
+                  <strong>Total Value</strong>
+                </div>
+                <div *ngIf="i==report.displayedColumns.length-2 && report.footer!=='project value'">
+                  <strong>Average Estimate Time</strong>
+                </div>
                 <div *ngIf="i==report.displayedColumns.length-1">{{footer}}</div>
               </mat-footer-cell>
             </ng-container>
@@ -45,7 +53,8 @@
           <mat-header-row class="sticky-row" *matHeaderRowDef="report.displayedColumns;  sticky: true"></mat-header-row>
           <mat-row *matRowDef="let row; columns: report.displayedColumns;"></mat-row>
           <ng-container *ngIf="report.footer">
-            <mat-footer-row class="sticky-row" *matFooterRowDef="report.displayedColumns;  sticky: true"></mat-footer-row>
+            <mat-footer-row class="sticky-row" *matFooterRowDef="report.displayedColumns;  sticky: true">
+            </mat-footer-row>
           </ng-container>
         </mat-table>
       </div>

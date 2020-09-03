@@ -1,5 +1,8 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
 import { DashboardColumn, columnIds } from 'src/app/models/dashboard-column';
+import { Store } from '@ngrx/store';
+import { State } from 'src/app/root.reducers';
+import { AppActions } from 'src/app/shared/app.action-types';
 
 @Component({
   selector: 'app-job-board-column',
@@ -12,11 +15,14 @@ export class JobBoardColumnComponent implements OnInit {
   @Input() boxOptions: any[]
   @Input() estimatorOptions: { id: number, name: string }[]
   @Output() isDragging = new EventEmitter<boolean>()
+  @Output() dropShortcutMenu = new EventEmitter<{ job: any, target: string, source: string }>()
   itemStatusOptions: Object[]
   sortDirection: "asc" | "desc"
   sortKey: string
   isAwardedCol: boolean = false
-  constructor() { }
+  constructor(
+    // private store: Store<State>
+  ) { }
 
   ngOnInit(): void {
     const initialSort = localStorage[this.columnConfig.id] ? JSON.parse(localStorage[this.columnConfig.id]) : null
@@ -26,7 +32,7 @@ export class JobBoardColumnComponent implements OnInit {
     this.itemStatusOptions = this.columnConfig.statusOptions
     this.columnConfig = {
       ...this.columnConfig,
-      items: this.columnConfig.items.sort((a,b)=>this.sortFn(a,b, this.sortKey, this.sortDirection))
+      items: this.columnConfig.items.sort((a, b) => this.sortFn(a, b, this.sortKey, this.sortDirection))
     }
   }
 
@@ -43,24 +49,28 @@ export class JobBoardColumnComponent implements OnInit {
     this.isDragging.emit(false)
   }
 
-  onSortSelected(sortKey: string, direction: "asc" | "desc")  {
+  onSortSelected(sortKey: string, direction: "asc" | "desc") {
     this.sortKey = sortKey
     this.sortDirection = direction
     this.columnConfig = {
       ...this.columnConfig,
-      items: this.columnConfig.items.sort((a,b)=>this.sortFn(a,b, this.sortKey, this.sortDirection))
+      items: this.columnConfig.items.sort((a, b) => this.sortFn(a, b, this.sortKey, this.sortDirection))
     }
-    localStorage[this.columnConfig.id] = JSON.stringify({key: sortKey, direction})
+    localStorage[this.columnConfig.id] = JSON.stringify({ key: sortKey, direction })
   }
 
-  sortFn(a,b, key, direction) {
+  sortFn(a, b, key, direction) {
     const objA = a[key]
     const objB = b[key]
-    
+
     return objA > objB
       ? direction == 'asc' ? 1 : -1
       : objA < objB
         ? direction == 'asc' ? -1 : 1
         : 0
+  }
+
+  onShortcutMenuSelect(columnId: string, job) {
+    this.dropShortcutMenu.emit({ job, target: columnId, source: this.columnConfig.id })
   }
 }

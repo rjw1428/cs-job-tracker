@@ -23,7 +23,7 @@
         </ng-template>
         <mat-panel-description>
           <div style="display: flex; justify-content: space-around; align-items: center; width: 100%;">
-            <div><strong>Project Value: </strong>{{proposal.projectValue | currency}}</div>
+            <div><strong>Project Value: </strong>{{(proposal.finalCost?proposal.finalCost:proposal.projectValue) | currency}}</div>
           </div>
         </mat-panel-description>
       </mat-expansion-panel-header>
@@ -33,7 +33,8 @@
         <estimate 
           [proposalId]="proposal.id" 
           [estimates]="proposal.estimates" 
-          [deletable]="i!=data.proposals.length-1" 
+          [deletable]="i!=data.proposals.length-1"
+          [finalValue]="{finalCost: proposal.finalCost, note: proposal.finalCostNote}" 
           (deleted)="onEstimateDeleted($event)">
       </estimate>
       </ng-template>

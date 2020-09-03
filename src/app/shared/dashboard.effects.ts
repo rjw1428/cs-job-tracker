@@ -5,22 +5,17 @@ import { BackendService } from '../service/backend.service';
 import { AppActions } from './app.action-types';
 import { throwError, forkJoin, of } from 'rxjs';
 import { EventService } from '../service/event.service';
+import { DashboardActions } from './dashboard.action-types';
 
 @Injectable()
-export class AppEffects {
+export class DashboardEffects {
 
-    initializeApp$ = createEffect(() => this.actions$.pipe(
-        ofType(AppActions.initApp),
-        mergeMap(() => this.backendService.initializeApp()),
-        mergeMap(({ reports, charts, timeShortcuts }) => {
-            return of(
-                AppActions.setReports({ reports }),
-                AppActions.setCharts({ charts }),
-                AppActions.setTimeShortcuts({ timeShortcuts })
-            )
-        })
-    ));
-    
+    requery$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(DashboardActions.requery),
+            tap(() => this.eventService.requery.next())
+        ), { dispatch: false })
+
     constructor(
         private actions$: Actions,
         private backendService: BackendService,

@@ -23,7 +23,11 @@
 
   <mat-divider></mat-divider>
   <div style="display: flex; flex-direction: row; justify-content: space-between;">
-    <h2><strong>Project Value: </strong>{{projectValue | currency}}</h2>
+    <div style="display: flex; flex-direction: column;">
+      <h2 [ngStyle]="{'margin-bottom': finalValue.finalCost ? '0' : '16px'}"><strong>Project Value: </strong><span [ngStyle]="{'text-decoration': finalValue.finalCost ? 'line-through' : 'none'}">{{projectValue | currency}}</span></h2>
+      <h2 [ngStyle]="{'margin-bottom': finalValue.note ? '0' : '16px'}" *ngIf="finalValue.finalCost"><span style="color: red; margin-left: 128px">{{finalValue.finalCost | currency}}</span></h2>
+      <mat-hint *ngIf="finalValue.note" style="margin-left: 128px">{{finalValue.note}}</mat-hint>
+    </div>
     <h4 *ngIf="outsourceCost"><strong>Outsource Cost: </strong>{{outsourceCost | currency}}</h4>
     <button *ngIf="deletable" mat-button matTooltipPosition="above" matTooltip="Delete" (click)="onDelete()">
       <mat-icon>delete_outline</mat-icon>

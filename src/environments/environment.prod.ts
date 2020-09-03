@@ -17,5 +17,6 @@ export const environment = {
   jobFileTableName: 'job_files',
   jobIsActiveTableName: 'job_isActive',
   jobFinalCostTableName: 'job_final_cost',
-  jobNoBidTableName: 'job_noBid'
+  jobNoBidTableName: 'job_noBid',
+  activeProjects: 'projects_active'
 };

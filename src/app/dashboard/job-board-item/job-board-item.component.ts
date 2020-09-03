@@ -126,7 +126,7 @@ export class JobBoardItemComponent implements OnInit {
       .subscribe(resp => {
         this.dialog.open(EstimateViewComponent, {
           width: '700px',
-          data: { estimates: resp, job: this.job }
+          data: { estimates: resp, job: this.job, proposalId: this.job.proposalId}
         });
       })
   }
@@ -216,11 +216,14 @@ export class JobBoardItemComponent implements OnInit {
             estimates: [concreteEstimate, excavationEstimate, brickEstimate, cmuEstimate, otherEstimate],
             dateSent: resp['dateSent'],
             projectValue: resp['project_value'],
-            outsourceCost: resp['outsource_cost']
+            outsourceCost: resp['outsource_cost'],
+            finalCost: resp['finalCost'],
+            finalCostNote: resp['finalCostNote']
           }
         })
       }),
       switchMap((proposalHistory: any[]) => {
+        if (!this.isEstimatingCol) return of(proposalHistory)
         return this.backendService.getData(environment.currentProposalTableName, { jobId: this.job.jobId }).pipe(
           map((currentProposals: any[]) => {
             const projectValue = currentProposals.map(prop => +prop.cost).reduce((a, b) => a += b, 0)
@@ -298,7 +301,9 @@ export class JobBoardItemComponent implements OnInit {
           ? this.backendService.saveData(environment.jobFinalCostTableName, {
             jobId: this.job.jobId,
             amount: resp.amount,
-            note: resp.note
+            note: resp.note,
+            proposalId: this.job.proposalId,
+            date: new Date().toISOString()
           })
           : of(null)
       })
@@ -340,12 +345,12 @@ export class JobBoardItemComponent implements OnInit {
       where: { id: this.job.transactionId }
     }).pipe(
       mergeMap(() => {
-      return this.backendService.saveData(table ? table : environment.transactionTableName, {
-        jobId: this.job.jobId,
-        date: new Date().toISOString(),
-        ...partialPayload
-      })
-    }))
+        return this.backendService.saveData(table ? table : environment.transactionTableName, {
+          jobId: this.job.jobId,
+          date: new Date().toISOString(),
+          ...partialPayload
+        })
+      }))
       .subscribe(
         resp => {
           console.log(resp)
@@ -360,16 +365,21 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   saveNoBid(responseMessage) {
-    this.backendService.saveData(environment.jobNoBidTableName, {
-      jobId: this.job.jobId,
-      noBid: this.job.noBid,
-      date: new Date().toISOString()
+    this.backendService.updateData(environment.jobNoBidTableName, {
+      set: { noBid: this.job.noBid, date: new Date().toISOString() },
+      where: { jobId: this.job.jobId }
     }).pipe(
       switchMap(resp => {
+        return this.backendService.updateData(environment.transactionTableName, {
+          set: { dateEnded: new Date().toISOString() },
+          where: { id: this.job.transactionId }
+        })
+      }),
+      mergeMap(() => {
         return this.backendService.saveData(environment.transactionTableName, {
           jobId: this.job.jobId,
           date: new Date().toISOString(),
-          statusId: 1
+          statusId: this.job.nonobidStatus ? 1 : 11
         })
       })
     ).subscribe(

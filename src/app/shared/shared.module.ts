@@ -29,6 +29,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatMenuModule } from '@angular/material/menu';
+import { FilterComponent } from '../filter/filter.component';
+import { CustomHeaderComponent } from '../filter/custom-header/custom-header.component';
 
 const modules = [
   CommonModule,
@@ -65,14 +67,19 @@ const modules = [
 
 @NgModule({
   declarations: [
-    LoadingWrapperComponent
+    LoadingWrapperComponent,
+    FilterComponent,
+    CustomHeaderComponent
   ],
   imports: [
     modules
   ],
   exports: [
     modules,
-    LoadingWrapperComponent
+    LoadingWrapperComponent,
+    FilterComponent,
+    CustomHeaderComponent
+
   ]
 })
 export class SharedModule { }

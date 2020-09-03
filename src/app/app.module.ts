@@ -25,6 +25,7 @@ import { DragNDropDirective } from './directives/drag-n-drop.directive';
 import { EstimateAssignmentComponent } from './dashboard/triggered-forms/estimate-assignment/estimate-assignment.component';
 import { EffectsModule } from '@ngrx/effects';
 import { AppEffects } from './shared/app.effects';
+import { DashboardEffects } from './shared/dashboard.effects';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,7 @@ import { AppEffects } from './shared/app.effects';
         strictActionSerializability: true
       }
     }),
-    EffectsModule.forRoot([AppEffects]),
+    EffectsModule.forRoot([AppEffects, DashboardEffects]),
     StoreModule.forFeature('app', appReducer),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],

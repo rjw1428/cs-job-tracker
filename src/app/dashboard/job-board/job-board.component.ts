@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 import { State } from 'src/app/root.reducers';
 import { DashboardColumn, columnIds } from 'src/app/models/dashboard-column';
 import { Observable, combineLatest, of, iif, noop, throwError } from 'rxjs';
-import { map, first, switchMap, catchError, filter, mergeMap } from 'rxjs/operators';
+import { map, first, switchMap, catchError, filter, mergeMap, tap } from 'rxjs/operators';
 import { DashboardActions } from 'src/app/shared/dashboard.action-types';
 import { AppActions } from 'src/app/shared/app.action-types';
 import { EstimateAssignmentComponent } from '../triggered-forms/estimate-assignment/estimate-assignment.component';
@@ -15,6 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmationSnackbarComponent } from '../popups/confirmation-snackbar/confirmation-snackbar.component';
 import { Estimate } from 'src/app/models/estimate';
 import { environment } from 'src/environments/environment';
+import { EventService } from 'src/app/service/event.service';
 
 @Component({
   selector: 'app-job-board',
@@ -31,6 +32,7 @@ export class JobBoardComponent implements OnInit {
 
   constructor(
     private backendService: BackendService,
+    private eventService: EventService,
     private dialog: MatDialog,
     private store: Store<State>,
     private snackBar: MatSnackBar,
@@ -44,19 +46,23 @@ export class JobBoardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.pipe(
-      mergeMap(state => iif(() => state.dashboard.requery || !this.isInitialized, this.queryForData(state))),
-    ).subscribe(
-      cols => {
-        this.columns = cols
-        this.store.dispatch(DashboardActions.requeryComplete())
-        this.store.dispatch(AppActions.stopLoading())
-      })
-    this.isInitialized = true
+    this.eventService.requery.asObservable().pipe(
+      switchMap(() => this.store.pipe(
+        first(),
+        mergeMap(state => this.queryForData(state)),
+      )))
+      .subscribe(
+        cols => {
+          this.columns = cols
+          this.store.dispatch(DashboardActions.requeryComplete())
+          this.store.dispatch(AppActions.stopLoading())
+        })
+    this.eventService.requery.next()
   }
 
   queryForData(state: State) {
     return of(state).pipe(
+      first(),
       map(state => state.dashboard.columns),
       switchMap(cols => {
         return combineLatest(cols.map(col => {
@@ -123,6 +129,7 @@ export class JobBoardComponent implements OnInit {
             disableClose: true
           }).afterClosed().subscribe((resp: { startTime: string, endTime: string }) => {
             if (resp) {
+              event.container.data[event.currentIndex].reportOnlyNotes = ""
               this.saveAwardTimeline(resp, selectedJob)
               this.saveMove(event)
             }
@@ -148,6 +155,27 @@ export class JobBoardComponent implements OnInit {
       // MOVE ITEMS WITHIN SAME LIST
       // moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     }
+  }
+
+  onShortcutDrop(event: { job: any, target: string, source: string }) {
+    const source = this.columns.find(column => column.id == event.source)
+    const sourceIndex = this.columns.findIndex(column => column.id == event.source)
+    const target = this.columns.find(column => column.id == event.target)
+    const targetIndex = this.columns.findIndex(column => column.id == event.target)
+
+    const container = {
+      id: targetIndex,
+      data: target.items
+    }
+    const previousIndex = source.items.findIndex(j => j.jobId == event.job.jobId)
+    const currentIndex = 0
+    const previousContainer = {
+      id: sourceIndex,
+      data: source.items
+    }
+
+    const outboundEvent = { container, currentIndex, previousIndex, previousContainer } as unknown as CdkDragDrop<any>
+    this.drop(outboundEvent)
   }
 
 
@@ -208,17 +236,21 @@ export class JobBoardComponent implements OnInit {
       event.previousIndex,
       event.currentIndex
     );
-
+    const job =  event.container.data[event.currentIndex]
     //Save Changes
     let payload = {
-      jobId: event.container.data[event.currentIndex].jobId,
+      jobId: job.jobId,
       date: new Date().toISOString(),
       statusId: this.columns[event.container.id].defaultStatusId,
-      notes: event.container.data[event.currentIndex].notes,
-      reportOnlyNotes: event.container.data[event.currentIndex].reportOnlyNotes,
+      notes: job.notes,
+      reportOnlyNotes: job.reportOnlyNotes,
       box: assignmentForm ? assignmentForm.boxId : null,
       assignedTo: assignmentForm ? assignmentForm.estimatorId : null,
-      proposalId: assignmentForm ? assignmentForm.proposalId : null
+      proposalId: assignmentForm 
+        ? assignmentForm.proposalId
+        : job.proposalId 
+          ? job.proposalId
+          : null
     }
 
     if (assignmentForm && assignmentForm.estimatorId)

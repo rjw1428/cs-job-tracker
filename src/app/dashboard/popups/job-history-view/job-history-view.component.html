@@ -20,7 +20,7 @@
 
       <mat-cell *matCellDef="let element">
         <div *ngIf="i==0">{{element[columnDef] | date : 'short'}}</div>
-        <div *ngIf="element[columnDef] == 'proposal sent';else normal">
+        <div *ngIf="i>0 && element.proposalId && element[columnDef] == 'proposal sent'; else normal">
           <span style="color: rgb(13, 34, 153); cursor: pointer;" (click)="onProposalSelected(element)">{{element[columnDef] | titlecase}}</span>
         </div>
         <ng-template #normal>

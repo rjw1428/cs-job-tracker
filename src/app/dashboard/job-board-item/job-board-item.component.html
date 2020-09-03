@@ -46,14 +46,14 @@
       <mat-slide-toggle color="warn" (change)="onNoBid($event)" [(ngModel)]="noBidStatus">No Bid</mat-slide-toggle>
     </section>
 
-    <section *ngIf="job.statusId!=11">
+    <section *ngIf="job.statusId!=11 && job.statusId!=1">
       <p *ngIf="!isAwardedCol"><strong>Total Estimates: </strong>{{job.total_estimates}}</p>
-      <p *ngIf="isAwardedCol"><strong>Project Value: </strong>{{job.project_value | currency}}</p>
+      <p *ngIf="!isEstimatingCol && !isBiddingCol"><strong>Project Value: </strong>{{(job.finalCost?job.finalCost:job.project_value) | currency}}</p>
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <button color="primary" mat-button (click)="onOpenCurrentEstimate()">Current Proposal</button>
-        <button *ngIf="isAwardedCol" matTooltip="Edit Final Price" (click)="onDiscount()" mat-mini-fab color="primary"
+        <button *ngIf="!isEstimatingCol && !isBiddingCol" matTooltip="Edit Final Price" (click)="onDiscount()" mat-mini-fab color="primary"
           style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;">
-          <mat-icon>monetization_on_outline</mat-icon>
+          <mat-icon>monetization_on_outlie</mat-icon>
         </button>
       </div>
     </section>
@@ -78,7 +78,7 @@
       </mat-form-field>
     </section>
 
-    <section *ngIf="job.statusId!=12 && job.statusId!=11">
+    <section *ngIf="job.statusId!=12 && job.statusId!=11 && job.statusId!=1">
       <mat-form-field style="width: 200px">
         <mat-label>Current Status:</mat-label>
         <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onStatusChanged($event)">

@@ -172,6 +172,7 @@ export class EstimateFormComponent implements OnInit {
           this.dialogRef.close({ message: "Estimate Saved", requery: true })
         }
       )
+      
   }
 
   onAdd(event) {

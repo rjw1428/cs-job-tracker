@@ -43,7 +43,6 @@ export class JobHistoryViewComponent implements OnInit {
 
   onProposalSelected(element) {
     const proposalId = element.proposalId
-    console.log(proposalId)
     this.backendService.getData(environment.proposalSnapshotTableName, { id: proposalId })
       .pipe(
         map(resp => {
@@ -91,7 +90,7 @@ export class JobHistoryViewComponent implements OnInit {
       ).subscribe(resp => {
         this.dialog.open(EstimateViewComponent, {
           width: '700px',
-          data: { estimates: resp, job: this.data.job }
+          data: { estimates: resp, job: this.data.job, proposalId}
         });
       })
   }

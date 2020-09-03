@@ -8,7 +8,9 @@ export const initialDashboardState: AppState = {
     expandedSidebarWidth: 200,
     loading: false,
     reports: [],
-    charts: []
+    charts: [],
+    timeShortcuts: [],
+    statusOptions: {}
 }
 
 export const appReducer = createReducer(
@@ -31,5 +33,15 @@ export const appReducer = createReducer(
     }),
     on(AppActions.setCharts, (state, action) => {
         return { ...state, charts: action.charts }
-    })
+    }),
+    on(AppActions.setTimeShortcuts, (state, action) => {
+        return { ...state, timeShortcuts: action.timeShortcuts }
+    }),
+    on(AppActions.setStatusOptions, (state, action) => {
+        return { ...state, statusOptions: action.options }
+    }),
+    // on(AppActions.moveDashboardTile, (state, action) => {
+
+    //     return state
+    // })
 )

@@ -1,64 +1,88 @@
 <h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Charts</h1>
 
 
-<mat-tab-group (selectedIndexChange)="onTabChanged($event)" [selectedIndex]="selectedTabOnLoad$ | async">
+<mat-tab-group (selectedIndexChange)="onTabChanged($event, true)" [selectedIndex]="selectedTabOnLoad$ | async">
   <mat-tab *ngFor="let chart of charts">
     <ng-template mat-tab-label>{{chart.name}}</ng-template>
     <ng-template matTabContent>
-      <div  [ngSwitch]="chart.chartType"  class="wrapper">
-        <div *ngSwitchCase="'bar_vertical'" class="wrapper">
-          
-          <ngx-charts-bar-vertical 
-            [results]="chart.dataSource"
-            [xAxisLabel]="chart.xAxisLabel"
-            [legendTitle]="chart.name"
-            [yAxisLabel]="chart.yAxisLabel"
-            [legend]="false"
-            [showXAxisLabel]="true"
-            [showYAxisLabel]="true"
-            [xAxis]="true"
-            [yAxis]="true"
-            [gradient]="true">
-          </ngx-charts-bar-vertical>
+      <div style="display: flex; flex-direction: column;" class="wrapper">
+        <div style="width: 75%">
+          <app-filter 
+            [shortcuts]="timeShortcuts$ | async"
+            [selectedShortcut]="selectedShortcut"
+            (dateRange)="onDateRangeSet($event)">
+          </app-filter>
         </div>
 
-        <div *ngSwitchCase="'single_line'" class="wrapper">
-          <ngx-charts-line-chart
-            [results]="chart.dataSource"
-            [xAxisLabel]="chart.xAxisLabel"
-            [legendTitle]="chart.name"
-            [yAxisLabel]="chart.yAxisLabel"
-            [legend]="true"
-            [showXAxisLabel]="true"
-            [showYAxisLabel]="true"
-            [xAxis]="true"
-            [yAxis]="true"
-            [gradient]="true">
-          </ngx-charts-line-chart>
+        <div  [ngSwitch]="chart.chartType" style="flex-grow: 2;">
+          <div *ngSwitchCase="'bar_vertical'" class="wrapper">
+            <ngx-charts-bar-vertical 
+              [results]="chart.dataSource"
+              [xAxisLabel]="chart.xAxisLabel"
+              [legendTitle]="chart.name"
+              [yAxisLabel]="chart.yAxisLabel"
+              [legend]="false"
+              [showXAxisLabel]="true"
+              [showYAxisLabel]="true"
+              [xAxis]="true"
+              [yAxis]="true"
+              [gradient]="true">
+            </ngx-charts-bar-vertical>
+          </div>
+
+          <div *ngSwitchCase="'bar_horizontal'" class="wrapper">
+            <ngx-charts-bar-horizontal
+              [results]="chart.dataSource"
+              [xAxisLabel]="chart.xAxisLabel"
+              [legendTitle]="chart.name"
+              [yAxisLabel]="chart.yAxisLabel"
+              [legend]="false"
+              [showXAxisLabel]="true"
+              [showYAxisLabel]="true"
+              [xAxis]="true"
+              [yAxis]="true"
+              [gradient]="true">
+            </ngx-charts-bar-horizontal>
+          </div>
+
+          <div *ngSwitchCase="'single_line'" class="wrapper">
+            <ngx-charts-line-chart
+              [results]="chart.dataSource"
+              [xAxisLabel]="chart.xAxisLabel"
+              [legendTitle]="chart.name"
+              [yAxisLabel]="chart.yAxisLabel"
+              [legend]="true"
+              [showXAxisLabel]="true"
+              [showYAxisLabel]="true"
+              [xAxis]="true"
+              [yAxis]="true"
+              [gradient]="true">
+            </ngx-charts-line-chart>
+          </div>
+
+          <div *ngSwitchCase="'pie'" class="wrapper">
+            <ngx-charts-pie-chart
+              [results]="chart.dataSource"
+              [legendTitle]="chart.name"
+              [legend]="true"
+              [labels]="true"
+              [gradient]="true">
+            </ngx-charts-pie-chart>
+          </div>
+
+          <div *ngSwitchCase="'pie_advanced'" class="wrapper">
+            <ngx-charts-advanced-pie-chart
+              [results]="chart.dataSource"
+              [gradient]="true">
+            </ngx-charts-advanced-pie-chart>
+          </div>
+
+
+          <div *ngSwitchCase="'gantt'" class="wrapper">
+            <ng-container *ngTemplateOutlet="gantt"></ng-container>
+          </div>
+
         </div>
-
-        <div *ngSwitchCase="'pie'" class="wrapper">
-          <ngx-charts-pie-chart
-            [results]="chart.dataSource"
-            [legendTitle]="chart.name"
-            [legend]="true"
-            [labels]="true"
-            [gradient]="true">
-          </ngx-charts-pie-chart>
-        </div>
-
-        <div *ngSwitchCase="'pie_advanced'" class="wrapper">
-          <ngx-charts-advanced-pie-chart
-            [results]="chart.dataSource"
-            [gradient]="true">
-          </ngx-charts-advanced-pie-chart>
-        </div>
-
-
-        <div *ngSwitchCase="'gantt'" class="wrapper">
-          <ng-container *ngTemplateOutlet="gantt"></ng-container>
-        </div>
-
       </div>
     </ng-template>
   </mat-tab>

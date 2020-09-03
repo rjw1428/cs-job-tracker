@@ -3,6 +3,7 @@
         cdkDropList
         (cdkDropListDropped)="drop($event)"
         (isDragging)="onIsDragging($event)"
+        (dropShortcutMenu)="onShortcutDrop($event)"
         [cdkDropListData]="column.items"
         [id]="i"
         class="wrapper divider"

@@ -22,7 +22,7 @@ export class EstimateHistoryViewComponent implements OnInit {
     private backendService: BackendService,
     private dialogRef: MatDialogRef<EstimateHistoryViewComponent>,
     @Inject(MAT_DIALOG_DATA) public data: {
-      proposals: { id: number, estimates: any[], dateSent: string, projectValue: number, outsourceCost: number }[],
+      proposals: { id: number, estimates: any[], dateSent: string, projectValue: number, outsourceCost: number, finalCost: number, finalCostNote:string}[],
       job: any
     }
   ) { }

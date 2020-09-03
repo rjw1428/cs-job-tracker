@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { saveAs } from 'file-saver'
 import { Report } from '../reports/reports.component';
 import { Chart } from '../charts/charts.component';
+import { TimeShortcut } from '../filter/filter.component';
 @Injectable({
   providedIn: 'root'
 })
@@ -13,11 +14,33 @@ export class BackendService {
   constructor(private http: HttpClient) { }
 
   initializeApp() {
-    return this.http.get<{reports: Report[], charts: Chart[]}>(`${environment.apiUrl}/init/`)
+    return this.http.get<{reports: Report[], charts: Chart[], timeShortcuts: TimeShortcut[]}>(`${environment.apiUrl}/init/`).pipe(
+      shareReplay()
+    )
   }
   getData(table: string, params?: {}) {
     const paramString = (params) ? this.convertObjToParma(params) : ""
-    return this.http.get(`${environment.apiUrl}/api/${table}${paramString}`).pipe(
+    return this.http.get<any[]>(`${environment.apiUrl}/api/${table}${paramString}`).pipe(
+      shareReplay()
+    )
+  }
+
+  getChart(storedProcedure: string, time?:{start: number, end: number}) {
+    const paramString = (time) ? this.convertObjToParma(time) : ""
+    return this.http.get(`${environment.apiUrl}/api/chart/${storedProcedure}${paramString}`).pipe(
+      shareReplay()
+    )
+  }
+
+  getReport(storedProcedure: string, params?:{}) {
+    const paramString = (params) ? this.convertObjToParma(params) : ""
+    return this.http.get(`${environment.apiUrl}/api/report/${storedProcedure}${paramString}`).pipe(
+      shareReplay()
+    )
+  }
+
+  getSearch(params?:{}) {
+    return this.http.get<any[]>(`${environment.apiUrl}/api/search?value=${params}`).pipe(
       shareReplay()
     )
   }

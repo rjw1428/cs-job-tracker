@@ -11,6 +11,7 @@ export class EstimateComponent implements OnInit {
   @Input() proposalId: number
   @Input() estimates: Estimate[] = []
   @Input() deletable: boolean = false
+  @Input() finalValue: {finalCost: number, note: string} = {finalCost: null, note: null}
   @Output() deleted = new EventEmitter<number>()
   projectValue: number = 0
   outsourceCost: number = 0
