@@ -24,8 +24,8 @@ function runQuery(query: string, callback) {
                 return callback({ error: err })
         }
         try {
-            console.log(`MySQL connection made on port ${poolOptions.port}`)
             conn.query(query, (err, results, fields) => {
+                console.log(`MySQL connection made on port ${poolOptions.port}`)
                 conn.release()
                 if (err) callback({ error: err })
                 pool.end(err => {
@@ -41,9 +41,20 @@ function runQuery(query: string, callback) {
 
 export const router = express.Router()
 
+
+router.get('/api/search', (req, resp) => {
+    const _value = req.query.value
+    runQuery(`CALL search('${_value}')`, ({ error, results }) => {
+        if (error) resp.status(500).send({ error })
+        resp.send(results[0])
+    })
+})
+
+
 //GET TABLE OF VALUES
 router.get('/api/:table', (req, resp) => {
     const _table = req.params.table
+    if (_table == 'undefined')  return resp.status(500).send({ error: "Missing Table Name to query from" })
     const _params = Object.keys(req.query).map(key => {
         const paramValue = req.query[key] as string
         return { [key]: paramValue.split("|") }
@@ -56,6 +67,39 @@ router.get('/api/:table', (req, resp) => {
         resp.send(results)
     })
 })
+
+router.get('/api/chart/:procedure', (req, resp) => {
+    const _procedure = req.params.procedure
+    if (_procedure == 'undefined')   return resp.status(500).send({ error: "Missing Chart Stored Procedure to query from" })
+    const _params = Object.keys(req.query)
+        .map(key => {
+            return { [key]: +req.query[key] }
+        })
+        .reduce((acc, cur) => ({ ...acc, ...cur }), {})
+    const _timeRange = createTimeRange(_params)
+
+    runQuery(`CALL ${_procedure}${_timeRange}`, ({ error, results }) => {
+        if (error) resp.status(500).send({ error })
+        resp.send(results[0])
+    })
+})
+
+router.get('/api/report/:procedure', (req, resp) => {
+    const _procedure = req.params.procedure
+    if (_procedure == 'undefined')   return resp.status(500).send({ error: "Missing Report Stored Procedure to query from" })
+    const _params = Object.keys(req.query)
+        .map(key => {
+            return { [key]: +req.query[key] }
+        })
+        .reduce((acc, cur) => ({ ...acc, ...cur }), {})
+    const _timeRange = createTimeRange(_params)
+
+    runQuery(`CALL ${_procedure}${_timeRange}`, ({ error, results }) => {
+        if (error) resp.status(500).send({ error })
+        resp.send(results[0])
+    })
+})
+
 
 //GET VALUE FROM TABLE BY ID
 router.get('/api/:table/:id', (req, resp) => {
@@ -106,6 +150,14 @@ router.post('/api/delete/:table', (req, resp) => {
     })
 })
 
+function createTimeRange(time: {}): string {
+    if (Object.keys(time).length === 0) return ""
+    const start = time['start'] - +(time['start'] == time['end']) * 86400
+    const end = time['end']
+    return `(${start},${end})`
+}
+
+
 function createWhereClauses(obj: {}): string {
     if (Object.keys(obj).length === 0) return ""
     return "WHERE " + Object.keys(obj).map(key => {
@@ -124,9 +176,15 @@ function createSetClause(setObj: {}) {
 export function saveFile(jobId, folderName, fileName, date, callback) {
     const _table = "job_files"
     const _fields = ["jobId", "displayId", "fileName", "fileLocation", "dateCreated"].join(',')
-    const _values = [`'${jobId}'`,`'${folderName}'` , `'${fileName}'`,`'${folderName}/${fileName}'`, `'${date}'`].join(',')
+    const _values = [`'${jobId}'`, `'${folderName}'`, `'${fileName}'`, `'${folderName}/${fileName}'`, `'${date}'`].join(',')
     runQuery(`REPLACE INTO ${_table} (${_fields}) VALUES (${_values})`, ({ error, results }) => {
         if (error) callback({ error })
         callback(results)
+    })
+}
+
+export function pingDB(callback) {
+    runQuery("SELECT 1", (resp)=>{
+        callback(resp)
     })
 }

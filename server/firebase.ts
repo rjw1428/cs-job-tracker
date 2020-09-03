@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as firebase from 'firebase'
 import * as dotenv from "dotenv";
 import * as admin from 'firebase-admin'
+import { pingDB } from './database/db';
 
 export const firebaseRoute = express.Router()
 
@@ -34,12 +35,15 @@ admin.auth().createCustomToken("concrete-systems")
     })
     .catch((error) => console.log('Error creating custom token:', error));
 
+// Node Heartbeat    
 fb.auth().onAuthStateChanged((user) => {
     if (user) {
         console.log("User:", user.uid)
-        logToFirebase()
+        logToFirebase('node-status')
+        pingLocaldabase()
         setInterval(() => {
-            logToFirebase()
+            logToFirebase('node-status')
+            pingLocaldabase()
         }, 60 * 1000)
     } else {
         // No user is signed in.
@@ -49,6 +53,7 @@ fb.auth().onAuthStateChanged((user) => {
 firebaseRoute.get('/init', async (req, resp) => {
     let reportConfigs = []
     let chartConfigs = []
+    let timeShortcuts = []
     const reports = await fb.firestore().collection('cs_workflow').doc('reports').get()
     if (!reports.exists) {
         console.log('No reports found!');
@@ -67,25 +72,34 @@ firebaseRoute.get('/init', async (req, resp) => {
             .map(key => charts.data()[key])
             .sort((a, b) => a.order ? a.order - b.order : -1)
     }
-
+    const time_filter = await fb.firestore().collection('cs_workflow').doc('time_filter').get()
+    if (!time_filter.exists) {
+        console.log('No time filters found!');
+    }
+    else {
+        timeShortcuts = Object.keys(time_filter.data())
+            .map(key => time_filter.data()[key])
+    }
     resp.send({
         reports: reportConfigs,
-        charts: chartConfigs
+        charts: chartConfigs,
+        timeShortcuts
     })
 })
 
+function pingLocaldabase() {
+    pingDB((resp) => {
+        if (resp.results)
+            logToFirebase('mysql-status')
+        else 
+            logErrorToFirebase('mysql-status', "Unable to connect to DB")
+    })
+}
 
-// firebaseRoute.get('/download/:jobId/:fileName', async (req, res) => {
-//     try {
-//         const jobId = req.params.jobId
-//         const folder = req.query.folder
-//         const fileName = encodeURIComponent(req.params.fileName)
-//         res.download(path.join(__dirname, `${storageFolder}/${folder}/${fileName}`));
-//     } catch (e) {
-//         res.status(404).send(e)
-//     }
-// })
+function logToFirebase(document) {
+    fb.firestore().collection('cs_workflow').doc(document).update({ lastOnline: new Date() })
+}
 
-function logToFirebase() {
-    fb.firestore().collection('cs_workflow').doc('node-status').set({ lastOnline: new Date() })
+function logErrorToFirebase(document, error) {
+    fb.firestore().collection('cs_workflow').doc(document).update({ error, errorTime: new Date() })
 }
