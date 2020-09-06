@@ -1,1 +1,7 @@
-<h1>Welcome to the ts-node server</h1>
+<div class="wrapper">
+    <app-sidebar style="position:relative; z-index: 500;"></app-sidebar>
+    <div class="content" [ngStyle]="{'margin-left': sidebarWidth+'px'}">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  
