@@ -1,0 +1,93 @@
+<div class="wrapper">
+  <div class="title mat-elevation-z8" style="display: flex; justify-content: space-around;">
+    <div></div>
+    <h3>{{columnConfig.name}}</h3>
+    <button mat-icon-button [matMenuTriggerFor]="sortMenu" style="color: white;">
+      <mat-icon>sort</mat-icon>
+    </button>
+  </div>
+  <div class="list">
+    <app-job-board-item *ngFor="let item of items$ | async" class="box" cdkDrag [job]="item" cdkDragBoundary=".dashboard-wrapper"
+      (cdkDragStarted)="onDragStart()" (cdkDragReleased)="onDragRelease()">
+      <mat-icon cdkDragHandle [matMenuTriggerFor]="quickMoveMenu" style="cursor: grab;">drag_indicator</mat-icon>
+      <mat-menu #quickMoveMenu="matMenu">
+        <ng-template matMenuContent>
+          <button mat-menu-item [disabled]="columnConfig.id=='estimating'"
+            (click)="onShortcutMenuSelect('estimating', item)">
+            <span>Send To Estimating</span>
+          </button>
+          <button mat-menu-item [disabled]="columnConfig.id=='proposal'"
+            (click)="onShortcutMenuSelect('proposal', item)">
+            <span>Send To Proposal Sent</span>
+          </button>
+          <button mat-menu-item [disabled]="columnConfig.id=='hold'" (click)="onShortcutMenuSelect('hold', item)">
+            <span>Send To On Hold</span>
+          </button>
+          <button mat-menu-item [disabled]="columnConfig.id=='notAwarded'"
+            (click)="onShortcutMenuSelect('notAwarded', item)">
+            <span>Send To Not Awarded</span>
+          </button>
+          <button mat-menu-item [disabled]="columnConfig.id=='awarded'" (click)="onShortcutMenuSelect('awarded', item)">
+            <span>Send To Awarded</span>
+          </button>
+        </ng-template>
+      </mat-menu>
+    </app-job-board-item>
+  </div>
+</div>
+
+<mat-menu #sortMenu="matMenu">
+  <ng-template matMenuContent>
+    <p style="font-weight: bold; font-style: italic; margin-bottom: 0; padding-left: 16px;">Sort</p>
+    <button mat-menu-item
+      [ngStyle]="{'font-weight': columnConfig.sortKey == 'projectName' && columnConfig.sortDirection == 'asc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('projectName', 'asc')">
+      <span>Project Name (Asc)</span>
+    </button>
+    <button mat-menu-item
+      [ngStyle]="{'font-weight': columnConfig.sortKey == 'projectName' && columnConfig.sortDirection == 'desc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('projectName', 'desc')">
+      <span>Project Name (Desc)</span>
+    </button>
+    <button mat-menu-item
+      [ngStyle]="{'font-weight': columnConfig.sortKey == 'dateAdded' && columnConfig.sortDirection == 'asc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('dateAdded', 'asc')">
+      <span>Invite Date (Asc) </span>
+    </button>
+    <button mat-menu-item
+      [ngStyle]="{'font-weight': columnConfig.sortKey == 'dateAdded' && columnConfig.sortDirection == 'desc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('dateAdded', 'desc')">
+      <span>Invite Date (Desc) </span>
+    </button>
+    <button mat-menu-item *ngIf="!isAwardedCol"
+      [ngStyle]="{'font-weight': columnConfig.sortKey == 'dateDue' && columnConfig.sortDirection == 'asc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('dateDue', 'asc')">
+      <span>Due Date (Asc) </span>
+    </button>
+    <button mat-menu-item *ngIf="!isAwardedCol"
+      [ngStyle]="{'font-weight': columnConfig.sortKey == 'dateDue' && columnConfig.sortDirection == 'desc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('dateDue', 'desc')">
+      <span>Due Date (Desc) </span>
+    </button>
+    <button mat-menu-item *ngIf="isAwardedCol"
+      [ngStyle]="{'font-weight': columnConfig.sortKey == 'startTime' && columnConfig.sortDirection == 'asc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('startTime', 'asc')">
+      <span>Start Date (Asc) </span>
+    </button>
+    <button mat-menu-item *ngIf="isAwardedCol"
+      [ngStyle]="{'font-weight': columnConfig.sortKey == 'startTime' && columnConfig.sortDirection == 'desc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('startTime', 'desc')">
+      <span>Start Date (Desc) </span>
+    </button>
+    <button mat-menu-item *ngIf="isAwardedCol"
+      [ngStyle]="{'font-weight': columnConfig.sortKey == 'endTime' && columnConfig.sortDirection == 'asc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('endTime', 'asc')">
+      <span>End Date (Asc) </span>
+    </button>
+    <button mat-menu-item *ngIf="isAwardedCol"
+      [ngStyle]="{'font-weight': columnConfig.sortKey == 'endTime' && columnConfig.sortDirection == 'desc' ? 'bold' : 'normal'}"
+      (click)="onSortSelected('endTime', 'desc')">
+      <span>End Date (Desc) </span>
+    </button>
+  </ng-template>
+</mat-menu>

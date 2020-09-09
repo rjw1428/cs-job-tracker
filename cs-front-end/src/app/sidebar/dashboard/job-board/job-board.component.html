@@ -1,0 +1,17 @@
+<div class="dashboard-wrapper" cdkDropListGroup [ngStyle]="{'cursor':isDragging?'grabbing':'auto'}">
+    <app-job-board-column *ngFor="let column of columns$ | async; let i=index"
+        cdkDropList
+        (cdkDropListDropped)="drop($event)"
+        (isDragging)="onIsDragging($event)"
+        [cdkDropListData]="column.items"
+        [id]="column.id"
+        [columnConfig]="column"
+        class="wrapper divider"
+        style="flex-direction: column;">
+    </app-job-board-column>
+</div>
+
+
+<!-- 
+[estimatorOptions]="estimators"
+[boxOptions]="boxOptions" -->

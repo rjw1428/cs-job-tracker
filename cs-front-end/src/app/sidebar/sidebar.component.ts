@@ -1,12 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store, State, select } from '@ngrx/store';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { handleFormUpdate } from '../shared/utility';
 import { AppState } from 'src/models/appState';
 import { environment } from 'src/environments/environment';
-import { Observable } from 'rxjs';
+import { HelpComponent } from './help/help.component';
+import { switchMap } from 'rxjs/operators';
+import { BackendService } from '../services/backend.service';
+import { showSnackbar } from '../shared/utility';
+import { of } from 'rxjs';
+import { SettingsComponent } from './settings-component/settings.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,8 +18,7 @@ import { Observable } from 'rxjs';
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent implements OnInit {
-  defaultWidth$: Observable<number>
-  width$: Observable<number>
+  @Input() width: number
   activeButton: string;
   version = environment.version
   isExpanded: boolean = false
@@ -24,6 +27,7 @@ export class SidebarComponent implements OnInit {
     private store: Store<AppState>,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
+    private backendService: BackendService
   ) { }
 
   ngOnInit(): void {
@@ -32,16 +36,23 @@ export class SidebarComponent implements OnInit {
   }
 
   onHelp() {
-    // const dialogRef = this.dialog.open(HelpComponent, {
-    //   width: '500px',
-    // });
-    // handleFormUpdate(dialogRef, this.store, this.snackBar)
+    const dialogRef = this.dialog.open(HelpComponent, {
+      width: '500px',
+    }).afterClosed().pipe(
+      switchMap(msg => msg ? this.backendService.sendEmail(msg) : of(null))
+    )
+      .subscribe(
+        resp => {
+          if (resp && resp['error']) showSnackbar(this.snackBar, resp['error'])
+          if (resp) showSnackbar(this.snackBar, resp['message'])
+        },
+      )
   }
 
-  onEditEstimators() {
-    // const dialogRef = this.dialog.open(CreatePersonFormComponent, {
-    //   width: '350px'
-    // });
+  onSettings() {
+    const dialogRef = this.dialog.open(SettingsComponent, {
+      width: '350px'
+    });
     // handleFormUpdate(dialogRef, this.store, this.snackBar)
   }
 

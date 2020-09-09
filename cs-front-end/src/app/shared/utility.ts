@@ -1,4 +1,4 @@
-import { DashboardActions } from '../dashboard/dashboard.action-types';
+import { DashboardActions } from '../sidebar/dashboard/dashboard.action-types';
 import { MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
 import { TitleCasePipe } from '@angular/common';
 
@@ -14,20 +14,14 @@ export function showSnackbar(snackBar, message: string) {
     })
 }
 
-export function handleFormUpdate(dialogRef, store, snackBar) {
-    dialogRef.afterClosed().subscribe(result => {
-        if (result && result.requery)
-            store.dispatch(DashboardActions.requery())
-
-        if (result && result.message)
-            showSnackbar(snackBar, result.message)
-    });
-}
-
 export function filterList(val: string | object, sourceList: Object[], objectKey: string) {
-    return val ? sourceList.filter(project => {
-        return (typeof val === 'string') ? project[objectKey].toLowerCase().indexOf(val.toLowerCase()) != -1 : true
-    }) : []
+    return !val
+        ? []
+        : sourceList.filter(project => (typeof val === 'string')
+            ? project[objectKey].toLowerCase().indexOf(val.toLowerCase()) != -1
+            : true
+        )
+
 }
 
 export function convertJsonToCSV(json: Object[]) {
@@ -39,4 +33,16 @@ export function convertJsonToCSV(json: Object[]) {
     //Add header
     csv.unshift(header.map(columnName => titleCase.transform(columnName)).join(','))
     return csv.join('\r\n')
+}
+
+export function sortFn(a, b, key, direction) {
+    if (key == 'manual') return 0
+    const objA = a[key]
+    const objB = b[key]
+
+    return objA > objB
+        ? direction == 'asc' ? 1 : -1
+        : objA < objB
+            ? direction == 'asc' ? -1 : 1
+            : 0
 }

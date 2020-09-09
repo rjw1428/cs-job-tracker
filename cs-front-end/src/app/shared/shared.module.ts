@@ -23,7 +23,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-// import { LoadingWrapperComponent } from '../loading-wrapper/loading-wrapper.component';
+import { LoadingWrapperComponent } from '../loading-wrapper/loading-wrapper.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatSortModule } from '@angular/material/sort';
@@ -72,8 +72,13 @@ const modules = [
 
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    LoadingWrapperComponent
+  ],
   imports: [modules],
-  exports: [modules]
+  exports: [
+    modules,
+    LoadingWrapperComponent
+  ]
 })
 export class SharedModule { }

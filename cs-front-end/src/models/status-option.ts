@@ -1,8 +1,6 @@
-export interface StatusOption {
-    id: string;
-    status: string;
+export class StatusOption {
+    constructor(
+        public id: string,
+        public status: string,
+    ) { }
 }
-
-const StatusOptions: StatusOption[] = []
-
-module.exports = StatusOptions

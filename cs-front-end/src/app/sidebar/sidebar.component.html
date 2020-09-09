@@ -1,6 +1,6 @@
-<div class="sidebar" [ngStyle]="{'width': (width$ | async)+'px'}">
-  <img src="../../assets/img/logo.png" [attr.width]="(defaultWidth$ | async)+'px'"
-    [attr.height]="(defaultWidth$ | async)*.65+'px'">
+<div class="sidebar" [ngStyle]="{'width': width}">
+  <img src="../../assets/img/logo.png" [attr.width]="width +'px'"
+    [attr.height]="width*.65+'px'">
   <div class="button-groups">
     <div class="core-button-group">
       <div class="icon-group" routerLink="/dashboard" routerLinkActive="active">
@@ -21,7 +21,7 @@
       </div>
     </div>
     <div class="bottom-button-group">
-      <div id="people" class="icon-group" (click)="onEditEstimators()">
+      <div id="people" class="icon-group" (click)="onSettings()">
         <mat-icon class="icon" fontSet="material-icons-outlined">settings</mat-icon>
         <small>Settings</small>
       </div>

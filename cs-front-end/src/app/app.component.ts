@@ -9,14 +9,15 @@ import { AppActions } from './app.action-types';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  sidebarWidth: number = 75;
+  sidebarWidth: number = 75
   constructor(
     private store: Store<AppState>
-  ) { 
-    this.store.dispatch(AppActions.startLoading())
+  ) {
+
   }
 
   ngOnInit() {
-    this.store.dispatch(AppActions.initApp())
+    // this.store.dispatch(AppActions.startLoading())
+    // this.store.dispatch(AppActions.initApp())
   }
 }

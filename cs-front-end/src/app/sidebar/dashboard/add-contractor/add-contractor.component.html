@@ -1,0 +1,63 @@
+<h1 mat-dialog-title>Add General Contractor</h1>
+<div mat-dialog-content>
+  <p>Enter General Contractor Info</p>
+  <mat-vertical-stepper>
+    <mat-step [stepControl]="companyInfoFormGroup">
+      <form [formGroup]="companyInfoFormGroup">
+        <ng-template matStepLabel>Company Info</ng-template>
+        <div style="display: flex; flex-direction: column;">
+          <mat-form-field>
+            <mat-label>Company Name</mat-label>
+            <input name="companyName" matInput formControlName="contractorName">
+            <button mat-button *ngIf="companyInfoFormGroup.get('contractorName').value" matSuffix mat-icon-button
+              aria-label="Clear" (click)="companyInfoFormGroup.patchValue({contractorName: null})">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperNext>Next</button>
+          </div>
+        </div>
+      </form>
+    </mat-step>
+
+    <mat-step [stepControl]="contactInfoFormGroup">
+      <form [formGroup]="contactInfoFormGroup">
+        <ng-template matStepLabel>Contact Info</ng-template>
+        <div style="display: flex; flex-direction: column;">
+          <mat-form-field>
+            <mat-label>Contact Name</mat-label>
+            <input name="name" matInput formControlName="contactName">
+            <button mat-button *ngIf="contactInfoFormGroup.get('contactName').value" matSuffix mat-icon-button
+              aria-label="Clear" (click)="contactInfoFormGroup.patchValue({contactName: null})">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Contact Email</mat-label>
+            <input name="email" matInput formControlName="contactEmail">
+            <button mat-button *ngIf="contactInfoFormGroup.get('contactEmail').value" matSuffix mat-icon-button
+              aria-label="Clear" (click)="contactInfoFormGroup.patchValue({contactEmail: null})">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Contact Phone Number</mat-label>
+            <input name="phone" matInput formControlName="contactNumber">
+            <button mat-button *ngIf="contactInfoFormGroup.get('contactNumber').value" matSuffix mat-icon-button
+              aria-label="Clear" (click)="contactInfoFormGroup.patchValue({contactNumber: null})">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button color="primary" (click)="onSave()">Save</button>
+          </div>
+          <p *ngIf="error" style="color: red;">ERROR: {{error}}</p>
+        </div>
+      </form>
+    </mat-step>
+  </mat-vertical-stepper>
+</div>

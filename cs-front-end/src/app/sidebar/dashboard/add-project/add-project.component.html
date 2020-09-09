@@ -1,0 +1,47 @@
+<h1 mat-dialog-title>Add Project</h1>
+<div mat-dialog-content>
+  <p>Enter Project Info</p>
+  <form [formGroup]="projectInfoFormGroup" style="display: flex; flex-direction: column;">
+    <mat-form-field>
+      <mat-label>Project Name</mat-label>
+      <input name="projectName" matInput formControlName="projectName">
+      <button mat-button *ngIf="projectInfoFormGroup.get('projectName').value" matSuffix mat-icon-button aria-label="Clear"
+        (click)="projectInfoFormGroup.patchValue({projectName: null})">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>City</mat-label>
+      <input name="city" matInput formControlName="city">
+      <button mat-button *ngIf="projectInfoFormGroup.get('city').value" matSuffix mat-icon-button aria-label="Clear"
+        (click)="projectInfoFormGroup.patchValue({city: null})">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>State</mat-label>
+      <input name="state" matInput formControlName="state">
+      <button mat-button *ngIf="projectInfoFormGroup.get('state').value" matSuffix mat-icon-button aria-label="Clear"
+        (click)="projectInfoFormGroup.patchValue({state: null})">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Zip</mat-label>
+      <input name="zip" matInput formControlName="zip">
+      <button mat-button *ngIf="projectInfoFormGroup.get('zip').value" matSuffix mat-icon-button aria-label="Clear"
+        (click)="projectInfoFormGroup.patchValue({zip: null})">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+    <p *ngIf="error" style="color: red;">ERROR: {{error}}</p>
+  </form>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button color="primary" (click)="onSave()">Save</button>
+</div>

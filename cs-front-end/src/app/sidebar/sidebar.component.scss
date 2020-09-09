@@ -1,0 +1,82 @@
+.sidebar {
+  background-color: black;
+  height: 100vh;
+  box-sizing: content-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.button-groups {
+  margin-top: 24px;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.core-button-group {
+  width: 100%;
+}
+
+small {
+  display: block;
+  width: 100%;
+  font-size: 1em;
+  color: white;
+  text-align: center;
+}
+
+.icon {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-group {
+  width: 100%;
+  padding: 8px 0;
+  color: lightgray;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 100ms ease-in-out;
+}
+
+
+.icon-group:hover {
+  color: white;
+  background: rgba(63, 81, 181, .5);
+}
+
+.icon-group.active {
+  color: white;
+  background: #3f51b5;
+  border-left: 4px solid white;
+  width: 100%;
+  // filter: drop-shadow(0 0 3px #bbb)
+}
+
+.icon-group:focus {
+  outline: none;
+}
+
+
+.core-button-group>.icon-group>.icon {
+  font-size: 3.5em;
+  padding: 8px 0;
+}
+
+.bottom-button-group>.icon-group>.icon {
+  font-size: 2em;
+  padding: 4px 0;
+}
+
+
+li {
+  list-style-type: none;
+}
