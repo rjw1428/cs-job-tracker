@@ -7,12 +7,14 @@ import { sortFn } from 'src/app/shared/utility'
 
 export const initialDashboardState: DashboardState = {
     columns: [],
-    requery: false,
     projects: [],
     contractors: [],
     estimators: [],
     boxOptions: [],
-    estimateTypes: []
+    estimateTypes: [],
+    selectedJob: null,
+    selectedJobFiles: [],
+    formLoading: false,
 }
 
 
@@ -137,7 +139,7 @@ export const dashboardReducer = createReducer(
                 })
             }
         }
-        
+
         // Move within different column
         transferArrayItem(
             updatedSource,
@@ -155,5 +157,28 @@ export const dashboardReducer = createReducer(
                 return col
             })
         }
+    }),
+    on(DashboardActions.storeViewFilesJob, (state, action) => {
+        return {
+            ...state,
+            selectedJob: action.job,
+            selectedJobFiles: action.jobFiles
+        }
+    }),
+    on(DashboardActions.clearFileList, (state) => {
+        return { ...state, selectedJobFiles: initialDashboardState.selectedJobFiles }
+    }),
+    on(DashboardActions.deleteFileItem, (state, action) => {
+        return {
+            ...state,
+            selectedJobFiles: state.selectedJobFiles
+                .filter(file => file.fileId !== action.file.fileId)
+        }
     })
+    // on(DashboardActions.formStartLoading, (state) =>{
+    //     return {...state, formLoading: true}
+    // }),
+    // on(DashboardActions.formStopLoading, (state) =>{
+    //     return {...state, formLoading: false}
+    // })
 )

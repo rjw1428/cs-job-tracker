@@ -6,7 +6,7 @@
     <button style="margin-right: 8px" mat-raised-button color="warn" (click)="onCreateEstimate()">Add Estimate</button>
     <app-job-board></app-job-board>
     
-    <loading-wrapper></loading-wrapper>
+    <loading-wrapper [loading]="isLoading$ | async"></loading-wrapper>
 </div>
 <!-- <div style="display: flex;" class="test">
     <pre class="test" style="width: 100%;">{{ estimators$ | async | json}} </pre>

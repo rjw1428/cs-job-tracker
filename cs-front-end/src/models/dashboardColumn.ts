@@ -1,4 +1,5 @@
 import { Job } from './job';
+import { StatusOption } from './statusOption';
 
 export interface DashboardColumn {
     id: string;
@@ -7,7 +8,7 @@ export interface DashboardColumn {
     items: Job[];
     order: number;
     defaultStatusId: number;
-    statusOptions?: { id: number, status: string }[]
+    statusOptions?: StatusOption[]
 
     sortKey: string,
     sortDirection: 'asc' | 'desc'

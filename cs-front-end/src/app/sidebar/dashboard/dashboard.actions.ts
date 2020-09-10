@@ -6,7 +6,8 @@ import { BidInvite } from 'src/models/bidInvite';
 import { BoxOption } from 'src/models/boxOption';
 import { DashboardColumn } from 'src/models/dashboardColumn';
 import { Job } from 'src/models/job';
-import { EstimateType } from 'src/models/estimate-type';
+import { EstimateType } from 'src/models/estimateType';
+import { AttachedFile } from 'src/models/attachedFile';
 
 export const initDashboard = createAction(
     "[Dashboard Component] Fetch Job Info"
@@ -70,3 +71,25 @@ export const onColumnSort = createAction(
     "[Job Column] Column Sorted",
     props<{ columnId: string, sortKey: string, direction: 'asc' | 'desc' }>()
 )
+
+export const storeViewFilesJob = createAction(
+    "[Backend Service (View Files Init)] Store Files for Job",
+    props<{ job: Job, jobFiles: AttachedFile[] }>()
+)
+
+export const clearFileList = createAction(
+    "[Job Item] Cleare Stored Files (if job is not selected)"
+)
+
+export const deleteFileItem = createAction(
+    "[View Files Form] Delete file",
+    props<{ file: AttachedFile, job: Job}>()
+)
+
+// export const formStartLoading = createAction(
+//     "[Job Board] Start Form Loading"
+// )
+
+// export const formStopLoading = createAction(
+//     "[Form] Stop Form Loading"
+// )

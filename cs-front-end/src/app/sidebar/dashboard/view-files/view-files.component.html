@@ -1,0 +1,59 @@
+
+<h1 mat-dialog-title style="margin:0">File List - {{job.projectName}}</h1>
+<h3>{{job.contractorName}}</h3>
+
+<mat-table [dataSource]="dataSource" matSort [matSortActive]="sortCol" matSortDisableClear
+  (matSortChange)="onSortChanged()" *ngIf="(fileList$ | async).length; else noData">
+  <ng-container matColumnDef="open">
+    <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header style="flex: 5%">
+    </mat-header-cell>
+    <mat-cell *matCellDef="let element" style="flex: 5%; padding: 0">
+      <button mat-button matTooltipPosition="above" matTooltip="Download" (click)="getFileLink(element)"
+        style="padding:0; max-width: 36px; min-width: unset;">
+        <mat-icon>system_update_alt</mat-icon>
+      </button>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="fileName">
+    <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header style="flex: 70%">File Name
+    </mat-header-cell>
+    <mat-cell *matCellDef="let element" style="flex: 75%">
+      <div (click)="getFileLink(element)" style="cursor: pointer;"> {{ element.fileName | decodeURI}}</div>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="dateCreated">
+    <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header style="flex: 20%">Last Updated
+    </mat-header-cell>
+    <mat-cell *matCellDef="let element" style="flex: 20%">
+      <div> {{ element.dateCreated | date : 'short'}}</div>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="remove">
+    <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header style="flex: 5%">
+    </mat-header-cell>
+    <mat-cell *matCellDef="let element" style="flex: 5%">
+      <button mat-button matTooltipPosition="above" matTooltip="Remove" (click)="onDelete(element)">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+    </mat-cell>
+  </ng-container>
+
+  <mat-header-row class="sticky-row" *matHeaderRowDef="displayedColumns;  sticky: true"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+
+</mat-table>
+
+<ng-template #noData>
+  <div style="display: flex; justify-content: center;">
+    <h3 style="color:gray">No Files Attached</h3>
+  </div>
+</ng-template>
+
+<div mat-dialog-actions style="display:flex; justify-content: flex-end">
+  <button mat-mini-fab color="primary" matTooltipPosition="above" matTooltip="Add Files" (click)="onAddFiles()">
+    <mat-icon>post_add</mat-icon>
+  </button>
+</div>

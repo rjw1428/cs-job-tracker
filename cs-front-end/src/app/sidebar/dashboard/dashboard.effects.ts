@@ -16,6 +16,13 @@ export class DashboardEffects {
         ), { dispatch: false }
     )
 
+    deleteFileEffect$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(DashboardActions.deleteFileItem),
+            tap(({ file, job }) => this.backendService.saveData('deleteFile', { file, job }))
+        ), { dispatch: false }
+    )
+
     toggleNoBid$ = createEffect(() =>
         this.actions$.pipe(
             ofType(DashboardActions.toggleNoBidJobItem),

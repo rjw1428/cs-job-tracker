@@ -10,7 +10,7 @@ import { map, startWith, switchMap, catchError } from 'rxjs/operators';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { filterList } from 'src/app/shared/utility';
 import { TitleCasePipe } from '@angular/common';
-import { EstimateType } from 'src/models/estimate-type';
+import { EstimateType } from 'src/models/estimateType';
 import { Estimator } from 'src/models/estimator';
 import { Job } from 'src/models/job';
 import { AppState } from 'src/models/appState';

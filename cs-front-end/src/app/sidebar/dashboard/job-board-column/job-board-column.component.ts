@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { DashboardColumn } from 'src/models/dashboardColumn';
 import { AppState } from 'src/models/appState';
 import { Store } from '@ngrx/store';
@@ -11,7 +11,8 @@ import { map, first } from 'rxjs/operators';
 @Component({
   selector: 'app-job-board-column',
   templateUrl: './job-board-column.component.html',
-  styleUrls: ['./job-board-column.component.scss']
+  styleUrls: ['./job-board-column.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobBoardColumnComponent implements OnInit {
   @Input() columnConfig: DashboardColumn

@@ -34,6 +34,21 @@ export const columnsSelector = createSelector(
     dashboardState => dashboardState.columns
 )
 
+export const selectedJobSelector = createSelector(
+    selectDashboardState,
+    dashboardState => dashboardState.selectedJob
+)
+
+export const selectedJobFilesSelector = createSelector(
+    selectDashboardState,
+    dashboardState => dashboardState.selectedJobFiles
+)
+
+export const formLoadingSelector = createSelector(
+    selectDashboardState,
+    dashboardState => dashboardState.formLoading
+)
+
 export const itemsSelector = createSelector(
     selectDashboardState,
     (dashboardState: DashboardState, { columnId }: { columnId: string }) => {
@@ -41,8 +56,24 @@ export const itemsSelector = createSelector(
         const items = matchingCol && matchingCol.items
             ? matchingCol.items
                 .filter(item => item.currentDashboardColumn == columnId)
-                .map(item =>({...item, longName: `${item['contractorName']} ${item['projectName']}`}))
+                .map(item => ({ ...item, longName: `${item['contractorName']} ${item['projectName']}` }))
             : []
         return items
+    }
+)
+
+export const boxOptionsSelector = createSelector(
+    selectDashboardState,
+    dashboardState => dashboardState.boxOptions
+)
+
+export const statusOptionsSelector = createSelector(
+    selectDashboardState,
+    (dashboardState: DashboardState, { columnId }: { columnId: string }) => {
+        const matchingCol = dashboardState.columns.find(column => column.id == columnId)
+        const options = matchingCol && matchingCol.statusOptions
+            ? matchingCol.statusOptions
+            : []
+        return options
     }
 )

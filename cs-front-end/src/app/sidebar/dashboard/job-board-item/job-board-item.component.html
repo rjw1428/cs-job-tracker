@@ -1,5 +1,5 @@
-<mat-card class="item mat-elevation-z8" style="margin-bottom: 10px;" [ngStyle]="{'opacity': 1- (!!job.isNoBid ? 1 : 0) *.5}"
-  *ngIf="mode=='dashboard'; else search">
+<mat-card class="item mat-elevation-z8" style="margin-bottom: 10px;"
+  [ngStyle]="{'opacity': 1- (!!job.isNoBid ? 1 : 0) *.5}" *ngIf="mode=='dashboard'; else search">
   <mat-card-header style="display: flex; flex-direction: column-reverse;">
     <div style="display: flex; flex-direction: column-reverse;">
       <div style="display: flex; justify-content: space-between;">
@@ -21,22 +21,22 @@
   <mat-card-content>
     <section>
       <p style="margin: 0px"><strong>Invite: </strong>{{job.dateAdded | date : 'MM/dd/yyyy'}}</p>
-      <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue!='ASAP' && !isAwardedCol">
+      <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue!='ASAP' && job.currentDashboardColumn!='awarded'">
         <p class="due-date" (click)="onDueDateSelected()"><strong>Due:
           </strong>{{job.dateDue | date : 'MM/dd/yyyy'}}</p>
         <mat-icon class="due-date-hidden">create</mat-icon>
       </div>
-      <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue=='ASAP' && !isAwardedCol">
+      <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue=='ASAP' && job.currentDashboardColumn!='awarded'">
         <p class="due-date" (click)="onDueDateSelected()"><strong>Due: </strong>{{job.dateDue}}</p>
         <mat-icon class="due-date-hidden">create</mat-icon>
       </div>
-      <div style="display: flex; justify-content: space-between;" *ngIf="isAwardedCol">
+      <div style="display: flex; justify-content: space-between;" *ngIf="job.currentDashboardColumn=='awarded'">
         <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>Start Date:
           </strong>{{job.startDate | date : 'MM/dd/yyyy'}}
         </p>
         <mat-icon class="award-timeline-hidden">create</mat-icon>
       </div>
-      <div style="display: flex; justify-content: space-between;" *ngIf="isAwardedCol">
+      <div style="display: flex; justify-content: space-between;" *ngIf="job.currentDashboardColumn=='awarded'">
         <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>End Date:
           </strong>{{job.endDate | date : 'MM/dd/yyyy'}}
         </p>
@@ -44,19 +44,19 @@
       </div>
     </section>
 
-    <section *ngIf="isBiddingCol" style="display: flex; justify-content: flex-end;">
+    <section *ngIf="job.currentDashboardColumn=='invitation'" style="display: flex; justify-content: flex-end;">
       <mat-slide-toggle color="warn" (change)="onNoBid($event)" [checked]="!!job.isNoBid">No Bid</mat-slide-toggle>
     </section>
 
-    <section *ngIf="job.statusId!=11 && job.statusId!=1">
-      <p *ngIf="!isAwardedCol"><strong>Total Estimates: </strong>{{job.estimateCount}}</p>
-      <!-- <p *ngIf="!isEstimatingCol && !isBiddingCol">
+    <section *ngIf="job.currentDashboardColumn!='invitation'">
+      <p *ngIf="job.currentDashboardColumn!='awarded'"><strong>Total Estimates: </strong>{{job.estimateCount}}</p>
+      <p *ngIf="job.currentDashboardColumn!='estimating' && job.currentDashboardColumn!='invitation'">
         <strong>Project Value: </strong>
-        {{(job.finalCost?job.finalCost:job.project_value) | currency}}
-      </p> -->
+        <!-- {{(job.finalCost?job.finalCost:job.project_value) | currency}} -->
+      </p>
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <button color="primary" mat-button (click)="onOpenCurrentEstimate()">Current Proposal</button>
-        <button *ngIf="!isEstimatingCol && !isBiddingCol" matTooltip="Edit Final Price" (click)="onDiscount()"
+        <button *ngIf="job.currentDashboardColumn!='estimating' && job.currentDashboardColumn!='invitation'" matTooltip="Edit Final Price" (click)="onDiscount()"
           mat-mini-fab color="primary"
           style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;">
           <mat-icon>monetization_on_outlie</mat-icon>
@@ -64,11 +64,11 @@
       </div>
     </section>
 
-    <section *ngIf="isEstimatingCol" style="display:flex">
+    <section *ngIf="job.currentDashboardColumn=='estimating'" style="display:flex">
       <mat-form-field style="width: 140px">
         <mat-label>Assigned To:</mat-label>
         <mat-select [(ngModel)]="assignedTo" (selectionChange)="onAssignedToChanged($event)">
-          <mat-option *ngFor="let option of estimatorOptions" [value]="option">
+          <mat-option *ngFor="let option of estimatorOptions$ | async" [value]="option">
             {{option.name}}
           </mat-option>
         </mat-select>
@@ -77,18 +77,18 @@
       <mat-form-field style="width: 60px">
         <mat-label>Box:</mat-label>
         <mat-select [(ngModel)]="selectedBox" (selectionChange)="onBoxChanged($event)">
-          <mat-option *ngFor="let option of boxOptions" [value]="option">
-            {{option.name}}
+          <mat-option *ngFor="let option of boxOptions$ | async" [value]="option">
+            {{option.boxId}}
           </mat-option>
         </mat-select>
       </mat-form-field>
     </section>
 
-    <!-- <section *ngIf="job.statusId!=12 && job.statusId!=11 && job.statusId!=1">
+    <section *ngIf="job.currentDashboardColumn!='awarded' && job.currentDashboardColumn!='invitation'">
       <mat-form-field style="width: 200px">
         <mat-label>Current Status:</mat-label>
         <mat-select [(ngModel)]="selectedStatus" (selectionChange)="onStatusChanged($event)">
-          <mat-option *ngFor="let option of statusOptions" [value]="option">
+          <mat-option *ngFor="let option of statusOptions$ | async" [value]="option">
             {{option.status}}
           </mat-option>
         </mat-select>
@@ -106,7 +106,7 @@
         <button (click)="onSaveNote()" mat-mini-fab color="primary"
           style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
       </div>
-      <div style="display: flex; justify-content: stretch; align-items: flex-end;" *ngIf="isProposalCol || isHoldCol">
+      <div style="display: flex; justify-content: stretch; align-items: flex-end;" *ngIf="job.currentDashboardColumn=='proposal' || job.currentDashboardColumn=='hold'">
         <mat-form-field>
           <mat-label>Follow Up Info:</mat-label>
           <input name="reportNote" matInput [(ngModel)]="job.reportOnlyNotes" (keydown.enter)="onSaveNote()">
@@ -118,16 +118,16 @@
         <button (click)="onSaveNote()" mat-mini-fab color="primary"
           style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
       </div>
-    </section> -->
+    </section>
 
   </mat-card-content>
 
   <mat-card-actions
     style="display: flex; justify-content: space-around; align-items: flex-start; background: whitesmoke">
     <button mat-button matTooltipPosition="above" matTooltip="View Attached File" (click)="onViewFileList()">
-      <!-- <mat-icon [matBadge]="job.attachedFileCount" matBadgeSize="small">
+      <mat-icon [matBadge]="job.fileCount ? job.fileCount : null" matBadgeSize="small">
         attach_file
-      </mat-icon> -->
+      </mat-icon>
     </button>
     <button mat-button matTooltipPosition="above" matTooltip="Proposal History" (click)="onProposalHistory()">
       <mat-icon>library_books</mat-icon>

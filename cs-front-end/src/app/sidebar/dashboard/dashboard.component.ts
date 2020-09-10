@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AppState } from 'src/models/appState';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { DashboardActions } from './dashboard.action-types';
 import { BackendService } from 'src/app/services/backend.service';
 import { AppActions } from 'src/app/app.action-types';
@@ -18,13 +18,16 @@ import { AddProjectComponent } from './add-project/add-project.component';
 import { BidInvite } from 'src/models/bidInvite';
 import { AddInviteComponent } from './add-invite/add-invite.component';
 import { AddEstimateComponent } from './add-estimate/add-estimate.component';
+import { loadingSelector } from 'src/app/app.selectors';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit {
+  isLoading$: Observable<boolean>
   constructor(
     private store: Store<AppState>,
     private backendService: BackendService,
@@ -35,12 +38,8 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.store.dispatch(DashboardActions.initDashboard())
     this.store.dispatch(AppActions.startLoading())
-
+    this.isLoading$ = this.store.select(loadingSelector)
     this.backendService.initDashboard()
-
-    setTimeout(() => {
-      this.store.dispatch(AppActions.stopLoading())
-    }, 1000)
   }
 
   onCreateContractor() {
@@ -88,10 +87,10 @@ export class DashboardComponent implements OnInit {
       mergeMap(formResp => {
         if (!formResp) return of(null)
         return this.backendService.saveData('addInvite', formResp)
-      }),
-    ).subscribe(resp => {
-      if (resp && resp.error) return showSnackbar(this.snackBar, "ERROR:" + resp.error.sqlMessage)
-      if (resp) showSnackbar(this.snackBar, "Bid Invite Saved")
+      })
+    ).subscribe(job => {
+      if (job && job.error) return showSnackbar(this.snackBar, "ERROR:" + job.error.sqlMessage)
+      if (job) showSnackbar(this.snackBar, "Bid Invite Saved")
     })
   }
 

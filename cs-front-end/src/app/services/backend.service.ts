@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpRequest } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import * as io from 'socket.io-client';
 import { Subject, throwError } from 'rxjs';
@@ -7,7 +7,9 @@ import { Estimator } from 'src/models/estimator';
 import { AppState } from 'src/models/appState';
 import { Store } from '@ngrx/store';
 import { DashboardActions } from '../sidebar/dashboard/dashboard.action-types';
-import { first } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
+import { Job } from 'src/models/job';
+import { AppActions } from '../app.action-types';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +34,7 @@ export class BackendService {
     })
 
     this.socket.on('getInvitesForSingleColumn', ({ items, columnId }) => {
+      console.log(columnId)
       this.store.dispatch(DashboardActions.updateColumnInvites({ items, columnId }))
     })
 
@@ -45,6 +48,12 @@ export class BackendService {
 
     this.socket.on('getColumns', (columns) => {
       this.store.dispatch(DashboardActions.storeDashboardColumns({ columns }))
+      this.store.dispatch(AppActions.stopLoading())
+    })
+
+    this.socket.on('getFiles', ({ job, jobFiles }) => {
+      this.store.dispatch(DashboardActions.storeViewFilesJob({ job, jobFiles }))
+
     })
   }
 
@@ -64,6 +73,11 @@ export class BackendService {
     this.socket.emit('estimateFormInit')
   }
 
+  initViewFileForm(job: Job) {
+    this.socket.emit('viewFilesInit', job)
+    this.socket.emit('updateColumn', job)
+  }
+
   saveData(socketEvent: string, data: any) {
     console.log("SAVING")
     let subj = new Subject<Estimator[]>()
@@ -71,6 +85,15 @@ export class BackendService {
       subj.next(resp)
     })
     return subj.asObservable().pipe(first())
+  }
+
+
+  sendFile(jobId, file, fileIndex, displayId) {
+    const formData: any = new FormData()
+    formData.append("document", file, file.fileName);
+    const url = `${environment.apiUrl}/upload/${jobId}?folder=${displayId}`
+    const req = new HttpRequest('POST', url, formData, { reportProgress: true });
+    return this.http.request(req).pipe(map(resp => ({ response: resp, index: fileIndex })))
   }
 
 

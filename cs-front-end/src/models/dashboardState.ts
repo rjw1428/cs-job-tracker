@@ -5,15 +5,18 @@ import { Estimator } from './estimator';
 import { BidInvite } from './bidInvite';
 import { BoxOption } from './boxOption';
 import { Job } from './job';
-import { EstimateType } from './estimate-type';
+import { EstimateType } from './estimateType';
+import { AttachedFile } from './attachedFile';
 
 export interface DashboardState {
     columns: DashboardColumn[];
-    requery: boolean;
     contractors: Contractor[]
     projects: Project[]
     estimators: Estimator[]
     // invites: Job[]
     boxOptions: BoxOption[]
     estimateTypes: EstimateType[]
+    selectedJob: Job
+    selectedJobFiles: AttachedFile[]
+    formLoading: boolean
 }

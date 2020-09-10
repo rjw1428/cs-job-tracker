@@ -12,6 +12,10 @@ import { RouterModule, Routes } from '@angular/router';
 import { StoreModule } from '@ngrx/store';
 import { dashboardReducer } from './dashboard.reducer';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { AddFileComponent } from './add-file/add-file.component';
+import { DragNDropDirective } from 'src/app/shared/drag-n-drop.directive';
+import { ViewFilesComponent } from './view-files/view-files.component';
+import { DecodeURIPipe } from 'src/app/shared/decode-uri.pipe';
 
 export const routes: Routes = [
   {
@@ -29,7 +33,11 @@ export const routes: Routes = [
     AddProjectComponent,
     AddContractorComponent,
     AddInviteComponent,
-    AddEstimateComponent
+    AddEstimateComponent,
+    AddFileComponent,
+    DragNDropDirective,
+    ViewFilesComponent,
+    DecodeURIPipe
   ],
   imports: [
     CommonModule,

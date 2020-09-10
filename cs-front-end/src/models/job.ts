@@ -24,5 +24,12 @@ export class Job {
         public noBidDate: string,
         public estimateCount: number,
         public statusId: number,
+        public fileCount: number,
+        public transactionId: number,
+        public assignedTo: number,
+        public box: string,
+        public notes: string,
+        public reportOnlyNotes: string,
+        public historyOnlyNotes: string,
     ) {}
 }

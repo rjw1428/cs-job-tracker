@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { DashboardColumn } from 'src/models/dashboardColumn';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AppState } from 'src/models/appState';
@@ -7,12 +7,13 @@ import { Observable } from 'rxjs';
 import { columnsSelector } from '../dashboard.selectors';
 import { DashboardActions } from '../dashboard.action-types';
 import { Job } from 'src/models/job';
-import { first, map } from 'rxjs/operators';
+import { first, map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job-board',
   templateUrl: './job-board.component.html',
-  styleUrls: ['./job-board.component.scss']
+  styleUrls: ['./job-board.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobBoardComponent implements OnInit {
   @Output() boardUpdated = new EventEmitter<string>()
@@ -25,6 +26,9 @@ export class JobBoardComponent implements OnInit {
 
   ngOnInit(): void {
     this.columns$ = this.store.select(columnsSelector)
+    // .pipe(tap(cols=>{
+    //   console.log("UPDATE ALL COLS")
+    // }))
   }
 
   drop(event: CdkDragDrop<any>) {

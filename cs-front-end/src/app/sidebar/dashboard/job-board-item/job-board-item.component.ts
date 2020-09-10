@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Job } from 'src/models/job';
 import { BackendService } from 'src/app/services/backend.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -10,32 +10,33 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { environment } from 'src/environments/environment';
 import { AppActions } from 'src/app/app.action-types';
 import { showSnackbar } from 'src/app/shared/utility';
-import { map, switchMap, mergeMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { map, switchMap, mergeMap, first } from 'rxjs/operators';
+import { of, noop, Observable } from 'rxjs';
 import { DashboardActions } from '../dashboard.action-types';
 import { ConfirmationSnackbarComponent } from 'src/app/popups/confirmation-snackbar/confirmation-snackbar.component';
+import { ViewFilesComponent } from '../view-files/view-files.component';
+import { BoxOption } from 'src/models/boxOption';
+import { boxOptionsSelector, statusOptionsSelector, estimatorsSelector } from '../dashboard.selectors';
+import { StatusOption } from 'src/models/statusOption';
+import { Estimator } from 'src/models/estimator';
 
 @Component({
   selector: 'app-job-board-item',
   templateUrl: './job-board-item.component.html',
-  styleUrls: ['./job-board-item.component.scss']
+  styleUrls: ['./job-board-item.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobBoardItemComponent implements OnInit {
   @Input() job: Job
-  @Input() statusOptions: { id: number, status: string }[] = []
-  @Input() boxOptions: { id: number, name: string }[] = []
-  @Input() estimatorOptions: any[] = []
+  statusOptions$: Observable<StatusOption[]>
+  boxOptions$: Observable<BoxOption[]>
+  estimatorOptions$: Observable<Estimator[]>
   @Input() mode: 'search' | 'dashboard' = 'dashboard'
   @Output('deleted') jobDeleted = new EventEmitter<number>()
   mailTo: string
   selectedStatus: { id: number, status: string }
   selectedBox: { id: number, name: string }
   assignedTo: { id: number, name: string }
-  isEstimatingCol: boolean
-  isBiddingCol: boolean
-  isAwardedCol: boolean
-  isProposalCol: boolean
-  isHoldCol: boolean
   isDev: boolean = false;
 
   constructor(
@@ -48,17 +49,17 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.isDev = location.hostname == 'localhost'
-    this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
+    if (this.job.jobId == 101)
+      console.log("INIT")
 
+    this.isDev = !environment.production
+    this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
+    this.boxOptions$ = this.store.select(boxOptionsSelector)
+    this.statusOptions$ = this.store.select(statusOptionsSelector, { columnId: this.job.currentDashboardColumn })
+    this.estimatorOptions$ = this.store.select(estimatorsSelector)
     // this.selectedStatus = this.statusOptions.find(option => option.id == this.job.statusId)
     // this.selectedBox = this.boxOptions.find(option => option.id == this.job.box)
     // this.assignedTo = this.estimatorOptions ? this.estimatorOptions.find(estimator => estimator.id == this.job.assignedTo) : null
-    // this.isEstimatingCol = this.job.currentDashboardColumn == columnIds.ESTIMATING
-    this.isBiddingCol = this.job.currentDashboardColumn == 'invitation'
-    // this.isAwardedCol = this.job.currentDashboardColumn == columnIds.AWARDED
-    // this.isProposalCol = this.job.currentDashboardColumn == columnIds.PROPOSAL
-    // this.isHoldCol = //this.job.currentDashboardColumn == columnIds.HOLD
   }
 
   onDelete() {
@@ -105,10 +106,16 @@ export class JobBoardItemComponent implements OnInit {
     // this.updateTransaction('box', "Box updated")
   }
 
+  onViewFileList() {
+    this.store.dispatch(DashboardActions.clearFileList())
+    this.dialog.open(ViewFilesComponent, {
+      width: '800px',
+      data: this.job
+    }).afterClosed()
+  }
+
   onTitleClicked() {
-    if (this.isDev) {
-      console.log(this.job)
-    }
+    if (this.isDev) console.log(this.job)
   }
 
   onAssignedToChanged(value: MatSelectChange) {
@@ -270,18 +277,7 @@ export class JobBoardItemComponent implements OnInit {
   }
 
 
-  onViewFileList() {
-    // this.backendService.getData(environment.jobFileTableName, { jobId: this.job.jobId })
-    //   .subscribe((resp: AttachedFile[]) => {
-    //     this.dialog.open(FileListComponent, {
-    //       width: '800px',
-    //       data: { job: this.job, fileList: resp }
-    //     }).afterClosed().subscribe(fileCountChanged => {
-    //       if (fileCountChanged)
-    //         this.store.dispatch(DashboardActions.requery())
-    //     })
-    //   })
-  }
+
 
 
 
