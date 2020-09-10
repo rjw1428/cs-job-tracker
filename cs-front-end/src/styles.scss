@@ -24,6 +24,9 @@ body {
   margin-right: -16px !important;
   padding: unset !important;
 }
+.mat-card-actions>button {
+  min-width: 50px !important;
+}
 
 .mat-card>.mat-card-actions:last-child {
   margin-bottom: -16px !important;

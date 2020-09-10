@@ -19,7 +19,6 @@ export class Job {
         public currentDashboardColumn: string,
         public startDate: string,
         public endDate: string,
-        public note: string,
         public isNoBid: boolean,
         public noBidDate: string,
         public estimateCount: number,
@@ -27,9 +26,10 @@ export class Job {
         public fileCount: number,
         public transactionId: number,
         public assignedTo: number,
-        public box: string,
+        public box: number,
         public notes: string,
         public reportOnlyNotes: string,
         public historyOnlyNotes: string,
+        public isAlerted: boolean
     ) {}
 }

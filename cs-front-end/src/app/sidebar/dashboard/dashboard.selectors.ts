@@ -1,6 +1,8 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store'
 import { DashboardState } from 'src/models/dashboardState'
 import { AppState } from 'src/models/appState'
+import { Job } from 'src/models/job'
+import { Proposal } from 'src/models/proposal'
 
 export const selectDashboardState = createFeatureSelector<DashboardState>("dashboard")
 
@@ -75,5 +77,31 @@ export const statusOptionsSelector = createSelector(
             ? matchingCol.statusOptions
             : []
         return options
+    }
+)
+
+export const tileColorSelector = createSelector(
+    selectDashboardState,
+    (dashboardState: DashboardState, { job }: { job: Job }) => {
+        if (job.isAlerted) return '#fdfd96'
+        const matchingCol = dashboardState.columns.find(column => column.id == job.currentDashboardColumn)
+        const matchingOption = matchingCol.statusOptions.find(option => option.id == job.statusId)
+        return matchingOption && matchingOption.color ? matchingOption.color : 'white'
+    }
+)
+
+export const singleProposalSelector = createSelector(
+    selectDashboardState,
+    dashboardState => {
+        const projectValue = dashboardState.selectedSingleProposal.map(estimate => estimate.cost).reduce((acc, cur) => acc + cur, 0)
+        const outsourceCost = dashboardState.selectedSingleProposal.map(estimate => estimate.fee).reduce((acc, cur) => acc + cur, 0)
+        return { 
+            estimates: dashboardState.selectedSingleProposal, 
+            proposalId: null,
+            projectValue,
+            outsourceCost,
+            finalCost: null,
+            finalCostNote: null
+        } as Proposal
     }
 )

@@ -16,6 +16,9 @@ import { AddFileComponent } from './add-file/add-file.component';
 import { DragNDropDirective } from 'src/app/shared/drag-n-drop.directive';
 import { ViewFilesComponent } from './view-files/view-files.component';
 import { DecodeURIPipe } from 'src/app/shared/decode-uri.pipe';
+import { ViewJobHistoryComponent } from './view-job-history/view-job-history.component';
+import { ViewProposalHistoryComponent } from './view-proposal-history/view-proposal-history.component';
+import { ViewCurrentProposalComponent } from './view-current-proposal/view-current-proposal.component';
 
 export const routes: Routes = [
   {
@@ -37,7 +40,10 @@ export const routes: Routes = [
     AddFileComponent,
     DragNDropDirective,
     ViewFilesComponent,
-    DecodeURIPipe
+    DecodeURIPipe,
+    ViewJobHistoryComponent,
+    ViewProposalHistoryComponent,
+    ViewCurrentProposalComponent
   ],
   imports: [
     CommonModule,

@@ -6,6 +6,7 @@ export class Proposal {
         public estimates: Estimate[],
         public finalCost: number,
         public finalCostNote: string,
-        public projectValue: number
+        public projectValue: number, 
+        public outsourceCost: number
     ) { }
 }

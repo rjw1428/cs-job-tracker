@@ -7,32 +7,35 @@
     </button>
   </div>
   <div class="list">
-    <app-job-board-item *ngFor="let item of items$ | async" class="box" cdkDrag [job]="item" cdkDragBoundary=".dashboard-wrapper"
-      (cdkDragStarted)="onDragStart()" (cdkDragReleased)="onDragRelease()">
-      <mat-icon cdkDragHandle [matMenuTriggerFor]="quickMoveMenu" style="cursor: grab;">drag_indicator</mat-icon>
-      <mat-menu #quickMoveMenu="matMenu">
-        <ng-template matMenuContent>
-          <button mat-menu-item [disabled]="columnConfig.id=='estimating'"
-            (click)="onShortcutMenuSelect('estimating', item)">
-            <span>Send To Estimating</span>
-          </button>
-          <button mat-menu-item [disabled]="columnConfig.id=='proposal'"
-            (click)="onShortcutMenuSelect('proposal', item)">
-            <span>Send To Proposal Sent</span>
-          </button>
-          <button mat-menu-item [disabled]="columnConfig.id=='hold'" (click)="onShortcutMenuSelect('hold', item)">
-            <span>Send To On Hold</span>
-          </button>
-          <button mat-menu-item [disabled]="columnConfig.id=='notAwarded'"
-            (click)="onShortcutMenuSelect('notAwarded', item)">
-            <span>Send To Not Awarded</span>
-          </button>
-          <button mat-menu-item [disabled]="columnConfig.id=='awarded'" (click)="onShortcutMenuSelect('awarded', item)">
-            <span>Send To Awarded</span>
-          </button>
-        </ng-template>
-      </mat-menu>
-    </app-job-board-item>
+    <div *ngFor="let item of items$ | async">
+      <app-job-board-item class="box" cdkDrag [job]="item" cdkDragBoundary=".dashboard-wrapper"
+        (cdkDragStarted)="onDragStart()" (cdkDragReleased)="onDragRelease()">
+        <mat-icon cdkDragHandle [matMenuTriggerFor]="quickMoveMenu" style="cursor: grab;">drag_indicator</mat-icon>
+        <mat-menu #quickMoveMenu="matMenu">
+          <ng-template matMenuContent>
+            <button mat-menu-item [disabled]="columnConfig.id=='estimating'"
+              (click)="onShortcutMenuSelect('estimating', item)">
+              <span>Send To Estimating</span>
+            </button>
+            <button mat-menu-item [disabled]="columnConfig.id=='proposal'"
+              (click)="onShortcutMenuSelect('proposal', item)">
+              <span>Send To Proposal Sent</span>
+            </button>
+            <button mat-menu-item [disabled]="columnConfig.id=='hold'" (click)="onShortcutMenuSelect('hold', item)">
+              <span>Send To On Hold</span>
+            </button>
+            <button mat-menu-item [disabled]="columnConfig.id=='notAwarded'"
+              (click)="onShortcutMenuSelect('notAwarded', item)">
+              <span>Send To Not Awarded</span>
+            </button>
+            <button mat-menu-item [disabled]="columnConfig.id=='awarded'"
+              (click)="onShortcutMenuSelect('awarded', item)">
+              <span>Send To Awarded</span>
+            </button>
+          </ng-template>
+        </mat-menu>
+      </app-job-board-item>
+    </div>
   </div>
 </div>
 

@@ -14,6 +14,7 @@ export const initialDashboardState: DashboardState = {
     estimateTypes: [],
     selectedJob: null,
     selectedJobFiles: [],
+    selectedSingleProposal: [],
     formLoading: false,
 }
 
@@ -139,7 +140,6 @@ export const dashboardReducer = createReducer(
                 })
             }
         }
-
         // Move within different column
         transferArrayItem(
             updatedSource,
@@ -173,6 +173,50 @@ export const dashboardReducer = createReducer(
             ...state,
             selectedJobFiles: state.selectedJobFiles
                 .filter(file => file.fileId !== action.file.fileId)
+        }
+    }),
+    on(DashboardActions.updateJobItem, (state, action) => {
+        const updatedColumns = state.columns.map(column => {
+            return column.id != action.job.currentDashboardColumn
+                ? column
+                : {
+                    ...column,
+                    items: column.items.map(job => {
+                        return (job.jobId == action.job.jobId) ? action.job : job
+                    })
+                }
+        })
+        return {
+            ...state,
+            columns: updatedColumns
+        }
+    }),
+    on(DashboardActions.highlightJobItem, (state, action) => {
+        console.log(action.job.isAlerted)
+        const updatedColumns = state.columns.map(column => {
+            return column.id != action.job.currentDashboardColumn
+                ? column
+                : {
+                    ...column,
+                    items: column.items.map(job => job.jobId == action.job.jobId ? action.job : job)
+                }
+        })
+        return {
+            ...state,
+            columns: updatedColumns
+        }
+    }),
+    on(DashboardActions.storeSelectedProposal, (state, action) => {
+        return {
+            ...state,
+            selectedJob: action.job,
+            selectedSingleProposal: action.estimates
+        }
+    }),
+    on(DashboardActions.clearSelectedProposal, (state)=>{
+        return {
+            ...state,
+            selectedSingleProposal: initialDashboardState.selectedSingleProposal
         }
     })
     // on(DashboardActions.formStartLoading, (state) =>{

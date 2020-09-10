@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { Job } from 'src/models/job';
 import { BackendService } from 'src/app/services/backend.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -9,16 +9,17 @@ import { MatSelectChange } from '@angular/material/select';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { environment } from 'src/environments/environment';
 import { AppActions } from 'src/app/app.action-types';
-import { showSnackbar } from 'src/app/shared/utility';
+import { showSnackbar, colorShade } from 'src/app/shared/utility';
 import { map, switchMap, mergeMap, first } from 'rxjs/operators';
 import { of, noop, Observable } from 'rxjs';
 import { DashboardActions } from '../dashboard.action-types';
 import { ConfirmationSnackbarComponent } from 'src/app/popups/confirmation-snackbar/confirmation-snackbar.component';
 import { ViewFilesComponent } from '../view-files/view-files.component';
 import { BoxOption } from 'src/models/boxOption';
-import { boxOptionsSelector, statusOptionsSelector, estimatorsSelector } from '../dashboard.selectors';
+import { boxOptionsSelector, statusOptionsSelector, estimatorsSelector, tileColorSelector } from '../dashboard.selectors';
 import { StatusOption } from 'src/models/statusOption';
 import { Estimator } from 'src/models/estimator';
+import { ViewCurrentProposalComponent } from '../view-current-proposal/view-current-proposal.component';
 
 @Component({
   selector: 'app-job-board-item',
@@ -27,39 +28,31 @@ import { Estimator } from 'src/models/estimator';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobBoardItemComponent implements OnInit {
+  @Input() mode: 'search' | 'dashboard' = 'dashboard'
+  @Output('deleted') jobDeleted = new EventEmitter<number>()
   @Input() job: Job
+
   statusOptions$: Observable<StatusOption[]>
   boxOptions$: Observable<BoxOption[]>
   estimatorOptions$: Observable<Estimator[]>
-  @Input() mode: 'search' | 'dashboard' = 'dashboard'
-  @Output('deleted') jobDeleted = new EventEmitter<number>()
-  mailTo: string
-  selectedStatus: { id: number, status: string }
-  selectedBox: { id: number, name: string }
-  assignedTo: { id: number, name: string }
-  isDev: boolean = false;
+  tileColor$: Observable<string>
 
+  mailTo: string
+  isDev: boolean = false;
   constructor(
-    private backendService: BackendService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private store: Store<AppState>,
-    private cdr: ChangeDetectorRef
+    private store: Store<AppState>
   ) {
   }
 
   ngOnInit(): void {
-    if (this.job.jobId == 101)
-      console.log("INIT")
-
     this.isDev = !environment.production
     this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
     this.boxOptions$ = this.store.select(boxOptionsSelector)
     this.statusOptions$ = this.store.select(statusOptionsSelector, { columnId: this.job.currentDashboardColumn })
     this.estimatorOptions$ = this.store.select(estimatorsSelector)
-    // this.selectedStatus = this.statusOptions.find(option => option.id == this.job.statusId)
-    // this.selectedBox = this.boxOptions.find(option => option.id == this.job.box)
-    // this.assignedTo = this.estimatorOptions ? this.estimatorOptions.find(estimator => estimator.id == this.job.assignedTo) : null
+    this.tileColor$ = this.store.select(tileColorSelector, { job: this.job })
   }
 
   onDelete() {
@@ -77,33 +70,39 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   onStatusChanged(value: MatSelectChange) {
-    // const responseMessage = "Status updated"
-    // this.job.statusId = value.value.id
-    // const partialPayload = {
-    //   statusId: value.value.id,
-    //   box: this.job.box ? this.job.box : "",
-    //   notes: this.job.notes,
-    //   reportOnlyNotes: this.job.reportOnlyNotes
-    // }
-    // this.saveTransaction(partialPayload, responseMessage)
+    const updatedJob = { ...this.job, statusId: value.value }
+    this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+    showSnackbar(this.snackBar, `Status Updated for ${updatedJob.projectName}`)
   }
 
-  onSaveNote() {
-    // const responseMessage = "Notes updated"
-    // const partialPayload = {
-    //   statusId: this.job.statusId,
-    //   box: this.job.box ? this.job.box : "",
-    //   notes: this.job.notes,
-    //   reportOnlyNotes: this.job.reportOnlyNotes
-    // }
-    // this.saveTransaction(partialPayload, responseMessage)
+  onAssignedToChanged(value: MatSelectChange) {
+    this.store.pipe(first(), map(state => {
+      const estimator = state.dashboard.estimators.find(estimator => estimator.id == value.value)
+      const updatedJob = { ...this.job, assignedTo: value.value, historyOnlyNotes: `Assigned to ${estimator.name}` }
+      this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+      showSnackbar(this.snackBar, `${estimator.name} assigned to ${updatedJob.projectName} `)
+    })).subscribe(noop)
   }
 
+  onSaveNote(value: string) {
+    const updatedJob = { ...this.job, notes: value }
+    this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+    showSnackbar(this.snackBar, `Note Updated`)
+  }
 
+  onSaveReportNote(value: string) {
+    const updatedJob = { ...this.job, reportOnlyNotes: value }
+    this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+    showSnackbar(this.snackBar, `Follow Up Note Updated`)
+  }
 
   onBoxChanged(value: MatSelectChange) {
-    // this.job.box = value.value.id
-    // this.updateTransaction('box', "Box updated")
+    this.store.pipe(first(), map(state => {
+      const box = state.dashboard.boxOptions.find(box => box.id == value.value)
+      const updatedJob = { ...this.job, box: box.id, historyOnlyNotes: `Moved to Box ${box.boxId}` }
+      this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+      showSnackbar(this.snackBar, `Box Updated`)
+    })).subscribe(noop)
   }
 
   onViewFileList() {
@@ -114,31 +113,26 @@ export class JobBoardItemComponent implements OnInit {
     }).afterClosed()
   }
 
+  onAlert() {
+    const updatedJob = { ...this.job, isAlerted: !this.job.isAlerted }
+    this.store.dispatch(DashboardActions.highlightJobItem({ job: updatedJob }))
+  }
+
   onTitleClicked() {
     if (this.isDev) console.log(this.job)
   }
 
-  onAssignedToChanged(value: MatSelectChange) {
-    // const responseMessage = `${value.value.name} assigned to ${this.job.projectName}`
-    // const partialPayload = {
-    //   statusId: this.job.statusId,
-    //   box: this.job.box ? this.job.box : "",
-    //   notes: this.job.notes,
-    //   assignedTo: value.value.id,
-    //   historyOnlyNotes: `Assigned to ${value.value.name}`,
-    //   reportOnlyNotes: this.job.reportOnlyNotes
-    // }
-    // this.saveTransaction(partialPayload, responseMessage)
+  setDarkendFooter(color: string) {
+    if (color == 'initial') return "whitesmoke"
+    return colorShade(color, -20)
   }
 
-  onOpenCurrentEstimate() {
-    // this.backendService.getData(environment.currentProposalTableName, { jobId: this.job.jobId })
-    //   .subscribe(resp => {
-    //     this.dialog.open(EstimateViewComponent, {
-    //       width: '700px',
-    //       data: { estimates: resp, job: this.job, proposalId: this.job.proposalId }
-    //     });
-    //   })
+  onOpenCurrentProposal() {
+    this.store.dispatch(DashboardActions.clearSelectedProposal())
+    this.dialog.open(ViewCurrentProposalComponent, {
+      width: '700px',
+      data: this.job 
+    });
   }
 
   onDueDateSelected() {

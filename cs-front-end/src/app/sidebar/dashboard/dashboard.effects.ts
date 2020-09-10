@@ -30,6 +30,20 @@ export class DashboardEffects {
         ), { dispatch: false }
     )
 
+    updateBid$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(DashboardActions.highlightJobItem),
+            tap(({ job }) => this.backendService.saveData('upateBid', job))
+        ), { dispatch: false }
+    )
+
+    updateJobTransaction$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(DashboardActions.updateJobItem),
+            tap(({ job }) => this.backendService.saveData('updateJob', job))
+        ), { dispatch: false }
+    )
+
     saveManulaSort$ = createEffect(() =>
         this.actions$.pipe(
             ofType(DashboardActions.jobMoved),

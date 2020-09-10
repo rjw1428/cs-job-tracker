@@ -8,6 +8,7 @@ import { DashboardColumn } from 'src/models/dashboardColumn';
 import { Job } from 'src/models/job';
 import { EstimateType } from 'src/models/estimateType';
 import { AttachedFile } from 'src/models/attachedFile';
+import { Estimate } from 'src/models/estimate';
 
 export const initDashboard = createAction(
     "[Dashboard Component] Fetch Job Info"
@@ -78,12 +79,31 @@ export const storeViewFilesJob = createAction(
 )
 
 export const clearFileList = createAction(
-    "[Job Item] Cleare Stored Files (if job is not selected)"
+    "[Job Item] Cleare Stored Files"
 )
 
 export const deleteFileItem = createAction(
     "[View Files Form] Delete file",
-    props<{ file: AttachedFile, job: Job}>()
+    props<{ file: AttachedFile, job: Job }>()
+)
+
+export const updateJobItem = createAction(
+    "[Job Item] Update Job",
+    props<{ job: Job }>()
+)
+
+export const highlightJobItem = createAction(
+    "[Job Item] Toggle Job Highlight",
+    props<{ job: Job }>()
+)
+
+export const storeSelectedProposal = createAction(
+    "[Job Item] Store Selected Estimates",
+    props<{ job: Job, estimates: Estimate[] }>()
+)
+
+export const clearSelectedProposal = createAction(
+    "[Job Item] Cleare Stored Single Proposal"
 )
 
 // export const formStartLoading = createAction(

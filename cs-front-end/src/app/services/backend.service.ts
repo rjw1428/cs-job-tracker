@@ -34,7 +34,6 @@ export class BackendService {
     })
 
     this.socket.on('getInvitesForSingleColumn', ({ items, columnId }) => {
-      console.log(columnId)
       this.store.dispatch(DashboardActions.updateColumnInvites({ items, columnId }))
     })
 
@@ -53,7 +52,10 @@ export class BackendService {
 
     this.socket.on('getFiles', ({ job, jobFiles }) => {
       this.store.dispatch(DashboardActions.storeViewFilesJob({ job, jobFiles }))
+    })
 
+    this.socket.on('getSingleProposal', ({ job, estimates }) => {
+      this.store.dispatch(DashboardActions.storeSelectedProposal({ job, estimates }))
     })
   }
 
@@ -71,6 +73,10 @@ export class BackendService {
 
   initEstimateForm() {
     this.socket.emit('estimateFormInit')
+  }
+
+  initViewProposal(proposalId, job) {
+    this.socket.emit('proposalFormInit', { proposalId, job })
   }
 
   initViewFileForm(job: Job) {

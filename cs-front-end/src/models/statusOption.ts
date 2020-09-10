@@ -1,6 +1,7 @@
 export class StatusOption {
     constructor(
-        public id: string,
+        public id: number,
         public status: string,
+        public color?: string
     ) { }
 }

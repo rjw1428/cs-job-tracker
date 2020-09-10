@@ -1,0 +1,63 @@
+<div style="display: flex; flex-direction: column; align-items: stretch;" *ngIf="proposal.estimates.length; else noEstimates">
+  <div style="display: flex; flex-direction: row; justify-content: space-between;">
+    <div style="width: 30%">
+      <p><strong>Type</strong></p>
+    </div>
+    <div style="width: 20%">
+      <p><strong>Date Created</strong></p>
+    </div>
+    <div style="width: 20%">
+      <p><strong>Completed By</strong></p>
+    </div>
+    <div style="width: 10%">
+      <p><strong>Fee</strong></p>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div *ngFor="let estimate of proposal.estimates">
+    <ng-container *ngTemplateOutlet="rowTemplate;context:estimate"></ng-container>
+  </div>
+
+
+  <mat-divider></mat-divider>
+  <div style="display: flex; flex-direction: row; justify-content: space-between;">
+    <div style="display: flex; flex-direction: column;">
+      <h2 [ngStyle]="{'margin-bottom': proposal.finalCost ? '0' : '16px'}"><strong>Project Value: </strong><span
+          [ngStyle]="{'text-decoration': proposal.finalCost ? 'line-through' : 'none'}">{{proposal.projectValue | currency}}</span>
+      </h2>
+      <h2 [ngStyle]="{'margin-bottom': proposal.finalCostNote ? '0' : '16px'}" *ngIf="proposal.finalCost"><span
+          style="color: red; margin-left: 128px">{{proposal.finalCostNote | currency}}</span></h2>
+      <mat-hint *ngIf="proposal.finalCostNote" style="margin-left: 128px">{{proposal.finalCostNote}}</mat-hint>
+    </div>
+    <h4 *ngIf="proposal.outsourceCost"><strong>Outsource Cost: </strong>{{proposal.outsourceCost | currency}}</h4>
+    <button *ngIf="deletable" mat-button matTooltipPosition="above" matTooltip="Delete" (click)="onDelete()">
+      <mat-icon>delete_outline</mat-icon>
+    </button>
+  </div>
+</div>
+
+<ng-template #rowTemplate let-type="type" let-cost="cost" let-dateCreated="estimateDateCreated" let-estimator="estimatorName"
+  let-fee="fee">
+  <div style="display: flex; flex-direction: row; justify-content: space-between;" *ngIf="cost">
+    <div style="width: 30%">
+      <p><strong>{{type | titlecase}} Cost: </strong>{{cost | currency}}</p>
+    </div>
+    <div style="width: 20%">
+      <p>{{dateCreated | date : 'MM/dd/yy'}}</p>
+    </div>
+    <div style="width: 20%">
+      <p>{{estimator}}</p>
+    </div>
+    <div style="width: 10%">
+      <p *ngIf="fee">{{fee | currency}}</p>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #noEstimates>
+  <div style="display: flex; justify-content: center;">
+    <h3 style="color: gray;">No Estimates Added</h3>
+  </div>
+</ng-template>

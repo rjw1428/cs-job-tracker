@@ -1,9 +1,11 @@
+:host {
+  --col-padding: 8px
+}
 .wrapper {
   display: flex;
-  width: 100%;
-  justify-content: space-between;
-  align-content: stretch;
   box-sizing: border-box;
+  width: 100%;
+  padding: var(--col-padding)
 }
 
 .dashboard-wrapper {

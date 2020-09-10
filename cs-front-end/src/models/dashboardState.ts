@@ -7,6 +7,7 @@ import { BoxOption } from './boxOption';
 import { Job } from './job';
 import { EstimateType } from './estimateType';
 import { AttachedFile } from './attachedFile';
+import { Estimate } from './estimate';
 
 export interface DashboardState {
     columns: DashboardColumn[];
@@ -18,5 +19,6 @@ export interface DashboardState {
     estimateTypes: EstimateType[]
     selectedJob: Job
     selectedJobFiles: AttachedFile[]
+    selectedSingleProposal: Estimate[]
     formLoading: boolean
 }

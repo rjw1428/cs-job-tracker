@@ -86,7 +86,7 @@ export class AddEstimateComponent implements OnInit {
       estimatorId: this.costFormGroup.get('estimator').value.id,
       isInHouse: this.costFormGroup.get('isInHouse').value ? 1 : 0,
       fee: this.costFormGroup.get('fee').value ? this.costFormGroup.get('fee').value : 0,
-      estimateDateCreated: new Date().toISOString()
+      estimateDateCreated: new Date().toLocaleString()
     }
     this.dialogRef.close({
       estimate,

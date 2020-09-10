@@ -29,6 +29,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatMenuModule } from '@angular/material/menu';
+import { SingleProposalComponent } from '../single-proposal/single-proposal.component';
+
 // import { FilterComponent } from '../filter/filter.component';
 // import { CustomHeaderComponent } from '../filter/custom-header/custom-header.component';
 // import { JobBoardItemComponent } from '../dashboard/job-board-item/job-board-item.component';
@@ -73,12 +75,14 @@ const modules = [
 
 @NgModule({
   declarations: [
-    LoadingWrapperComponent
+    LoadingWrapperComponent,
+    SingleProposalComponent
   ],
   imports: [modules],
   exports: [
     modules,
-    LoadingWrapperComponent
+    LoadingWrapperComponent,
+    SingleProposalComponent
   ]
 })
 export class SharedModule { }
