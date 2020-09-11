@@ -42,7 +42,7 @@ import { ConfirmationSnackbarComponent } from './popups/confirmation-snackbar/co
       }
     }),
     StoreModule.forFeature('app', loadingReducer),
-    EffectsModule.forRoot([AppEffects, DashboardEffects]),
+    EffectsModule.forRoot([AppEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],
   providers: [],

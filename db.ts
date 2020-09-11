@@ -76,6 +76,18 @@ export const updateTable = (table: string, set: {}, where: {}, dataInfo: string)
     })
 }
 
+
+// RUN STORED PROCEDURE
+export const runStoredProcedure = (procedureName: string, start: number, end: number, dataInfo: string, where = {}) => {
+    const whereClause = createWhereClauses(where)
+    return new Promise<any[]>((resolve, reject) => {
+        runQuery(`CALL ${procedureName}(${start}, ${end}) ${whereClause}`, `Fetch ${dataInfo} -`, ({ error, results }) => {
+            if (error) return reject(error)
+            resolve(results)
+        })
+    })
+}
+
 export const fetchInitialSQLData = () => {
     // Get Estimators
     let fetchEstimators = fetchFromTable('estimators', "Estimators")

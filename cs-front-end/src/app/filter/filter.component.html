@@ -1,0 +1,29 @@
+<form [formGroup]="timeFilterFormGroup" style="display: flex; align-items:center">
+    <div style="width: 50%; display: flex; justify-content: space-around;">
+      <mat-form-field>
+        <mat-label>From</mat-label>
+        <input name="fromDate" formControlName="from" matInput [matDatepicker]="picker1">
+        <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+        <mat-datepicker #picker1 [calendarHeaderComponent]="customHeader"></mat-datepicker>
+      </mat-form-field>
+  
+      <mat-form-field>
+        <mat-label>To</mat-label>
+        <input name="toDate" formControlName="to" matInput [matDatepicker]="picker2">
+        <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+        <mat-datepicker #picker2 [calendarHeaderComponent]="customHeader"></mat-datepicker>
+      </mat-form-field>
+    </div>
+    <div style="width: 50%;">
+      <mat-form-field>
+        <mat-label>Shortcut</mat-label>
+        <mat-select formControlName="shortcut">
+          <mat-option *ngFor="let shortcut of shortcuts" [value]="shortcut">{{shortcut.label}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+  
+      <button style="margin-left: 10px" mat-raised-button color="primary" (click)="onApply()">Apply</button>
+  
+    </div>
+  </form>
+  

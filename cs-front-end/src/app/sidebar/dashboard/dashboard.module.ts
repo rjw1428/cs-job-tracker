@@ -23,6 +23,8 @@ import { AwardTimelineFormComponent } from './award-timeline-form/award-timeline
 import { AssignBidFormComponent } from './assign-bid-form/assign-bid-form.component';
 import { AddFinalPriceComponent } from './add-final-price/add-final-price.component';
 import { UpdateDueDateComponent } from './update-due-date/update-due-date.component';
+import { EffectsModule } from '@ngrx/effects';
+import { DashboardEffects } from './dashboard.effects';
 
 export const routes: Routes = [
   {
@@ -58,6 +60,7 @@ export const routes: Routes = [
     SharedModule,
     RouterModule.forChild(routes),
     StoreModule.forFeature('dashboard', dashboardReducer),
+    EffectsModule.forFeature([DashboardEffects]),
   ]
 })
 export class DashboardModule { }

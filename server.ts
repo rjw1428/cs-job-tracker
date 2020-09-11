@@ -8,7 +8,7 @@ import { createServer } from 'http'
 import { emailRoute } from './email'
 import { fileShareRoute } from './fileio';
 import { firebaseRoute, fetchInitialFirebaseConfigs } from './firebase';
-import { fetchInitialSQLData, insertIntoTable, fetchFromTable, updateTable } from './db';
+import { fetchInitialSQLData, insertIntoTable, fetchFromTable, updateTable, runStoredProcedure } from './db';
 import { Contractor } from './cs-front-end/src/models/contractor'
 import { Project } from './cs-front-end/src/models/project'
 import { Estimator } from './cs-front-end/src/models/estimator'
@@ -16,7 +16,7 @@ import { EstimateType } from './cs-front-end/src/models/estimateType';
 import { BoxOption } from './cs-front-end/src/models/boxOption'
 import { ReportConfig } from './cs-front-end/src/models/reportConfig';
 import { ChartConfig } from './cs-front-end/src/models/chartConfig';
-import { TimeShortcut } from './cs-front-end/src/models/timeShortcut';
+import { RawTimeShortcut } from './cs-front-end/src/models/rawtimeShortcut';
 import { DashboardColumn } from './cs-front-end/src/models/dashboardColumn';
 import { Job } from './cs-front-end/src/models/job'
 import { AttachedFile } from './cs-front-end/src/models/attachedFile'
@@ -66,7 +66,7 @@ let state: {
     invites: Job[],
     reportConfigs: ReportConfig[],
     chartConfigs: ChartConfig[],
-    timeShortcuts: TimeShortcut[],
+    timeShortcuts: RawTimeShortcut[],
     dashboardColumns: DashboardColumn[],
 } = {
     users: [],
@@ -107,6 +107,8 @@ export async function initializeBackend() {
 }
 
 io.on('connection', (socket) => {
+
+    // -------------Dashboard---------------------------------------
     // On Dashboard Init
     socket.on('dashboard', (callback) => {
         socket.join(room)
@@ -117,8 +119,7 @@ io.on('connection', (socket) => {
 
         socket.emit('getColumns', state.dashboardColumns)
         socket.emit('getReportConfigs', state.reportConfigs)
-        socket.emit('getChartConfigs', state.chartConfigs)
-        socket.emit('getTimeShortcuts', state.timeShortcuts)
+
 
         console.log("USERS: " + state.users.filter(user => user.room == room).length)
     })
@@ -544,6 +545,27 @@ io.on('connection', (socket) => {
             console.log(e)
         }
     })
+
+    // ----------------------------------------------------------
+
+    // ------------------------Charts---------------------------
+
+    socket.on('charts', () => {
+        socket.emit('getChartConfigs', state.chartConfigs)
+        socket.emit('getTimeShortcuts', state.timeShortcuts)
+    })
+
+    socket.on('fetchData', async (config: ChartConfig, start: number, end: number) => {
+        try {
+            const data = await runStoredProcedure(config.storedProcedure, start, end, config.name)
+            socket.emit('updateChart', { config, data: data[0] })
+        }
+        catch (e) {
+            console.log(e)
+        }
+    })
+
+
 
     socket.on('disconnect', () => {
         state.users = state.users.filter(user => user.id != socket.id)

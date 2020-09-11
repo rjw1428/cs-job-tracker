@@ -30,12 +30,10 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatMenuModule } from '@angular/material/menu';
 import { SingleProposalComponent } from '../single-proposal/single-proposal.component';
-
-// import { FilterComponent } from '../filter/filter.component';
-// import { CustomHeaderComponent } from '../filter/custom-header/custom-header.component';
-// import { JobBoardItemComponent } from '../dashboard/job-board-item/job-board-item.component';
-// import { NgxChartsModule } from '@swimlane/ngx-charts';
-// import { ComboSeriesVerticalComponent, ComboChartComponent } from '../charts/combo-chart';
+import { FilterComponent } from '../filter/filter.component';
+import { CustomDateHeaderComponent } from '../filter/custom-date-header/custom-date-header.component';
+import { ComboSeriesVerticalComponent, ComboChartComponent } from '../sidebar/charts/combo-chart';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 
 const modules = [
@@ -69,20 +67,28 @@ const modules = [
   MatSortModule,
   MatSlideToggleModule,
   MatMenuModule,
-  // NgxChartsModule
+  NgxChartsModule
 ]
 
 
 @NgModule({
   declarations: [
     LoadingWrapperComponent,
-    SingleProposalComponent
+    SingleProposalComponent,
+    FilterComponent,
+    CustomDateHeaderComponent,
+    ComboSeriesVerticalComponent, 
+    ComboChartComponent
   ],
   imports: [modules],
   exports: [
     modules,
     LoadingWrapperComponent,
-    SingleProposalComponent
+    SingleProposalComponent,
+    FilterComponent,
+    CustomDateHeaderComponent,
+    ComboSeriesVerticalComponent, 
+    ComboChartComponent
   ]
 })
 export class SharedModule { }

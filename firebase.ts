@@ -6,7 +6,7 @@ import * as admin from 'firebase-admin'
 import { pingDB, injectScript } from './db';
 import { ReportConfig } from './cs-front-end/src/models/reportConfig';
 import { ChartConfig } from './cs-front-end/src/models/chartConfig';
-import { TimeShortcut } from './cs-front-end/src/models/timeShortcut';
+import { RawTimeShortcut } from './cs-front-end/src/models/rawtimeShortcut';
 import { DashboardColumn } from './cs-front-end/src/models/dashboardColumn';
 import { initializeBackend } from './server';
 
@@ -79,7 +79,7 @@ export const fetchInitialFirebaseConfigs = async () => {
     //Get time filters
     const time_filter = await fb.firestore().collection('cs_workflow').doc('time_filter').get()
     if (!time_filter.exists) console.log('No time filters found!');
-    const timeShortcuts: TimeShortcut[] = time_filter.exists
+    const timeShortcuts: RawTimeShortcut[] = time_filter.exists
         ? Object.keys(time_filter.data())
             .map(key => time_filter.data()[key])
         : []

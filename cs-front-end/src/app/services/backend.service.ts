@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpRequest } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import * as io from 'socket.io-client';
-import { Subject, throwError } from 'rxjs';
+import { Subject, throwError, noop } from 'rxjs';
 import { Estimator } from 'src/models/estimator';
 import { AppState } from 'src/models/appState';
 import { Store } from '@ngrx/store';
@@ -10,6 +10,9 @@ import { DashboardActions } from '../sidebar/dashboard/dashboard.action-types';
 import { first, map } from 'rxjs/operators';
 import { Job } from 'src/models/job';
 import { AppActions } from '../app.action-types';
+import { ChartsActions } from '../sidebar/charts/charts.action-types';
+import { selectedChartConfigSelector } from '../sidebar/charts/charts.selectors';
+import { EventService } from './event.service';
 
 @Injectable({
   providedIn: 'root'
@@ -65,6 +68,20 @@ export class BackendService {
     this.socket.on('getProposalHistory', ({ job, proposals }) => {
       this.store.dispatch(DashboardActions.storeProposalHistory({ job, proposals }))
     })
+
+    //  ------------------------CHARTS---------------------------
+
+    this.socket.on('getChartConfigs', chartConfigs => {
+      this.store.dispatch(ChartsActions.storeChartConfigs({ chartConfigs }))
+    })
+
+    this.socket.on('getTimeShortcuts', timeShortcuts => {
+      this.store.dispatch(ChartsActions.storeTimeShortcuts({ timeShortcuts }))
+    })
+
+    this.socket.on('updateChart', ({ config, data }) => {
+      this.store.dispatch(ChartsActions.addDataToConfig({ config, data }))
+    })
   }
 
   sendEmail(message: string) {
@@ -95,6 +112,10 @@ export class BackendService {
     this.socket.emit('jobHistoryFormInit', job)
   }
 
+  initCharts() {
+    this.socket.emit('charts')
+  }
+
   initViewFileForm(job: Job) {
     this.socket.emit('viewFilesInit', job)
     this.socket.emit('updateColumn', job)
@@ -116,6 +137,13 @@ export class BackendService {
     const url = `${environment.apiUrl}/upload/${jobId}?folder=${displayId}`
     const req = new HttpRequest('POST', url, formData, { reportProgress: true });
     return this.http.request(req).pipe(map(resp => ({ response: resp, index: fileIndex })))
+  }
+
+  fetchChartData() {
+    this.store.select(selectedChartConfigSelector).pipe(
+      first(),
+      map(config => this.socket.emit('fetchData', config, null, null))
+    ).subscribe(noop)
   }
 
 
