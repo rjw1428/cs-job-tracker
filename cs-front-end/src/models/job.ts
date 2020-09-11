@@ -17,8 +17,6 @@ export class Job {
         public dateDue: string,
         public isActive: boolean,
         public currentDashboardColumn: string,
-        public startDate: string,
-        public endDate: string,
         public isNoBid: boolean,
         public noBidDate: string,
         public estimateCount: number,
@@ -30,6 +28,10 @@ export class Job {
         public notes: string,
         public reportOnlyNotes: string,
         public historyOnlyNotes: string,
-        public isAlerted: boolean
+        public isAlerted: boolean,
+        public startTime: string,
+        public endTime: string,
+        public proposalId: number,
+        public projectValue: number
     ) {}
 }

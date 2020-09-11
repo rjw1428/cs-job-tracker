@@ -57,6 +57,14 @@ export class BackendService {
     this.socket.on('getSingleProposal', ({ job, estimates }) => {
       this.store.dispatch(DashboardActions.storeSelectedProposal({ job, estimates }))
     })
+
+    this.socket.on('getHistory', ({ job, transactions }) => {
+      this.store.dispatch(DashboardActions.storeSelectedHistory({ job, transactions }))
+    })
+
+    this.socket.on('getProposalHistory', ({ job, proposals }) => {
+      this.store.dispatch(DashboardActions.storeProposalHistory({ job, proposals }))
+    })
   }
 
   sendEmail(message: string) {
@@ -77,6 +85,14 @@ export class BackendService {
 
   initViewProposal(proposalId, job) {
     this.socket.emit('proposalFormInit', { proposalId, job })
+  }
+
+  initViewProposalHistory(job) {
+    this.socket.emit('proposalHistoryFormInit', job)
+  }
+
+  initViewJobHistory(job: Job) {
+    this.socket.emit('jobHistoryFormInit', job)
   }
 
   initViewFileForm(job: Job) {

@@ -6,8 +6,8 @@ import { Estimate } from 'src/models/estimate';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/models/appState';
-import { Proposal } from 'src/models/proposal';
 import { singleProposalSelector } from '../dashboard.selectors';
+import { Proposal } from 'src/models/proposal';
 
 @Component({
   selector: 'app-view-current-proposal',
@@ -26,5 +26,4 @@ export class ViewCurrentProposalComponent implements OnInit {
 
     this.proposal$ = this.store.select(singleProposalSelector)
   }
-
 }

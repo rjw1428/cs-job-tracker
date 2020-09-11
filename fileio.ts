@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import * as path from 'path';
 import * as multer from "multer"
 import * as fs from 'fs';
-import { saveFile } from './db';
+import { saveFile, fetchFromTable } from './db';
 
 export const fileShareRoute = express.Router()
 
@@ -30,13 +30,11 @@ fileShareRoute.post('/upload/:jobId', upload.single('document'), async (req, res
     const now = new Date()
     const jobId = req.params.jobId
     const folder = req.query.folder
-    saveFile(jobId, folder, req['file'].filename, now.toISOString(), async (dbResult: any) => {
-        if (dbResult.error)
-            resp.status(500).send({ error: dbResult.error })
-        resp.send(dbResult)
-    })
+    const dbResponse = await saveFile(jobId, folder, req['file'].filename, now.toISOString())
+    // const jobFiles = await fetchFromTable('job_files', `Files for ${folder}`, { jobId: [jobId] })
+    
+    resp.send(dbResponse)
 })
-
 
 fileShareRoute.get('/download/:jobId/:fileName', async (req, res) => {
     try {

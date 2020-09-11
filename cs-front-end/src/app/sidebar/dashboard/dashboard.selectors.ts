@@ -95,13 +95,24 @@ export const singleProposalSelector = createSelector(
     dashboardState => {
         const projectValue = dashboardState.selectedSingleProposal.map(estimate => estimate.cost).reduce((acc, cur) => acc + cur, 0)
         const outsourceCost = dashboardState.selectedSingleProposal.map(estimate => estimate.fee).reduce((acc, cur) => acc + cur, 0)
-        return { 
-            estimates: dashboardState.selectedSingleProposal, 
-            proposalId: null,
+        return {
+            estimates: dashboardState.selectedSingleProposal,
+            id: null,
             projectValue,
             outsourceCost,
             finalCost: null,
-            finalCostNote: null
+            finalCostNote: null,
+            dateSent: null
         } as Proposal
     }
+)
+
+export const proposalHistorySelector = createSelector(
+    selectDashboardState,
+    dashboardState => dashboardState.selectedProposalHistory
+)
+
+export const jobHistorySelector = createSelector(
+    selectDashboardState,
+    dashboardState => dashboardState.selectedJobHistory
 )

@@ -5,6 +5,7 @@ import { AppActions } from '../../app.action-types';
 import { BackendService } from '../../services/backend.service';
 import { tap, map, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import { EventService } from 'src/app/services/event.service';
 
 @Injectable()
 export class DashboardEffects {
@@ -58,13 +59,37 @@ export class DashboardEffects {
             tap(job => {
                 if (job.currentDashboardColumn != job.previousDashboardColumn)
                     this.backendService.saveData('moveBid', job)
+                console.log(job)
+                if (job.currentDashboardColumn == 'awarded' && job.previousDashboardColumn != "awarded")
+                    this.backendService.saveData('awardTimeline', job)
             }),
             catchError(err => throwError(err)),
         ), { dispatch: false }
     )
 
+    triggerMoveForm$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(DashboardActions.jobMoveForm),
+            map(action => {
+                switch (action.targetColIndex) {
+                    case 'estimating':
+                        this.eventService.triggerAssignmentFrom.next(action)
+                        return DashboardActions.jobMoveIntercepted()
+                    case 'proposal':
+                        this.eventService.confirmProposal.next(action)
+                        return DashboardActions.jobMoveIntercepted()
+                    case 'awarded':
+                        this.eventService.triggerTimelineForm.next(action)
+                        return DashboardActions.jobMoveIntercepted()
+                    default: return DashboardActions.jobMoved(action)
+                }
+            })
+        )
+    )
+
     constructor(
         private actions$: Actions,
         private backendService: BackendService,
+        private eventService: EventService
     ) { }
 }

@@ -37,7 +37,7 @@ export class JobBoardColumnComponent implements OnInit {
         return matchingColumn.items.findIndex(item => item.jobId == selectedJob.jobId)
       })
     ).subscribe(sourceOrderIndex => {
-      this.store.dispatch(DashboardActions.jobMoved({
+      this.store.dispatch(DashboardActions.jobMoveForm({
         sourceColIndex,
         sourceOrderIndex,
         targetColIndex,

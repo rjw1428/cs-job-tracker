@@ -38,7 +38,7 @@ export class JobBoardComponent implements OnInit {
     const targetOrderIndex = event.currentIndex
 
     const selectedJob = event.previousContainer.data[sourceOrderIndex]
-    this.store.dispatch(DashboardActions.jobMoved({
+    this.store.dispatch(DashboardActions.jobMoveForm({
       sourceColIndex,
       sourceOrderIndex,
       targetColIndex,

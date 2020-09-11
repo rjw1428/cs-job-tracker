@@ -9,6 +9,8 @@ import { Job } from 'src/models/job';
 import { EstimateType } from 'src/models/estimateType';
 import { AttachedFile } from 'src/models/attachedFile';
 import { Estimate } from 'src/models/estimate';
+import { HistoryEntry } from 'src/models/historyEntry';
+import { Proposal } from 'src/models/proposal';
 
 export const initDashboard = createAction(
     "[Dashboard Component] Fetch Job Info"
@@ -57,6 +59,17 @@ export const toggleNoBidJobItem = createAction(
     props<{ job: Job }>()
 )
 
+export const jobMoveForm = createAction(
+    "[Job Board] Open Triggered Form",
+    props<{
+        sourceColIndex: string,
+        sourceOrderIndex: number,
+        targetColIndex: string,
+        targetOrderIndex: number,
+        selectedJob: Job
+    }>()
+)
+
 export const jobMoved = createAction(
     "[Job Board] Job Moved",
     props<{
@@ -65,7 +78,8 @@ export const jobMoved = createAction(
         targetColIndex: string,
         targetOrderIndex: number,
         selectedJob: Job
-    }>())
+    }>()
+)
 
 
 export const onColumnSort = createAction(
@@ -106,6 +120,27 @@ export const clearSelectedProposal = createAction(
     "[Job Item] Cleare Stored Single Proposal"
 )
 
+export const clearSelectedJobHistory = createAction(
+    "[Job Item] Cleare Stored Job History"
+)
+
+export const storeSelectedHistory = createAction(
+    "[Backend Service (View History Init)] Store Job History",
+    props<{ job: Job, transactions: HistoryEntry[] }>()
+)
+
+export const jobMoveIntercepted = createAction(
+    "[Dashboard Effect] Move Intercepted"
+)
+
+export const storeProposalHistory = createAction(
+    "Backend Service (View History Init)] Store Proposal History",
+    props<{ job: Job, proposals: Proposal[] }>()
+)
+
+export const clearSelectedProposalHistory = createAction(
+    "[Job Item] Cleare Stored Proposal History"
+)
 // export const formStartLoading = createAction(
 //     "[Job Board] Start Form Loading"
 // )

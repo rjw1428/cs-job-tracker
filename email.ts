@@ -7,7 +7,7 @@ export const emailRoute = express.Router()
 
 emailRoute.post('/email', async (req, resp) => {
     dotenv.config({ path: path.join(__dirname, ".env") })
-
+    console.log(req.body['message'])
     sgMail.setApiKey(process.env.SG_API_KEY);
     const msgConfig = {
         to: '6107304332@msg.fi.google.com',

@@ -1,1 +1,44 @@
-<p>view-job-history works!</p>
+<h1 mat-dialog-title style="margin:0">Job History - {{job.projectName}}</h1>
+<h3>{{job.contractorName}}</h3>
+
+<!-- FILTER -->
+<mat-form-field>
+  <mat-label>Filter</mat-label>
+  <input matInput (keyup)="applyFilter($event)" placeholder="Filter" #input>
+  <button mat-button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear"
+    (click)="input.value=null; dataSource.filter=null">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-form-field>
+
+<div mat-dialog-content>
+  <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+    <ng-container [matColumnDef]="columnDef" *ngFor="let columnDef of displayedColumns; let i = index">
+
+      <mat-header-cell *matHeaderCellDef> {{columnDef | titlecase}} </mat-header-cell>
+
+      <mat-cell *matCellDef="let element">
+        <div *ngIf="i==0">{{element[columnDef] | date : 'shortDate'}}</div>
+        <!-- <div *ngIf="i>0 && element.proposalId && element[columnDef] == 'proposal sent'; else normal">
+          <span style="color: rgb(13, 34, 153); cursor: pointer;"
+            (click)="onProposalSelected(element)">{{element[columnDef] | titlecase}}</span>
+        </div> -->
+        <!-- <ng-template #normal> -->
+        <div *ngIf="i!=0 && i!=displayedColumns.length-1">{{element[columnDef] | titlecase}}</div>
+        <!-- </ng-template> -->
+        <div *ngIf="i==displayedColumns.length-1">{{ getTime(element[columnDef])}}</div>
+      </mat-cell>
+
+      <mat-footer-cell *matFooterCellDef>
+        <div *ngIf="i==0"><strong>Total Time</strong></div>
+        <div *ngIf="i==1">{{ getTotal() }}</div>
+      </mat-footer-cell>
+
+    </ng-container>
+
+    <mat-header-row class="sticky-row" *matHeaderRowDef="displayedColumns;  sticky: true"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    <mat-footer-row class="sticky-row" *matFooterRowDef="displayedColumns;  sticky: true"></mat-footer-row>
+  </mat-table>
+</div>

@@ -32,13 +32,13 @@
       </div>
       <div style="display: flex; justify-content: space-between;" *ngIf="job.currentDashboardColumn=='awarded'">
         <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>Start Date:
-          </strong>{{job.startDate | date : 'MM/dd/yyyy'}}
+          </strong>{{job.startTime | date : 'MM/dd/yyyy'}}
         </p>
         <mat-icon class="award-timeline-hidden">create</mat-icon>
       </div>
       <div style="display: flex; justify-content: space-between;" *ngIf="job.currentDashboardColumn=='awarded'">
         <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>End Date:
-          </strong>{{job.endDate | date : 'MM/dd/yyyy'}}
+          </strong>{{job.endTime | date : 'MM/dd/yyyy'}}
         </p>
         <mat-icon class="award-timeline-hidden">create</mat-icon>
       </div>
@@ -52,7 +52,7 @@
       <p *ngIf="job.currentDashboardColumn!='awarded'"><strong>Total Estimates: </strong>{{job.estimateCount}}</p>
       <p *ngIf="job.currentDashboardColumn!='estimating' && job.currentDashboardColumn!='invitation'">
         <strong>Project Value: </strong>
-        <!-- {{(job.finalCost?job.finalCost:job.project_value) | currency}} -->
+        {{(job.projectValue) | currency}}
       </p>
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <button color="primary" mat-button (click)="onOpenCurrentProposal()">Current Proposal</button>
@@ -176,13 +176,13 @@
       <h3>Award Timeline</h3>
       <div style="display: flex; justify-content: space-between;">
         <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>Start Date:
-          </strong>{{job.startDate | date : 'MM/dd/yyyy'}}
+          </strong>{{job.startTime | date : 'MM/dd/yyyy'}}
         </p>
         <mat-icon class="award-timeline-hidden">create</mat-icon>
       </div>
       <div style="display: flex; justify-content: space-between;">
         <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>End Date:
-          </strong>{{job.endDate | date : 'MM/dd/yyyy'}}
+          </strong>{{job.endTime | date : 'MM/dd/yyyy'}}
         </p>
         <mat-icon class="award-timeline-hidden">create</mat-icon>
       </div>

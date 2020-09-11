@@ -1,4 +1,5 @@
-<div style="display: flex; flex-direction: column; align-items: stretch;" *ngIf="proposal.estimates.length; else noEstimates">
+<div style="display: flex; flex-direction: column; align-items: stretch;"
+  *ngIf="proposal.estimates.length; else noEstimates">
   <div style="display: flex; flex-direction: row; justify-content: space-between;">
     <div style="width: 30%">
       <p><strong>Type</strong></p>
@@ -27,8 +28,9 @@
       <h2 [ngStyle]="{'margin-bottom': proposal.finalCost ? '0' : '16px'}"><strong>Project Value: </strong><span
           [ngStyle]="{'text-decoration': proposal.finalCost ? 'line-through' : 'none'}">{{proposal.projectValue | currency}}</span>
       </h2>
-      <h2 [ngStyle]="{'margin-bottom': proposal.finalCostNote ? '0' : '16px'}" *ngIf="proposal.finalCost"><span
-          style="color: red; margin-left: 128px">{{proposal.finalCostNote | currency}}</span></h2>
+      <h2 [ngStyle]="{'margin-bottom': proposal.finalCost ? '0' : '16px'}" *ngIf="proposal.finalCost">
+        <span style="color: red; margin-left: 128px">{{proposal.finalCost | currency}}</span>
+      </h2>
       <mat-hint *ngIf="proposal.finalCostNote" style="margin-left: 128px">{{proposal.finalCostNote}}</mat-hint>
     </div>
     <h4 *ngIf="proposal.outsourceCost"><strong>Outsource Cost: </strong>{{proposal.outsourceCost | currency}}</h4>
@@ -38,8 +40,8 @@
   </div>
 </div>
 
-<ng-template #rowTemplate let-type="type" let-cost="cost" let-dateCreated="estimateDateCreated" let-estimator="estimatorName"
-  let-fee="fee">
+<ng-template #rowTemplate let-type="type" let-cost="cost" let-dateCreated="estimateDateCreated"
+  let-estimator="estimatorName" let-fee="fee">
   <div style="display: flex; flex-direction: row; justify-content: space-between;" *ngIf="cost">
     <div style="width: 30%">
       <p><strong>{{type | titlecase}} Cost: </strong>{{cost | currency}}</p>

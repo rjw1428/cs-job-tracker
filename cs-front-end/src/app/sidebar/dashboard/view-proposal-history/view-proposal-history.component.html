@@ -1,1 +1,42 @@
-<p>here</p>
+<h1 mat-dialog-title style="margin:0">Proposal History - {{job.projectName}}</h1>
+<h3>{{job.contractorName}}</h3>
+<div mat-dialog-content>
+  <div *ngIf="(proposals$ | async).length" style="display:flex; justify-content: flex-end;">
+    <button mat-button (click)="accordion.openAll()">Expand All</button>
+    <button mat-button (click)="accordion.closeAll()">Collapse All</button>
+  </div>
+  <div *ngIf="!(proposals$ | async).length" style=" display: flex; justify-content: center;">
+    <h3 style="color: gray">No Proposals Saved Yet</h3>
+  </div>
+  <mat-accordion multi>
+    <mat-expansion-panel *ngFor="let proposal of proposals$ | async as proposals;  let i=index" [expanded]="i==proposals.length-1">
+
+      <!-- PANEL HEADER -->
+      <mat-expansion-panel-header style="background: whitesmoke;">
+        <mat-panel-title *ngIf="proposal.dateSent!='current'; else isCurrent">
+          {{proposal.dateSent | date : 'short'}}
+        </mat-panel-title>
+        <ng-template #isCurrent>
+          <mat-panel-title>
+            {{proposal.dateSent | uppercase}}
+          </mat-panel-title>
+        </ng-template>
+        <mat-panel-description>
+          <div style="display: flex; justify-content: space-around; align-items: center; width: 100%;">
+            <div><strong>Project Value:
+              </strong>{{(proposal.finalCost?proposal.finalCost:proposal.projectValue) | currency}}</div>
+          </div>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <!-- PANEL CONTENT -->
+      <ng-template matExpansionPanelContent>
+        <single-proposal 
+          [proposal]="proposal" 
+          [deletable]="i!=proposals.length-1">
+      </single-proposal>
+      </ng-template>
+
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

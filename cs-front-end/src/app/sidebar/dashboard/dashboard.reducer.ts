@@ -4,6 +4,7 @@ import { DashboardState } from 'src/models/dashboardState'
 import { moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop'
 import { DashboardColumn } from 'src/models/dashboardColumn'
 import { sortFn } from 'src/app/shared/utility'
+import { initialLoadingState } from 'src/app/app.reduce'
 
 export const initialDashboardState: DashboardState = {
     columns: [],
@@ -15,6 +16,8 @@ export const initialDashboardState: DashboardState = {
     selectedJob: null,
     selectedJobFiles: [],
     selectedSingleProposal: [],
+    selectedJobHistory: [],
+    selectedProposalHistory: [],
     formLoading: false,
 }
 
@@ -213,10 +216,36 @@ export const dashboardReducer = createReducer(
             selectedSingleProposal: action.estimates
         }
     }),
-    on(DashboardActions.clearSelectedProposal, (state)=>{
+    on(DashboardActions.clearSelectedProposal, (state) => {
         return {
             ...state,
             selectedSingleProposal: initialDashboardState.selectedSingleProposal
+        }
+    }),
+    on(DashboardActions.clearSelectedJobHistory, (state) => {
+        return {
+            ...state,
+            selectedJobHistory: initialDashboardState.selectedJobHistory
+        }
+    }),
+    on(DashboardActions.storeSelectedHistory, (state, action) => {
+        return {
+            ...state,
+            selectedJob: action.job,
+            selectedJobHistory: action.transactions
+        }
+    }),
+    on(DashboardActions.storeProposalHistory, (state, action) => {
+        return {
+            ...state,
+            selectedJob: action.job,
+            selectedProposalHistory: action.proposals
+        }
+    }),
+    on(DashboardActions.clearSelectedProposalHistory, (state) => {
+        return {
+            ...state,
+            selectedProposalHistory: initialDashboardState.selectedProposalHistory
         }
     })
     // on(DashboardActions.formStartLoading, (state) =>{

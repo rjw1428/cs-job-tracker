@@ -19,6 +19,10 @@ import { DecodeURIPipe } from 'src/app/shared/decode-uri.pipe';
 import { ViewJobHistoryComponent } from './view-job-history/view-job-history.component';
 import { ViewProposalHistoryComponent } from './view-proposal-history/view-proposal-history.component';
 import { ViewCurrentProposalComponent } from './view-current-proposal/view-current-proposal.component';
+import { AwardTimelineFormComponent } from './award-timeline-form/award-timeline-form.component';
+import { AssignBidFormComponent } from './assign-bid-form/assign-bid-form.component';
+import { AddFinalPriceComponent } from './add-final-price/add-final-price.component';
+import { UpdateDueDateComponent } from './update-due-date/update-due-date.component';
 
 export const routes: Routes = [
   {
@@ -43,7 +47,11 @@ export const routes: Routes = [
     DecodeURIPipe,
     ViewJobHistoryComponent,
     ViewProposalHistoryComponent,
-    ViewCurrentProposalComponent
+    ViewCurrentProposalComponent,
+    AwardTimelineFormComponent,
+    AssignBidFormComponent,
+    AddFinalPriceComponent,
+    UpdateDueDateComponent
   ],
   imports: [
     CommonModule,

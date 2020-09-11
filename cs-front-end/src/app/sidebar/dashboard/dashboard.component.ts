@@ -4,9 +4,9 @@ import { Store, select } from '@ngrx/store';
 import { DashboardActions } from './dashboard.action-types';
 import { BackendService } from 'src/app/services/backend.service';
 import { AppActions } from 'src/app/app.action-types';
-import { Observable, iif, of } from 'rxjs';
+import { Observable, iif, of, throwError } from 'rxjs';
 import { Estimator } from 'src/models/estimator';
-import { map, mergeMap, finalize, catchError, first } from 'rxjs/operators'
+import { map, mergeMap, finalize, catchError, first, switchMap } from 'rxjs/operators'
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AddContractorComponent } from './add-contractor/add-contractor.component';
@@ -19,6 +19,11 @@ import { BidInvite } from 'src/models/bidInvite';
 import { AddInviteComponent } from './add-invite/add-invite.component';
 import { AddEstimateComponent } from './add-estimate/add-estimate.component';
 import { loadingSelector } from 'src/app/app.selectors';
+import { EventService } from 'src/app/services/event.service';
+import { ConfirmationSnackbarComponent } from 'src/app/popups/confirmation-snackbar/confirmation-snackbar.component';
+import { AssignBidFormComponent } from './assign-bid-form/assign-bid-form.component';
+import { AwardTimelineFormComponent } from './award-timeline-form/award-timeline-form.component';
+import { Job } from 'src/models/job';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,6 +36,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private store: Store<AppState>,
     private backendService: BackendService,
+    private eventService: EventService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
   ) { }
@@ -40,6 +46,62 @@ export class DashboardComponent implements OnInit {
     this.store.dispatch(AppActions.startLoading())
     this.isLoading$ = this.store.select(loadingSelector)
     this.backendService.initDashboard()
+
+    this.eventService.confirmProposal.pipe(
+      switchMap(action => {
+        if (action.selectedJob.currentDashboardColumn == 'proposal') return of({ action, skipProposal: true })
+        if (action.selectedJob.estimateCount == 0)
+          return this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
+            data: { message: "There are no estimates currently attached to this job. Are you sure you want to move to Proposal Sent?", action: "Move" }
+          }).onAction().pipe(map(() => ({ action, skipProposal: false })))
+        return of(({ action, skipProposal: false }))
+      })
+    ).subscribe(({ action, skipProposal }) => {
+      this.store.dispatch(DashboardActions.jobMoved(action))
+      if (!skipProposal)
+        this.backendService.saveData('snapshotProposal', action.selectedJob)
+    })
+
+    this.eventService.triggerTimelineForm.pipe(
+      switchMap(action => {
+        if (action.selectedJob.currentDashboardColumn == 'awarded') return of(null)
+        return this.dialog.open(AwardTimelineFormComponent, {
+          width: '500px',
+          data: action.selectedJob
+        }).afterClosed().pipe(
+          map(resp => {
+            return resp
+              ? { ...action, selectedJob: resp }
+              : null
+          }))
+      })
+    )
+      .subscribe(
+        action => {
+          if (action)
+            this.store.dispatch(DashboardActions.jobMoved(action))
+        }
+      )
+
+    this.eventService.triggerAssignmentFrom.pipe(
+      switchMap(action => {
+        if (action.selectedJob.currentDashboardColumn == 'estimating') return of(null)
+        return this.dialog.open(AssignBidFormComponent, {
+          width: '500px',
+          data: action.selectedJob
+        }).afterClosed().pipe(
+          map(resp => {
+            return resp
+              ? { ...action, selectedJob: resp }
+              : null
+          }))
+      })
+    )
+      .subscribe(
+        action => {
+          if (action)
+            this.store.dispatch(DashboardActions.jobMoved(action))
+        })
   }
 
   onCreateContractor() {

@@ -10,6 +10,20 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules",
+      "cs-front-end"
+    ],
+    "watch": [
+      "./"
+    ],
+    "exec": "npm start",
+    "ext": "ts"
+  },
   "dependencies": {
     "@sendgrid/mail": "^7.2.5",
     "cors": "^2.8.5",

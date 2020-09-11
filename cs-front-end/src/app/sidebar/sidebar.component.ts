@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store, State, select } from '@ngrx/store';
 import { MatDialog } from '@angular/material/dialog';
@@ -15,7 +15,8 @@ import { SettingsComponent } from './settings-component/settings.component';
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss']
+  styleUrls: ['./sidebar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent implements OnInit {
   @Input() width: number

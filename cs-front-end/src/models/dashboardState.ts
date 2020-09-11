@@ -8,6 +8,8 @@ import { Job } from './job';
 import { EstimateType } from './estimateType';
 import { AttachedFile } from './attachedFile';
 import { Estimate } from './estimate';
+import { HistoryEntry } from './historyEntry';
+import { Proposal } from './proposal';
 
 export interface DashboardState {
     columns: DashboardColumn[];
@@ -20,5 +22,7 @@ export interface DashboardState {
     selectedJob: Job
     selectedJobFiles: AttachedFile[]
     selectedSingleProposal: Estimate[]
+    selectedJobHistory: HistoryEntry[]
+    selectedProposalHistory: Proposal[]
     formLoading: boolean
 }
