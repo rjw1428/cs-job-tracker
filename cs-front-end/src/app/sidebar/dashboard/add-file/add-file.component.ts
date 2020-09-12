@@ -1,10 +1,14 @@
 import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { BackendService } from 'src/app/services/backend.service';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { map, last } from 'rxjs/operators';
 import { Job } from 'src/models/job';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/models/appState';
+import { fileOptionTypesSelector } from '../dashboard.selectors';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-add-file',
@@ -16,16 +20,21 @@ export class AddFileComponent implements OnInit {
   files: any[] = []
   uploadSubscription: Subscription[] = []
   percentage: number[] = []
+  fileTypeSelector$: Observable<string[]>
+  fileTypeFormGroup: FormGroup
   constructor(
+    private store: Store<AppState>,
     private backendService: BackendService,
     private dialogRef: MatDialogRef<AddFileComponent>,
+    private formBuilder: FormBuilder,
     @Inject(MAT_DIALOG_DATA) public job: Job
   ) { }
 
   ngOnInit(): void {
-    // this.dialogRef.backdropClick().subscribe(result => {
-    //   this.dialogRef.close(this.successCount);
-    // });
+    this.backendService.initAddFileForm()
+
+    this.fileTypeSelector$ = this.store.select(fileOptionTypesSelector)
+    this.fileTypeFormGroup = this.formBuilder.group({ fileType: ["", Validators.required] })
   }
 
   onFilesSelected(files: File[]) {
@@ -33,7 +42,7 @@ export class AddFileComponent implements OnInit {
     for (const item of files) {
       this.files.push(item)
       this.uploadSubscription[fileIndex] = this.backendService
-        .sendFile(this.job.jobId, item, fileIndex, this.job.jobDisplayId)
+        .sendFile({ jobId: this.job.jobId, file: item, fileIndex, folder: this.job.jobDisplayId, subFolder: this.fileTypeFormGroup.get('fileType').value })
         .pipe(
           map((data: any) => {
             return this.getEventMessage(data.response, data.index)

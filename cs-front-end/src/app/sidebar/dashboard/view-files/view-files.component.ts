@@ -23,7 +23,7 @@ import { DashboardActions } from '../dashboard.action-types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewFilesComponent implements OnInit {
-  displayedColumns = ["open", "fileName", "dateCreated", "remove"];
+  displayedColumns = ["open", "fileName", "type", "dateCreated", "remove"];
   sortCol = "dateCreated"
   dataSource: MatTableDataSource<any>
   isLoading$: Observable<boolean>
@@ -59,7 +59,7 @@ export class ViewFilesComponent implements OnInit {
   }
 
   getFileLink(file: AttachedFile) {
-    this.backendService.getFile(this.job.jobId, file.fileName, file.displayId)
+    this.backendService.getFile({ jobId: this.job.jobId, fileName: file.fileName, folder: file.displayId, subFolder: file.type })
   }
 
   onDelete(file: AttachedFile) {

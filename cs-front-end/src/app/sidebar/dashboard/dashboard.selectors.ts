@@ -116,3 +116,8 @@ export const jobHistorySelector = createSelector(
     selectDashboardState,
     dashboardState => dashboardState.selectedJobHistory
 )
+
+export const fileOptionTypesSelector = createSelector(
+    selectDashboardState,
+    dashboardState => dashboardState.fileTypeOptions
+)

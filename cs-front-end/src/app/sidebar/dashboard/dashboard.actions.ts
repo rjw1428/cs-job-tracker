@@ -103,7 +103,7 @@ export const deleteFileItem = createAction(
 
 export const updateJobItem = createAction(
     "[Job Item] Update Job",
-    props<{ job: Job}>()
+    props<{ job: Job }>()
 )
 
 export const highlightJobItem = createAction(
@@ -140,6 +140,11 @@ export const storeProposalHistory = createAction(
 
 export const clearSelectedProposalHistory = createAction(
     "[Job Item] Cleare Stored Proposal History"
+)
+
+export const storeFileTypeOptions = createAction(
+    "[Backend Service (Add File Init) Store File Type Options",
+    props<{ fileTypeOptions: string[] }>()
 )
 // export const formStartLoading = createAction(
 //     "[Job Board] Start Form Loading"

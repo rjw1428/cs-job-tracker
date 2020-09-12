@@ -16,10 +16,18 @@
   </ng-container>
 
   <ng-container matColumnDef="fileName">
-    <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header style="flex: 70%">File Name
+    <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header style="flex: 60%">File Name
     </mat-header-cell>
-    <mat-cell *matCellDef="let element" style="flex: 75%">
+    <mat-cell *matCellDef="let element" style="flex: 60%">
       <div (click)="getFileLink(element)" style="cursor: pointer;"> {{ element.fileName | decodeURI}}</div>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="type">
+    <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header style="flex: 10%">File Type
+    </mat-header-cell>
+    <mat-cell *matCellDef="let element" style="flex: 10%;">
+      <div> {{ element.type | titlecase}}</div>
     </mat-cell>
   </ng-container>
 

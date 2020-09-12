@@ -7,15 +7,17 @@ import { saveFile, fetchFromTable } from './db';
 
 export const fileShareRoute = express.Router()
 
+
 const storageFolder = 'storage'
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const subfolder = req.query.folder
-        const dir = path.join(__dirname, `${storageFolder}/${subfolder}`)
+        const folder = req.query.folder
+        const subfolder = req.query.subfolder
+        const dir = path.join(__dirname, `${storageFolder}/${folder}/${subfolder}`)
         fs.exists(dir, exist => {
             if (!exist)
-                return fs.mkdir(dir, error => cb(error, dir))
+                return fs.mkdir(dir, { recursive: true }, error => cb(error, dir))
             return cb(null, dir)
         })
     },
@@ -30,9 +32,10 @@ fileShareRoute.post('/upload/:jobId', upload.single('document'), async (req, res
     const now = new Date()
     const jobId = req.params.jobId
     const folder = req.query.folder
-    const dbResponse = await saveFile(jobId, folder, req['file'].filename, now.toISOString())
+    const subfolder = req.query.subfolder
+    const dbResponse = await saveFile(jobId, folder, subfolder, req['file'].filename, now.toISOString())
     // const jobFiles = await fetchFromTable('job_files', `Files for ${folder}`, { jobId: [jobId] })
-    
+
     resp.send(dbResponse)
 })
 
@@ -40,9 +43,12 @@ fileShareRoute.get('/download/:jobId/:fileName', async (req, res) => {
     try {
         const jobId = req.params.jobId
         const folder = req.query.folder
+        const subfolder = req.query.subfolder
         const fileName = encodeURIComponent(req.params.fileName)
-        res.download(path.join(__dirname, `${storageFolder}/${folder}/${fileName}`));
+        res.download(path.join(__dirname, `${storageFolder}/${folder}/${subfolder}/${fileName}`));
     } catch (e) {
         res.status(404).send(e)
     }
 })
+
+

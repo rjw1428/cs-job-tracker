@@ -1,30 +1,56 @@
 <div mat-dialog-title>
   <h1>Attach Files - {{job.projectName}}</h1>
-  <div class="dropzone" DragNDrop (fileDropped)="onFilesSelected($event)">
-    <input type="file" #fileDropRef (change)="onFilesSelected($event.target.files)">
-    <h3>Drag and drop files here</h3>
-    <h3>or</h3>
-    <label style="cursor: pointer;">Browse for files</label>
-  </div>
 </div>
 <div mat-dialog-content style="padding: 5px; margin: 0 5px">
-  <div class="file-list">
-    <div class="single-file" *ngFor="let file of files; let i = index">
-      <mat-icon style="font-size: 48px;  width: 50px;">insert_drive_file</mat-icon>
-      <div class="info">
-        <h4 class="name">{{file?.name}}</h4>
-        <p class="size">
-          {{ formatBytes(file?.size) }}
-        </p>
-        <mat-progress-bar mode="determinate" [value]="percentage[i]"></mat-progress-bar>
+  <mat-vertical-stepper [linear]="fileTypeFormGroup.invalid">
+    <mat-step [stepControl]="fileTypeFormGroup">
+      <ng-template matStepLabel>File Type</ng-template>
+      <form [formGroup]="fileTypeFormGroup">
+        <mat-form-field>
+          <mat-label>File Type</mat-label>
+          <mat-select required formControlName="fileType">
+            <mat-option *ngFor="let type of fileTypeSelector$ | async" [value]="type">
+              {{type}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </form>
+      <div>
+        <button mat-button matStepperNext>Next</button>
       </div>
-      <div style="width: 36px; display: flex; align-items:center; justify-content: center">
-        <button mat-icon-button (click)="cancelUpload(i)">
-          <mat-icon [ngStyle]="{'color': percentage[i]==100?'green':'red'}">
-            {{percentage[i]==100?'check_circle_outline':'remove_circle_outline'}}
-          </mat-icon>
-        </button>
+      <p *ngIf="fileTypeFormGroup.get('fileType').touched && fileTypeFormGroup.get('fileType').invalid" style="color: red;">
+        ERROR: File Type is required to proceed
+      </p>
+    </mat-step>
+
+    <mat-step>
+      <ng-template matStepLabel>Select Files</ng-template>
+      <div class="dropzone" DragNDrop (fileDropped)="onFilesSelected($event)">
+        <input type="file" #fileDropRef (change)="onFilesSelected($event.target.files)">
+        <h3>Drag and drop files here</h3>
+        <h3>or</h3>
+        <label style="cursor: pointer;">Browse for files</label>
       </div>
-    </div>
-  </div>
+
+      <div class="file-list">
+        <div class="single-file" *ngFor="let file of files; let i = index">
+          <mat-icon style="font-size: 48px;  width: 50px;">insert_drive_file</mat-icon>
+          <div class="info">
+            <h4 class="name">{{file?.name}}</h4>
+            <p class="size">
+              {{ formatBytes(file?.size) }}
+            </p>
+            <mat-progress-bar mode="determinate" [value]="percentage[i]"></mat-progress-bar>
+          </div>
+          <div style="width: 36px; display: flex; align-items:center; justify-content: center">
+            <button mat-icon-button (click)="cancelUpload(i)">
+              <mat-icon [ngStyle]="{'color': percentage[i]==100?'green':'red'}">
+                {{percentage[i]==100?'check_circle_outline':'remove_circle_outline'}}
+              </mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-step>
+  </mat-vertical-stepper>
 </div>

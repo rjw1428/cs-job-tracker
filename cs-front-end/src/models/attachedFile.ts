@@ -5,6 +5,8 @@ export class AttachedFile {
         public fileLocation: string,
         public fileName: string,
         public jobId: number,
-        public displayId: string
+        public displayId: string,
+        public type: string,
+        public isActive: boolean
     ) { }
 }

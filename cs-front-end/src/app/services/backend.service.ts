@@ -58,6 +58,10 @@ export class BackendService {
       this.store.dispatch(DashboardActions.storeViewFilesJob({ job, jobFiles }))
     })
 
+    this.socket.on('getFileTypes', (fileTypeOptions) => {
+      this.store.dispatch(DashboardActions.storeFileTypeOptions({ fileTypeOptions }))
+    })
+
     this.socket.on('getSingleProposal', ({ job, estimates }) => {
       this.store.dispatch(DashboardActions.storeSelectedProposal({ job, estimates }))
     })
@@ -125,6 +129,10 @@ export class BackendService {
     this.socket.emit('jobHistoryFormInit', job)
   }
 
+  initAddFileForm() {
+    this.socket.emit('addFileFormInit')
+  }
+
   initCharts() {
     this.socket.emit('charts')
   }
@@ -153,17 +161,17 @@ export class BackendService {
   }
 
 
-  sendFile(jobId, file, fileIndex, displayId) {
+  sendFile({ jobId, file, fileIndex, folder, subFolder }) {
     const formData: any = new FormData()
     formData.append("document", file, file.fileName);
-    const url = `${environment.apiUrl}/upload/${jobId}?folder=${displayId}`
+    const url = `${environment.apiUrl}/upload/${jobId}?folder=${folder}&subfolder=${subFolder}`
     const req = new HttpRequest('POST', url, formData, { reportProgress: true });
     return this.http.request(req).pipe(map(resp => ({ response: resp, index: fileIndex })))
   }
 
-  getFile(jobId, fileName, displayId) {
+  getFile({ jobId, fileName, folder, subFolder }) {
     console.log(fileName)
-    this.http.get(`${environment.apiUrl}/download/${jobId}/${fileName}?folder=${displayId}`, { responseType: 'blob' })
+    this.http.get(`${environment.apiUrl}/download/${jobId}/${fileName}?folder=${folder}&subfolder=${subFolder}`, { responseType: 'blob' })
       .subscribe((resp: any) => {
         saveAs(resp, decodeURIComponent(fileName))
       })

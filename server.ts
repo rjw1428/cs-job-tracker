@@ -69,6 +69,7 @@ let state: {
     chartConfigs: ChartConfig[],
     timeShortcuts: RawTimeShortcut[],
     dashboardColumns: DashboardColumn[],
+    fileTypes: any[]
 } = {
     users: [],
     estimators: [],
@@ -79,12 +80,13 @@ let state: {
     chartConfigs: [],
     timeShortcuts: [],
     dashboardColumns: [],
+    fileTypes: [],
 }
 
 
 // Initialize backend data (runs after firebase auth finishes)
 export async function initializeBackend() {
-    [state.estimators, state.estimateTypes, state.boxOptions, state.invites] = await fetchInitialSQLData()
+    [state.estimators, state.estimateTypes, state.boxOptions, state.invites, state.fileTypes] = await fetchInitialSQLData()
     const [report, chart, time, dash] = await fetchInitialFirebaseConfigs()
     state.reportConfigs = report
     state.chartConfigs = chart
@@ -126,7 +128,7 @@ io.on('connection', (socket) => {
     })
 
     // On Bid Form Init
-    socket.on('bidFormInit', async (callback) => {
+    socket.on('bidFormInit', async () => {
         const [contractors, projects] = await Promise.all([
             fetchFromTable('general_contractors', "Contractors"),
             fetchFromTable('projects', "Projects")
@@ -136,7 +138,7 @@ io.on('connection', (socket) => {
     })
 
     // On Bid Form Init
-    socket.on('estimateFormInit', async (callback) => {
+    socket.on('estimateFormInit', async () => {
         socket.emit('getEstimateTypes', state.estimateTypes)
     })
 
@@ -168,6 +170,12 @@ io.on('connection', (socket) => {
         catch (e) {
             console.log(e)
         }
+    })
+
+    // Add File Form Init
+    socket.on('addFileFormInit', () => {
+        const types = state.fileTypes.map(obj => obj.subfolderName)
+        socket.emit('getFileTypes', types)
     })
 
     // View Single Proposal Form Init
@@ -221,7 +229,7 @@ io.on('connection', (socket) => {
     socket.on('setFinalCost', async ({ finalCost, job }) => {
         try {
             await insertIntoTable('job_final_cost', finalCost)
-            const [newJob] = await fetchFromTable('bid_invites_active', `Bid Invites`, { jobId: [job.jobId] })
+            const [newJob] = await fetchFromTable('bid_dashboard', `Bid Invites`, { jobId: [job.jobId] })
             const updatedItems = state.dashboardColumns.find(col => col.id == job.currentDashboardColumn).items.map(item => {
                 return item.jobId != job.jobId
                     ? item
@@ -247,7 +255,7 @@ io.on('connection', (socket) => {
                 endTime: job.endTime
             }
             const resp = await insertIntoTable('awards_timeline', entry)
-            const [newJob] = await fetchFromTable('bid_invites_active', `Bid Invites`, { jobId: [job.jobId] })
+            const [newJob] = await fetchFromTable('bid_dashboard', `Bid Invites`, { jobId: [job.jobId] })
             const updatedItems = state.dashboardColumns.find(col => col.id == job.currentDashboardColumn).items.map(item => {
                 return item.jobId != job.jobId
                     ? item
@@ -273,7 +281,7 @@ io.on('connection', (socket) => {
                 endTime: job.endTime
             }
             const resp = await updateTable('awards_timeline', entry, { jobId: job.jobId }, "Award Timeline")
-            const [newJob] = await fetchFromTable('bid_invites_active', `Bid Invites`, { jobId: [job.jobId] })
+            const [newJob] = await fetchFromTable('bid_dashboard', `Bid Invites`, { jobId: [job.jobId] })
             const updatedItems = state.dashboardColumns.find(col => col.id == job.currentDashboardColumn).items.map(item => {
                 return item.jobId != job.jobId
                     ? item
@@ -296,7 +304,7 @@ io.on('connection', (socket) => {
     socket.on('updateDueDate', async (job: Job) => {
         try {
             const resp = await updateTable('bid_invites', { dateDue: job.dateDue }, { jobId: job.jobId }, "Due Date")
-            const [newJob] = await fetchFromTable('bid_invites_active', `Bid Invites`, { jobId: [job.jobId] })
+            const [newJob] = await fetchFromTable('bid_dashboard', `Bid Invites`, { jobId: [job.jobId] })
             const updatedItems = state.dashboardColumns.find(col => col.id == job.currentDashboardColumn).items.map(item => {
                 return item.jobId != job.jobId
                     ? item
@@ -317,7 +325,7 @@ io.on('connection', (socket) => {
 
 
     socket.on('addFiles', async (job: Job) => {
-        const updatedJob = await fetchFromTable('bid_invites_active', "Bid Invites", { jobId: job.jobId })
+        const updatedJob = await fetchFromTable('bid_dashboard', "Bid Invites", { jobId: job.jobId })
         const updatedItems = state.dashboardColumns.find(col => col.id == job.currentDashboardColumn).items.map(item => {
             return item.jobId != job.jobId
                 ? item
@@ -386,7 +394,7 @@ io.on('connection', (socket) => {
                 statusId: state.dashboardColumns.find(col => col.id == 'invitation').defaultStatusId
             }
             const transactionId = await insertIntoTable('job_transactions', initTransaction)
-            const newInvites = await fetchFromTable('bid_invites_active', "Bid Invites", { currentDashboardColumn: ['invitation'] })
+            const newInvites = await fetchFromTable('bid_dashboard', "Bid Invites", { currentDashboardColumn: ['invitation'] })
             state.dashboardColumns = state.dashboardColumns.map(col => {
                 return col.id == 'invitation'
                     ? { ...col, items: newInvites }
@@ -406,7 +414,7 @@ io.on('connection', (socket) => {
             const mapIds = await Promise.all(jobIds.map(jobId => {
                 return insertIntoTable('map_estimates_to_jobs', { estimateId, jobId })
             }))
-            const newInvites = await fetchFromTable('bid_invites_active', "Bid Invites", { currentDashboardColumn: ['estimating'] })
+            const newInvites = await fetchFromTable('bid_dashboard', "Bid Invites", { currentDashboardColumn: ['estimating'] })
             state.dashboardColumns = state.dashboardColumns.map(col => {
                 return col.id == 'estimating'
                     ? { ...col, items: newInvites }
@@ -443,7 +451,7 @@ io.on('connection', (socket) => {
     socket.on('deleteFile', async ({ file, job }: { file: AttachedFile, job: Job }) => {
         try {
             await updateTable('job_files', { isActive: 0 }, { fileId: file.fileId }, 'Delete File')
-            const updatedJob = await fetchFromTable('bid_invites_active', "Bid Invites", { jobId: job.jobId })
+            const updatedJob = await fetchFromTable('bid_dashboard', "Bid Invites", { jobId: job.jobId })
             const updatedItems = state.dashboardColumns.find(col => col.id == job.currentDashboardColumn).items.map(item => {
                 return item.jobId != job.jobId
                     ? item
@@ -497,7 +505,7 @@ io.on('connection', (socket) => {
             const sourceColumn = state.dashboardColumns.find(col => updatedJob.previousDashboardColumn == col.id)
             const targetColumn = state.dashboardColumns.find(col => updatedJob.currentDashboardColumn == col.id)
             const updatedSourceInvites = sourceColumn.items.filter(item => item.jobId != updatedJob.jobId)
-            const newJob = await fetchFromTable('bid_invites_active', "Bid Invites", { jobId: updatedJob.jobId })
+            const newJob = await fetchFromTable('bid_dashboard', "Bid Invites", { jobId: updatedJob.jobId })
             targetColumn.items.splice(0, 0, newJob[0])
             state.dashboardColumns = state.dashboardColumns.map(col => {
                 if (col.id == targetColumn.id)
@@ -547,7 +555,7 @@ io.on('connection', (socket) => {
     socket.on('updateJob', async (updatedJob: Job, callback) => {
         try {
             await writeJobTransaction(updatedJob)
-            const [newJob] = await fetchFromTable('bid_invites_active', "Bid Invites", { jobId: updatedJob.jobId })
+            const [newJob] = await fetchFromTable('bid_dashboard', "Bid Invites", { jobId: updatedJob.jobId })
             const matchingColumn = state.dashboardColumns.find(col => newJob.currentDashboardColumn == col.id)
             const updatedInvites = matchingColumn.items.map(invite => {
                 return invite.jobId == updatedJob.jobId
@@ -573,7 +581,7 @@ io.on('connection', (socket) => {
                 { jobId: updatedJob.jobId },
                 `Highlight ${updatedJob.jobDisplayId}`
             )
-            const [newJob] = await fetchFromTable('bid_invites_active', "Bid Invites", { jobId: updatedJob.jobId })
+            const [newJob] = await fetchFromTable('bid_dashboard', "Bid Invites", { jobId: updatedJob.jobId })
             const matchingColumn = state.dashboardColumns.find(col => newJob.currentDashboardColumn == col.id)
             const updatedInvites = matchingColumn.items.map(invite => {
                 return invite.jobId == updatedJob.jobId

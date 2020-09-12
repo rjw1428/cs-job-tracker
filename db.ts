@@ -93,8 +93,9 @@ export const fetchInitialSQLData = () => {
     let fetchEstimators = fetchFromTable('estimators', "Estimators")
     let fetchEstimateTypes = fetchFromTable('options_estimate_types', "Estimate Types")
     let fetchBoxOptions = fetchFromTable('options_boxes', "Boxes")
-    let fetchBidInvites = fetchFromTable('bid_invites_active', "Bid Invites")
-    return Promise.all([fetchEstimators, fetchEstimateTypes, fetchBoxOptions, fetchBidInvites])
+    let fetchBidInvites = fetchFromTable('bid_dashboard', "Bid Invites")
+    let fetchFileOptions = fetchFromTable('options_file_types', "File Options")
+    return Promise.all([fetchEstimators, fetchEstimateTypes, fetchBoxOptions, fetchBidInvites, fetchFileOptions])
 }
 
 export const injectScript = async (script: string) => {
@@ -234,12 +235,12 @@ function createSetClause(setObj: {}) {
 
 
 
-export function saveFile(jobId, folderName, fileName, date) {
+export function saveFile(jobId, folderName, subfolderName, fileName, date) {
     const _table = "job_files"
-    const _fields = ["jobId", "displayId", "fileName", "fileLocation", "dateCreated"].join(',')
-    const _values = [`'${jobId}'`, `'${folderName}'`, `'${fileName}'`, `'${folderName}/${fileName}'`, `'${date}'`].join(',')
+    const _fields = ["jobId", "displayId", "fileName", "fileLocation", "dateCreated", "type"].join(',')
+    const _values = [`'${jobId}'`, `'${folderName}'`, `'${fileName}'`, `'${folderName}/${subfolderName}/${fileName}'`, `'${date}'`, `'${subfolderName}'`].join(',')
     return new Promise<any[]>((resolve, reject) => {
-        runQuery(`REPLACE INTO ${_table} (${_fields}) VALUES (${_values})`, `Saving File - ${folderName}/${fileName}`, ({ error, results }) => {
+        runQuery(`REPLACE INTO ${_table} (${_fields}) VALUES (${_values})`, `Saving File - ${folderName}/${subfolderName}/${fileName}`, ({ error, results }) => {
             if (error) return reject({ error })
             resolve(results)
         })

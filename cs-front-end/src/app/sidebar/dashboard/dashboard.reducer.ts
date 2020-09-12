@@ -19,6 +19,7 @@ export const initialDashboardState: DashboardState = {
     selectedJobHistory: [],
     selectedProposalHistory: [],
     formLoading: false,
+    fileTypeOptions: []
 }
 
 
@@ -246,6 +247,12 @@ export const dashboardReducer = createReducer(
         return {
             ...state,
             selectedProposalHistory: initialDashboardState.selectedProposalHistory
+        }
+    }),
+    on(DashboardActions.storeFileTypeOptions, (state, action) => {
+        return {
+            ...state,
+            fileTypeOptions: action.fileTypeOptions
         }
     })
     // on(DashboardActions.formStartLoading, (state) =>{

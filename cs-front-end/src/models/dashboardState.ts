@@ -25,4 +25,5 @@ export interface DashboardState {
     selectedJobHistory: HistoryEntry[]
     selectedProposalHistory: Proposal[]
     formLoading: boolean
+    fileTypeOptions: string[]
 }
