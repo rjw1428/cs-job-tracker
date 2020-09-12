@@ -1,3 +1,5 @@
+import { MatTableDataSource } from '@angular/material/table';
+
 export class ReportConfig {
     constructor(
         public id: string,
@@ -6,6 +8,9 @@ export class ReportConfig {
         public order: number,
         public excludedTimes: string[] = [],
         public defaultTime: string,
-        public footer?: string
+        public footer?: string,
+        public displayedColumns?: string[],
+        public dataSource?: MatTableDataSource<any[]>
     ) { }
 }
+

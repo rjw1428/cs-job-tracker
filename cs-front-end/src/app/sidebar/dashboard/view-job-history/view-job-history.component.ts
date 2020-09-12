@@ -5,9 +5,11 @@ import { Observable } from 'rxjs';
 import { BackendService } from 'src/app/services/backend.service';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/models/appState';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Job } from 'src/models/job';
 import { MatTableDataSource } from '@angular/material/table';
+import { DashboardActions } from '../dashboard.action-types';
+import { ViewCurrentProposalComponent } from '../view-current-proposal/view-current-proposal.component';
 
 @Component({
   selector: 'app-view-job-history',
@@ -22,6 +24,7 @@ export class ViewJobHistoryComponent implements OnInit {
   constructor(
     private backendService: BackendService,
     private store: Store<AppState>,
+    private dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public job: Job) { }
 
   ngOnInit(): void {
@@ -43,7 +46,11 @@ export class ViewJobHistoryComponent implements OnInit {
   }
 
   onProposalSelected(element) {
-
+    this.store.dispatch(DashboardActions.clearSelectedProposal())
+    this.dialog.open(ViewCurrentProposalComponent, {
+      width: '700px',
+      data: { ...this.job, proposalId: element.proposalId }
+    });
   }
 
   getTotal() {

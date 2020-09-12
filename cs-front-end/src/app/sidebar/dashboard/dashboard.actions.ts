@@ -77,7 +77,7 @@ export const jobMoved = createAction(
         sourceOrderIndex: number,
         targetColIndex: string,
         targetOrderIndex: number,
-        selectedJob: Job
+        selectedJob: Job,
     }>()
 )
 
@@ -103,7 +103,7 @@ export const deleteFileItem = createAction(
 
 export const updateJobItem = createAction(
     "[Job Item] Update Job",
-    props<{ job: Job }>()
+    props<{ job: Job}>()
 )
 
 export const highlightJobItem = createAction(

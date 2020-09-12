@@ -5,15 +5,16 @@ import * as io from 'socket.io-client';
 import { Subject, throwError, noop } from 'rxjs';
 import { Estimator } from 'src/models/estimator';
 import { AppState } from 'src/models/appState';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 import { DashboardActions } from '../sidebar/dashboard/dashboard.action-types';
-import { first, map } from 'rxjs/operators';
+import { first, map, tap } from 'rxjs/operators';
 import { Job } from 'src/models/job';
 import { AppActions } from '../app.action-types';
 import { ChartsActions } from '../sidebar/charts/charts.action-types';
-import { selectedChartConfigSelector } from '../sidebar/charts/charts.selectors';
-import { EventService } from './event.service';
-
+import { ReportActions } from '../sidebar/reports/reports.action-types';
+import { chartDataForFetchSelector } from '../sidebar/charts/charts.selectors';
+import { reportDataForFetchSelector } from '../sidebar/reports/reports.selectors';
+import { saveAs } from 'file-saver'
 @Injectable({
   providedIn: 'root'
 })
@@ -69,18 +70,30 @@ export class BackendService {
       this.store.dispatch(DashboardActions.storeProposalHistory({ job, proposals }))
     })
 
+    this.socket.on('getTimeShortcuts', timeShortcuts => {
+      this.store.dispatch(ChartsActions.storeTimeShortcuts({ timeShortcuts }))
+      this.store.dispatch(ReportActions.storeTimeShortcuts({ timeShortcuts }))
+    })
+
     //  ------------------------CHARTS---------------------------
 
     this.socket.on('getChartConfigs', chartConfigs => {
       this.store.dispatch(ChartsActions.storeChartConfigs({ chartConfigs }))
     })
 
-    this.socket.on('getTimeShortcuts', timeShortcuts => {
-      this.store.dispatch(ChartsActions.storeTimeShortcuts({ timeShortcuts }))
-    })
-
     this.socket.on('updateChart', ({ config, data }) => {
       this.store.dispatch(ChartsActions.addDataToConfig({ config, data }))
+    })
+
+    // ------------------------REPORTS---------------------------
+    this.socket.on('getReportConfigs', reportConfigs => {
+      console.log(reportConfigs)
+      this.store.dispatch(ReportActions.storeReportConfigs({ reportConfigs }))
+    })
+
+    this.socket.on('updateReport', ({ config, data }) => {
+      console.log(data)
+      this.store.dispatch(ReportActions.addDataToConfig({ config, data }))
     })
   }
 
@@ -116,6 +129,10 @@ export class BackendService {
     this.socket.emit('charts')
   }
 
+  initReports() {
+    this.socket.emit('reports')
+  }
+
   initViewFileForm(job: Job) {
     this.socket.emit('viewFilesInit', job)
     this.socket.emit('updateColumn', job)
@@ -123,11 +140,16 @@ export class BackendService {
 
   saveData(socketEvent: string, data: any) {
     console.log("SAVING")
-    let subj = new Subject<Estimator[]>()
+    let subj = new Subject<any[]>()
     this.socket.emit(socketEvent, data, (resp) => {
       subj.next(resp)
     })
     return subj.asObservable().pipe(first())
+  }
+
+
+  deleteProposal(proposalId, job: Job) {
+    this.socket.emit('removeProposal', ({ proposalId, job }))
   }
 
 
@@ -139,26 +161,38 @@ export class BackendService {
     return this.http.request(req).pipe(map(resp => ({ response: resp, index: fileIndex })))
   }
 
+  getFile(jobId, fileName, displayId) {
+    console.log(fileName)
+    this.http.get(`${environment.apiUrl}/download/${jobId}/${fileName}?folder=${displayId}`, { responseType: 'blob' })
+      .subscribe((resp: any) => {
+        saveAs(resp, decodeURIComponent(fileName))
+      })
+  }
+
   fetchChartData() {
-    this.store.select(selectedChartConfigSelector).pipe(
+    this.store.select(chartDataForFetchSelector).pipe(
       first(),
-      map(config => this.socket.emit('fetchData', config, null, null))
+      map(({ config, start, end }) => {
+        console.log(start, end)
+        this.socket.emit('fetchChartData', config, start, end)
+      })
+    ).subscribe(noop)
+  }
+
+  fetchReportData() {
+    this.store.select(reportDataForFetchSelector).pipe(
+      first(),
+      map(({ config, start, end }) => {
+        console.log(start, end)
+        this.socket.emit('fetchReportData', config, start, end)
+      })
     ).subscribe(noop)
   }
 
 
-  // addContractor() {
-  //   this.socket.emit('addContractor', (contractors) => {
-
-  //   })
-  // }
-
-  // addProject() {
-  //   this.socket.emit('addProject', (projects) => {
-
-  //   })
-  // }
-
-
-
+  refreshBackend(triggerEvent) {
+    this.socket.emit('refreshBackend', triggerEvent, (event) => {
+      this.socket.emit(event)
+    })
+  }
 }

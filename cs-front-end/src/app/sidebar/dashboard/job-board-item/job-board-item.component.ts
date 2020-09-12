@@ -76,7 +76,7 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   onStatusChanged(value: MatSelectChange) {
-    const updatedJob = { ...this.job, statusId: value.value }
+    const updatedJob = { ...this.job, statusId: value.value, historyOnlyNotes: this.job.notes }
     this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
     showSnackbar(this.snackBar, `Status Updated for ${updatedJob.projectName}`)
   }
@@ -91,13 +91,13 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   onSaveNote(value: string) {
-    const updatedJob = { ...this.job, notes: value, reportOnlyNotes: '' }
+    const updatedJob = { ...this.job, notes: value, historyOnlyNotes: value }
     this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
     showSnackbar(this.snackBar, `Note Updated`)
   }
 
   onSaveReportNote(value: string) {
-    const updatedJob = { ...this.job, reportOnlyNotes: value }
+    const updatedJob = { ...this.job, reportOnlyNotes: value, historyOnlyNotes: value }
     this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
     showSnackbar(this.snackBar, `Follow Up Note Updated`)
   }

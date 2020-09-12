@@ -18,22 +18,23 @@ import { TimeShortcut } from '../../../models/timeShortcut';
 import { ChartConfig } from 'src/models/chartConfig';
 import { ChartsActions } from './charts.action-types';
 import { AppActions } from 'src/app/app.action-types';
-import { chartConfigSelector, activeIndexSelector, selectedChartConfigSelector } from './charts.selectors';
+import { chartConfigSelector, activeIndexSelector, selectedChartConfigSelector, chartSpecificTimeShortcutSelector } from './charts.selectors';
 import { EventService } from 'src/app/services/event.service';
+import { RawTimeShortcut } from 'src/models/rawTimeShortcut';
 
 
 @Component({
   selector: 'app-charts',
   templateUrl: './charts.component.html',
   styleUrls: ['./charts.component.scss'],
-  // changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChartsComponent implements OnInit, OnDestroy {
   selectedTab$: Observable<number>
   timeShortcuts$: Observable<TimeShortcut[]>
   charts$: Observable<ChartConfig[]>
   ganttChart: am4charts.XYChart;
-  timeframe: { from: Date, to: Date }
+  // timeframe: { from: number, to: number }
   currentTab: number
   selectedShortcut: string
   ganttChartEventSubscription: Subscription
@@ -62,39 +63,43 @@ export class ChartsComponent implements OnInit, OnDestroy {
     private backendService: BackendService,
     private eventService: EventService,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar
   ) {
   }
 
   ngOnDestroy() {
-    this.ganttChart.dispose()
+    if (this.ganttChart)
+      this.ganttChart.dispose()
     this.ganttChartEventSubscription.unsubscribe()
     this.updateRouterSubscription.unsubscribe()
   }
 
   ngOnInit(): void {
     this.store.dispatch(ChartsActions.initCharts())
-    this.backendService.initCharts()
+    this.timeShortcuts$ = this.store.select(chartSpecificTimeShortcutSelector)
+    this.charts$ = this.store.select(chartConfigSelector)
+    this.selectedTab$ = this.store.select(activeIndexSelector)
+
+    // Gantt chart special load
+    this.ganttChartEventSubscription = this.eventService.createGanttChart
+      .subscribe(config => {
+        setTimeout(() => {
+          this.createGanttChart(config.dataSource)
+        }, 0)
+      })
+
+    // On Load, store the chart config ID
     this.route.paramMap.pipe(
       first(),
       map((paramsMap: Params) => paramsMap.params.chartId),
       tap(chartId => this.store.dispatch(ChartsActions.setInitialChartId({ chartId })))
     ).subscribe(noop)
 
-    this.selectedTab$ = this.store.select(activeIndexSelector)
-    this.charts$ = this.store.select(chartConfigSelector)
-
+    // Update Router params as chart changes
     this.updateRouterSubscription = this.store.select(selectedChartConfigSelector).pipe(
       tap(config => {
         if (config) this.updateRouterParams(config.id)
       })
     ).subscribe(noop)
-
-    this.ganttChartEventSubscription = this.eventService.createGanttChart.subscribe(config => {
-      setTimeout(() => {
-        this.createGanttChart(config.dataSource)
-      }, 0)
-    })
   }
 
   updateRouterParams(chartId) {
@@ -104,6 +109,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
   onTabChanged(index: number) {
     this.store.dispatch(AppActions.startLoading())
     this.store.dispatch(ChartsActions.setSelectedChartByIndex({ index }))
+    this.currentTab = index
   }
 
 
@@ -142,9 +148,15 @@ export class ChartsComponent implements OnInit, OnDestroy {
   }
 
 
-  onDateRangeSet(dateRange: { from: Date, to: Date }) {
-    this.timeframe = dateRange
+  onDateRangeSet({ from, to }: { from: Date, to: Date }) {
+    const start = new Date(from.getFullYear(), from.getMonth(), from.getDate()).getTime() / 1000
+    const end = new Date(to.getFullYear(), to.getMonth(), to.getDate()).getTime() / 1000
+    this.store.dispatch(ChartsActions.setSelectedTime({ start, end }))
     this.onTabChanged(this.currentTab)
+  }
+
+  onRefresh() {
+    this.backendService.refreshBackend('charts')
   }
 
 }

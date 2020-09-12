@@ -2,6 +2,7 @@ import { createAction, props } from '@ngrx/store';
 import { Estimator } from 'src/models/estimator';
 import { ChartConfig } from 'src/models/chartConfig';
 import { TimeShortcut } from 'src/models/timeShortcut';
+import { RawTimeShortcut } from 'src/models/rawTimeShortcut';
 
 
 export const initCharts = createAction(
@@ -15,7 +16,7 @@ export const storeChartConfigs = createAction(
 
 export const storeTimeShortcuts = createAction(
     "[Backend Service (Charts Init)] Store Time Shortcuts",
-    props<{ timeShortcuts: TimeShortcut[] }>()
+    props<{ timeShortcuts: RawTimeShortcut[] }>()
 )
 
 export const setSelectedChartById = createAction(
@@ -39,4 +40,13 @@ export const addDataToConfig = createAction(
 export const setInitialChartId = createAction(
     "[Charts Component] Store Initial Chart ID",
     props<{ chartId: string }>()
+)
+
+export const setSelectedTime = createAction(
+    "[Charts Component] Set timerange",
+    props<{ start: number, end: number }>()
+)
+
+export const setDefaultChartTime = createAction(
+    "[Charts Component] Set default timerange"
 )

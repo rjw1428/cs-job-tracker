@@ -1,5 +1,12 @@
-<h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Charts</h1>
-<!-- <div id="chartdiv" class="test chart" style="height: 500px"></div> -->
+<header style="display: flex; justify-content: space-between;">
+  <h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Charts</h1>
+  <!-- <div id="chartdiv" class="test chart" style="height: 500px"></div> -->
+  <div style="padding-right: 16px; color: lightgray">
+    <button mat-icon-button>
+      <mat-icon style="font-size: 36px;" (click)="onRefresh()">refresh</mat-icon>
+    </button>
+  </div>
+</header>
 
 <mat-tab-group (selectedIndexChange)="onTabChanged($event)" [selectedIndex]="selectedTab$ | async">
   <mat-tab *ngFor="let chart of charts$ | async">
@@ -9,7 +16,7 @@
         <div style="width: 75%">
           <app-filter 
             [shortcuts]="timeShortcuts$ | async"
-            [selectedShortcut]="selectedShortcut"
+            [selectedShortcut]="chart.defaultTime"
             (dateRange)="onDateRangeSet($event)">
           </app-filter>
         </div>

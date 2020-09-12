@@ -2,6 +2,9 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { TimeShortcut } from 'src/models/timeShortcut';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { CustomDateHeaderComponent } from './custom-date-header/custom-date-header.component';
+import { AppState } from 'src/models/appState';
+import { Store } from '@ngrx/store';
+import { ChartsActions } from '../sidebar/charts/charts.action-types';
 
 @Component({
   selector: 'app-filter',
@@ -10,13 +13,14 @@ import { CustomDateHeaderComponent } from './custom-date-header/custom-date-head
 })
 export class FilterComponent implements OnInit {
   @Input() shortcuts: TimeShortcut[] = []
-  @Input("selectedShortcut") selectedShortcutId: string = ""
+  @Input("selectedShortcut") selectedShortcutId: string
   @Output() dateRange = new EventEmitter<{ from: Date, to: Date }>()
   timeFilterFormGroup: FormGroup
 
   customHeader = CustomDateHeaderComponent
 
   constructor(
+    private store: Store<AppState>,
     private formBuilder: FormBuilder
   ) { }
 
@@ -37,6 +41,12 @@ export class FilterComponent implements OnInit {
           })
         }
       })
+
+    // this.store.dispatch(ChartsActions.setSelectedTime({
+    //   start: this.timeFilterFormGroup.get('from').value.getTime() / 1000,
+    //   end: this.timeFilterFormGroup.get('to').value.getTime() / 1000
+    // }))
+
   }
 
 

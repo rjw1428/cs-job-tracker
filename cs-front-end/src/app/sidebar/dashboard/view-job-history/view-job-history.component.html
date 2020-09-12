@@ -20,13 +20,13 @@
 
       <mat-cell *matCellDef="let element">
         <div *ngIf="i==0">{{element[columnDef] | date : 'shortDate'}}</div>
-        <!-- <div *ngIf="i>0 && element.proposalId && element[columnDef] == 'proposal sent'; else normal">
+        <div *ngIf="i>0 && element.proposalId && element[columnDef] == 'proposal sent'; else normal">
           <span style="color: rgb(13, 34, 153); cursor: pointer;"
             (click)="onProposalSelected(element)">{{element[columnDef] | titlecase}}</span>
-        </div> -->
-        <!-- <ng-template #normal> -->
-        <div *ngIf="i!=0 && i!=displayedColumns.length-1">{{element[columnDef] | titlecase}}</div>
-        <!-- </ng-template> -->
+        </div>
+        <ng-template #normal>
+          <div *ngIf="i!=0 && i!=displayedColumns.length-1">{{element[columnDef] | titlecase}}</div>
+        </ng-template>
         <div *ngIf="i==displayedColumns.length-1">{{ getTime(element[columnDef])}}</div>
       </mat-cell>
 

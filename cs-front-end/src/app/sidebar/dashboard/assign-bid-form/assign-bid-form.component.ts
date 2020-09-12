@@ -8,6 +8,7 @@ import { estimatorsSelector, boxOptionsSelector } from '../dashboard.selectors';
 import { AppState } from 'src/models/appState';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Job } from 'src/models/job';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-assign-bid-form',
@@ -40,9 +41,12 @@ export class AssignBidFormComponent implements OnInit {
     if (!this.assignmentFormGroup.valid)
       return this.error = "Please fill out missing information"
 
-    this.dialogRef.close({
-      ...this.job,
-      ...this.assignmentFormGroup.value
+    this.estimators$.pipe(first()).subscribe(estimators => {
+      const matchingEstimator = estimators.find(est => est.id == this.assignmentFormGroup.get('assignedTo').value)
+      this.dialogRef.close({
+        selectedJob: { ...this.job, ...this.assignmentFormGroup.value },
+        name: matchingEstimator.name
+      })
     })
   }
 

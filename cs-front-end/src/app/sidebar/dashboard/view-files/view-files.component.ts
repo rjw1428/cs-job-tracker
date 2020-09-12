@@ -47,13 +47,6 @@ export class ViewFilesComponent implements OnInit {
       if (fileList)
         this.dataSource = new MatTableDataSource(fileList)
     })
-    // this.initialFileCount = this.data.fileList.length
-    // 
-    // this.dialogRef.beforeClosed().subscribe(() => {
-    //   this.dialogRef.close(this.initialFileCount != this.data.fileList.length)
-    // })
-
-
   }
 
   onAddFiles() {
@@ -63,15 +56,10 @@ export class ViewFilesComponent implements OnInit {
       height: 'auto',
       data: this.job
     })
-    // .afterClosed().subscribe(successCount => {
-    //   //GET NEW ATTACHED FILES FROM LIST INSTEAD OF CLOSING OUT
-    //   this.initialFileCount -= successCount
-    //   this.dialogRef.close()
-    // })
   }
 
   getFileLink(file: AttachedFile) {
-    // this.backendService.getFile(this.data.job.jobId, file.fileName, file.displayId)
+    this.backendService.getFile(this.job.jobId, file.fileName, file.displayId)
   }
 
   onDelete(file: AttachedFile) {

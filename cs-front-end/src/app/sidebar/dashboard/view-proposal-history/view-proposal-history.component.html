@@ -33,7 +33,8 @@
       <ng-template matExpansionPanelContent>
         <single-proposal 
           [proposal]="proposal" 
-          [deletable]="i!=proposals.length-1">
+          [deletable]="i!=proposals.length-1"
+          (delete)="onProposalDelete($event)">
       </single-proposal>
       </ng-template>
 

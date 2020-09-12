@@ -1,1 +1,79 @@
-<p>reports works!</p>
+<header style="display: flex; justify-content: space-between;">
+  <h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Reports</h1>
+  <!-- <div id="chartdiv" class="test chart" style="height: 500px"></div> -->
+  <div style="padding-right: 16px; color: lightgray">
+    <button mat-icon-button>
+      <mat-icon style="font-size: 36px;" (click)="onRefresh()">refresh</mat-icon>
+    </button>
+  </div>
+</header>
+
+<mat-tab-group (selectedIndexChange)="onTabChanged($event)" [selectedIndex]="selectedTab$ | async">
+  <mat-tab *ngFor="let report of reports$ | async">
+    <ng-template mat-tab-label>{{report.name}}</ng-template>
+    <ng-template matTabContent>
+
+      <div style="height: 85vh">
+        <div style="display: flex; justify-content: space-between;">
+          <!-- <mat-form-field>
+            <mat-label>Search</mat-label>
+            <input matInput (keyup)="applyFilter($event, report.dataSource)" placeholder="Filter" #input>
+            <button mat-button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear"
+              (click)="input.value=null; report.dataSource.filter=null">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field> -->
+          <div style="width: 75%">
+            <!-- <app-filter 
+                [shortcuts]="timeShortcuts$ | async" 
+                [selectedShortcut]="'last_year'"
+                (dateRange)="onDateRangeSet($event)">
+            </app-filter> -->
+          </div>
+          <button mat-mini-fab color="primary" style="margin-top: 4px" (click)="onExport(report)">
+            <mat-icon>system_update_alt</mat-icon>
+          </button>
+        </div>
+        <div class="wrapper">
+          <mat-table matSort [dataSource]="report.dataSource" matSortDisableClear [matSortActive]="sortCol"
+            (matSortChange)="onSortChanged()" class="mat-elevation-z8">
+
+            <ng-container [matColumnDef]="columnDef" *ngFor="let columnDef of report.displayedColumns; let i = index">
+
+              <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header>
+                {{columnDef | titlecase}} </mat-header-cell>
+
+              <mat-cell *matCellDef="let element">
+                <div>{{(columnDef != 'project value')?element[columnDef]:element[columnDef] | currency}}</div>
+              </mat-cell>
+
+              <ng-container *ngIf="report.footer">
+                <mat-footer-cell *matFooterCellDef style="background: whitesmoke;">
+                  <div *ngIf="i==report.displayedColumns.length-2 && report.footer=='project value'">
+                    <strong>Total Value</strong>
+                  </div>
+                  <div *ngIf="i==report.displayedColumns.length-2 && report.footer!=='project value'">
+                    <strong>Average Estimate Time</strong>
+                  </div>
+                  <div *ngIf="i==report.displayedColumns.length-1">{{footer}}</div>
+                </mat-footer-cell>
+              </ng-container>
+
+            </ng-container>
+
+            <mat-header-row class="sticky-row" *matHeaderRowDef="report.displayedColumns;  sticky: true">
+            </mat-header-row>
+            <mat-row *matRowDef="let row; columns: report.displayedColumns;"></mat-row>
+            <ng-container *ngIf="report.footer">
+              <mat-footer-row class="sticky-row" *matFooterRowDef="report.displayedColumns;  sticky: true">
+              </mat-footer-row>
+            </ng-container>
+          </mat-table>
+        </div>
+      </div>
+
+
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>
+<loading-wrapper></loading-wrapper>

@@ -1,13 +1,12 @@
-import { ChartConfig } from './chartConfig';
 import { RawTimeShortcut } from './rawTimeShortcut';
-import { TimeShortcut } from './timeShortcut';
+import { ReportConfig } from './reportConfig';
 
-export interface ChartState {
-    chartConfigs: ChartConfig[]
+export interface ReportState {
+    reportConfigs: ReportConfig[]
     selectedTime: { start: number, end: number }
     timeShortcuts: RawTimeShortcut[]
     activeTab: number
     initialConfigId: string
     initialTimeRange: string
-    chartSpecificTimeShortcuts: RawTimeShortcut[]
+    reportSpecificTimeShortcuts: RawTimeShortcut[]
 }

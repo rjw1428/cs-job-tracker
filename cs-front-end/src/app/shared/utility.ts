@@ -1,6 +1,8 @@
 import { DashboardActions } from '../sidebar/dashboard/dashboard.action-types';
 import { MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
 import { TitleCasePipe } from '@angular/common';
+import { RawTimeShortcut } from 'src/models/rawTimeShortcut';
+import { TimeShortcut } from 'src/models/timeShortcut';
 
 const snackBarHorizontalPosition: MatSnackBarHorizontalPosition = 'right'
 const snackBarVerticalPosition: MatSnackBarVerticalPosition = 'top'
@@ -50,17 +52,46 @@ export function sortFn(a, b, key, direction) {
 export const colorShade = (col, amt) => {
     col = col.replace(/^#/, '')
     if (col.length === 3) col = col[0] + col[0] + col[1] + col[1] + col[2] + col[2]
-  
+
     let [r, g, b] = col.match(/.{2}/g);
     ([r, g, b] = [parseInt(r, 16) + amt, parseInt(g, 16) + amt, parseInt(b, 16) + amt])
-  
+
     r = Math.max(Math.min(255, r), 0).toString(16)
     g = Math.max(Math.min(255, g), 0).toString(16)
     b = Math.max(Math.min(255, b), 0).toString(16)
-  
+
     const rr = (r.length < 2 ? '0' : '') + r
     const gg = (g.length < 2 ? '0' : '') + g
     const bb = (b.length < 2 ? '0' : '') + b
-  
+
     return `#${rr}${gg}${bb}`
-  }
+}
+
+
+export const convertRawShortcut = (shortcut: RawTimeShortcut): TimeShortcut => {
+    let start = null
+    let end = null
+    const startFunc = shortcut.start
+    if (typeof startFunc == 'string') {
+        const terms = startFunc.split("-")
+        start = terms.length > 1
+            ? (n: Date) => new Date(n.setDate(n.getDate() - +terms[1]))
+            : (n: Date) => new Date(n.setDate(n.getDate()))
+    }
+    else {
+        const [year, month, day] = startFunc
+        start = () => new Date(year, month, day)
+    }
+    const endFunc = shortcut.end
+    if (typeof endFunc == 'string') {
+        const terms = endFunc.split("-")
+        end = terms.length > 1
+            ? (n: Date) => new Date(n.setDate(n.getDate() - +terms[1]))
+            : (n: Date) => new Date(n.setDate(n.getDate()))
+    }
+    else {
+        const [year, month, day] = endFunc
+        end = () => new Date(year, month, day)
+    }
+    return { ...shortcut, start, end }
+}

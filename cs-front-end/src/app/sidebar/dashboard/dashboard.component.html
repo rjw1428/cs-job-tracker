@@ -1,16 +1,20 @@
 <div class="wrapper">
-    <h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Job Board</h1>
-    <button style="margin-right: 8px" mat-raised-button (click)="onCreateContractor()">Add Contractor</button>
-    <button style="margin-right: 8px" mat-raised-button (click)="onCreateProject()">Add Project</button>
-    <button style="margin-right: 8px" mat-raised-button color="primary" (click)="onCreateBid()">Add Bid</button>
-    <button style="margin-right: 8px" mat-raised-button color="warn" (click)="onCreateEstimate()">Add Estimate</button>
-    <app-job-board></app-job-board>
-    
-    <loading-wrapper [loading]="isLoading$ | async"></loading-wrapper>
+  <div style="display: flex; justify-content: space-between;">
+    <div>
+      <h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Job Board</h1>
+      <button style="margin-right: 8px" mat-raised-button (click)="onCreateContractor()">Add Contractor</button>
+      <button style="margin-right: 8px" mat-raised-button (click)="onCreateProject()">Add Project</button>
+      <button style="margin-right: 8px" mat-raised-button color="primary" (click)="onCreateBid()">Add Bid</button>
+      <button style="margin-right: 8px" mat-raised-button color="warn" (click)="onCreateEstimate()">Add
+        Estimate</button>
+    </div>
+    <div style="padding-right: 16px; color: lightgray">
+      <button mat-icon-button>
+        <mat-icon style="font-size: 36px;" (click)="onRefresh()">refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+  <app-job-board></app-job-board>
+
+  <loading-wrapper [loading]="isLoading$ | async"></loading-wrapper>
 </div>
-<!-- <div style="display: flex;" class="test">
-    <pre class="test" style="width: 100%;">{{ estimators$ | async | json}} </pre>
-    <pre class="test" style="width: 100%;">{{ contractors$ | async | json}} </pre>
-    <pre class="test" style="width: 100%;">{{ projects$ | async | json}} </pre> 
-    <pre class="test" style="width: 100%;">{{ invites$ | async | json}} </pre>
-</div> -->

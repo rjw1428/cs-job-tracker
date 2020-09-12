@@ -81,7 +81,13 @@ export class DashboardEffects {
                     case 'awarded':
                         this.eventService.triggerTimelineForm.next(action)
                         return DashboardActions.jobMoveIntercepted()
-                    default: return DashboardActions.jobMoved(action)
+                    default: return DashboardActions.jobMoved({
+                        ...action,
+                        selectedJob: {
+                            ...action.selectedJob,
+                            historyOnlyNotes: `Moved to ${action.targetColIndex}`
+                        }
+                    })
                 }
             })
         )

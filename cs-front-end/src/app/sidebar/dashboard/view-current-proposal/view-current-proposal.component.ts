@@ -22,7 +22,7 @@ export class ViewCurrentProposalComponent implements OnInit {
   @Inject(MAT_DIALOG_DATA) public job: Job) { }
 
   ngOnInit(): void {
-    this.backendService.initViewProposal(null, this.job)
+    this.backendService.initViewProposal(this.job.proposalId, this.job)
 
     this.proposal$ = this.store.select(singleProposalSelector)
   }

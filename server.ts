@@ -22,6 +22,7 @@ import { Job } from './cs-front-end/src/models/job'
 import { AttachedFile } from './cs-front-end/src/models/attachedFile'
 import { StatusOption } from './cs-front-end/src/models/statusOption';
 import { Estimate } from './cs-front-end/src/models/estimate';
+import { Proposal } from './cs-front-end/src/models/proposal';
 
 const port = process.env.PORT || 9000
 const app: Application = express();
@@ -153,9 +154,15 @@ io.on('connection', (socket) => {
     // View Single Proposal Form Init
     socket.on('proposalFormInit', async ({ proposalId, job }) => {
         try {
-            const table = proposalId ? 'proposal_snapshot' : 'proposal_current'
-            const label = proposalId ? `Proposal ${proposalId}` : 'Current Proposal'
-            const estimates = await fetchFromTable(table, `${label} for ${job.jobDisplayId}`, { jobId: [job.jobId] })
+            let estimates = []
+            if (proposalId) {
+                const rawProposal = await fetchFromTable('proposal_snapshot', `Proposal ${proposalId} for ${job.jobDisplayId}`, { id: [proposalId] })
+                const proposal = packageProposal(rawProposal)
+                estimates = proposal[0].estimates
+            }
+            else
+                estimates = await fetchFromTable('proposal_current', `Current Proposal for ${job.jobDisplayId}`, { jobId: [job.jobId] })
+
             socket.emit('getSingleProposal', { job, estimates })
         }
         catch (e) {
@@ -166,10 +173,20 @@ io.on('connection', (socket) => {
     // View Single Proposal Form Init
     socket.on('proposalHistoryFormInit', async (job: Job) => {
         try {
-            // const table = proposalId ? 'proposal_snapshot' : 'proposal_current'
-            // const label = proposalId ? `Proposal ${proposalId}` : 'Current Proposal'
             const rawProp = await fetchFromTable('proposal_snapshot', `Proposal History for ${job.jobDisplayId}`, { jobId: [job.jobId] })
-            const proposals = packageProposal(rawProp)
+            const currentEstimates = await fetchFromTable('proposal_current', `Current Proposal for ${job.jobDisplayId}`, { jobId: [job.jobId] })
+            const currentProp = job.currentDashboardColumn == 'estimating'
+                ? {
+                    id: null,
+                    estimates: currentEstimates,
+                    dateSent: 'current',
+                    projectValue: currentEstimates.map(prop => +prop.cost).reduce((a, b) => a += b, 0),
+                    outsourceCost: currentEstimates.map(prop => +prop.fee).reduce((a, b) => a += b, 0),
+                    finalCost: null,
+                    finalCostNote: null
+                }
+                : []
+            const proposals = packageProposal(rawProp).concat(currentProp)
             socket.emit('getProposalHistory', { job, proposals })
         }
         catch (e) {
@@ -189,12 +206,12 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('snapshotProposal', async (job: Job) => {
+    socket.on('snapshotProposal', async (job: Job, callback) => {
         try {
             const estimates = await fetchFromTable('proposal_current', `Proposals for ${job.jobDisplayId}`, { jobId: [job.jobId] })
             const ids = estimates.map((estimate: Estimate) => ({ [estimate.type + 'Id']: estimate.estimateId })).reduce((acc, cur) => ({ ...acc, ...cur }), {})
             const entry = { ...ids, jobId: job.jobId, isActive: 1, dateSent: new Date().toLocaleString() }
-            await insertIntoTable('map_proposals_sent', entry)
+            callback(await insertIntoTable('map_proposals_sent', entry))
         }
         catch (e) {
             console.log(e)
@@ -396,7 +413,11 @@ io.on('connection', (socket) => {
                     : col
             })
             io.to(room).emit('getInvitesForSingleColumn', { items: newInvites, columnId: 'estimating' })
-            callback(mapIds)
+            const jobs = state.invites.filter(invite => jobIds.includes(invite.jobId))
+            const estimateType = state.estimateTypes.find(type => estimate.estimateTypeId == type.id)
+            const resp = Promise.all(jobs.map((job) => writeJobTransaction({ ...job, historyOnlyNotes: `${estimateType.type} Estimate added` })))
+
+            callback(jobs)
         }
         catch (e) {
             callback({ error: e })
@@ -436,8 +457,32 @@ io.on('connection', (socket) => {
             io.to(room).emit('getInvitesForSingleColumn', { items: updatedItems, columnId: job.currentDashboardColumn })
         }
         catch (e) {
+            console.log(e)
         }
     })
+
+    socket.on('removeProposal', async ({ proposalId, job }: { proposalId: number, job: Job }) => {
+        try {
+            await updateTable('map_proposals_sent', { isActive: 0 }, { id: proposalId }, 'Delete File')
+            const rawProp = await fetchFromTable('proposal_snapshot', `Proposal History for ${job.jobDisplayId}`, { jobId: [job.jobId] })
+            const currentEstimates = await fetchFromTable('proposal_current', `Current Proposal for ${job.jobDisplayId}`, { jobId: [job.jobId] })
+            const currentProp = {
+                id: null,
+                estimates: currentEstimates,
+                dateSent: 'current',
+                projectValue: currentEstimates.map(prop => +prop.cost).reduce((a, b) => a += b, 0),
+                outsourceCost: currentEstimates.map(prop => +prop.fee).reduce((a, b) => a += b, 0),
+                finalCost: null,
+                finalCostNote: null
+            }
+            const proposals = packageProposal(rawProp).concat(currentProp)
+            socket.emit('getProposalHistory', { job, proposals })
+        }
+        catch (e) {
+            console.log(e)
+        }
+    })
+
 
     socket.on('moveBid', async (updatedJob, callback) => {
         try {
@@ -445,9 +490,9 @@ io.on('connection', (socket) => {
             await writeJobTransaction({
                 ...updatedJob,
                 statusId: state.dashboardColumns.find(col => col.id == updatedJob.currentDashboardColumn).defaultStatusId,
-                historyOnlyNotes: updatedJob.currentDashboardColumn != 'estimating'
-                    ? `Moved to ${updatedJob.currentDashboardColumn}`
-                    : `Assigned to ${state.estimators.find(estimator => estimator.id == updatedJob.assignedTo).name}`
+                // historyOnlyNotes: updatedJob.currentDashboardColumn != 'estimating'
+                //     ? `Moved to ${updatedJob.currentDashboardColumn}`
+                //     : `Assigned to ${state.estimators.find(estimator => estimator.id == updatedJob.assignedTo).name}`
             })
             const sourceColumn = state.dashboardColumns.find(col => updatedJob.previousDashboardColumn == col.id)
             const targetColumn = state.dashboardColumns.find(col => updatedJob.currentDashboardColumn == col.id)
@@ -480,6 +525,7 @@ io.on('connection', (socket) => {
                 { jobId: updatedJob.jobId },
                 'Toggle No Bid'
             )
+            await writeJobTransaction({ ...updatedJob, historyOnlyNotes: updatedJob.isNoBid ? "Not Bidding" : "Returned To Bid Invitation" })
             const matchingColumn = state.dashboardColumns.find(col => updatedJob.currentDashboardColumn == col.id)
             const updatedInvites = matchingColumn.items.map(invite => {
                 return invite.jobId == updatedJob.jobId
@@ -555,8 +601,9 @@ io.on('connection', (socket) => {
         socket.emit('getTimeShortcuts', state.timeShortcuts)
     })
 
-    socket.on('fetchData', async (config: ChartConfig, start: number, end: number) => {
+    socket.on('fetchChartData', async (config: ChartConfig, start: number, end: number) => {
         try {
+            console.log(new Date(start * 1000).toDateString())
             const data = await runStoredProcedure(config.storedProcedure, start, end, config.name)
             socket.emit('updateChart', { config, data: data[0] })
         }
@@ -565,7 +612,28 @@ io.on('connection', (socket) => {
         }
     })
 
+    // ------------------------Reports---------------------------
 
+    socket.on('reports', () => {
+        socket.emit('getReportConfigs', state.reportConfigs)
+        socket.emit('getTimeShortcuts', state.timeShortcuts)
+    })
+
+    socket.on('fetchReportData', async (config: ChartConfig, start: number, end: number) => {
+        try {
+            console.log(new Date(start * 1000).toDateString())
+            const data = await runStoredProcedure(config.storedProcedure, start, end, config.name)
+            socket.emit('updateReport', { config, data: data[0] })
+        }
+        catch (e) {
+            console.log(e)
+        }
+    })
+
+    socket.on('refreshBackend', async (triggerEvent: string, callback) => {
+        await initializeBackend()
+        callback(triggerEvent)
+    })
 
     socket.on('disconnect', () => {
         state.users = state.users.filter(user => user.id != socket.id)
@@ -604,7 +672,7 @@ async function writeJobTransaction(updatedJob: Job) {
     }
 }
 
-function packageProposal(dbResponse) {
+function packageProposal(dbResponse): Proposal[] {
     return dbResponse.map(resp => {
         const concreteEstimate = {
             type: "concrete",
@@ -653,6 +721,7 @@ function packageProposal(dbResponse) {
             finalCost: resp['finalCost'],
             finalCostNote: resp['finalCostNote']
         }
+
     })
 }
 

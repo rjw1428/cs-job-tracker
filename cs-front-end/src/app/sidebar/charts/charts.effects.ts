@@ -12,6 +12,14 @@ import { AppState } from 'src/models/appState';
 @Injectable()
 export class ChartEffect {
 
+    initializeCharts$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(ChartsActions.initCharts),
+            tap(() => this.backendService.initCharts())
+        ), { dispatch: false }
+    )
+
+
     triggerDataFetch$ = createEffect(() =>
         this.actions$.pipe(
             ofType(ChartsActions.setSelectedChartById, ChartsActions.setSelectedChartByIndex),

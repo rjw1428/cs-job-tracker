@@ -6,14 +6,14 @@ import { BackendService } from 'src/app/services/backend.service';
 import { AppActions } from 'src/app/app.action-types';
 import { Observable, iif, of, throwError } from 'rxjs';
 import { Estimator } from 'src/models/estimator';
-import { map, mergeMap, finalize, catchError, first, switchMap } from 'rxjs/operators'
+import { map, mergeMap, finalize, catchError, first, switchMap, tap } from 'rxjs/operators'
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AddContractorComponent } from './add-contractor/add-contractor.component';
 import { showSnackbar } from 'src/app/shared/utility';
 import { Contractor } from 'src/models/contractor';
 import { Project } from 'src/models/project';
-import { estimatorsSelector, contractorsSelector, projectsSelector } from './dashboard.selectors';
+import { estimatorsSelector, contractorsSelector, projectsSelector, estimatorsAllSelector } from './dashboard.selectors';
 import { AddProjectComponent } from './add-project/add-project.component';
 import { BidInvite } from 'src/models/bidInvite';
 import { AddInviteComponent } from './add-invite/add-invite.component';
@@ -55,11 +55,21 @@ export class DashboardComponent implements OnInit {
             data: { message: "There are no estimates currently attached to this job. Are you sure you want to move to Proposal Sent?", action: "Move" }
           }).onAction().pipe(map(() => ({ action, skipProposal: false })))
         return of(({ action, skipProposal: false }))
+      }),
+      switchMap(({ action, skipProposal }) => {
+        if (skipProposal) return of({ action, propId: null })
+        return this.backendService.saveData('snapshotProposal', action.selectedJob)
+        .pipe(map(resp => ({ action, propId: resp })))
       })
-    ).subscribe(({ action, skipProposal }) => {
-      this.store.dispatch(DashboardActions.jobMoved(action))
-      if (!skipProposal)
-        this.backendService.saveData('snapshotProposal', action.selectedJob)
+    ).subscribe(({ action, propId }) => {
+      this.store.dispatch(DashboardActions.jobMoved({
+        ...action,
+        selectedJob: {
+          ...action.selectedJob,
+          historyOnlyNotes: `Moved to Proposal`,
+          proposalId: propId
+        }
+      }))
     })
 
     this.eventService.triggerTimelineForm.pipe(
@@ -75,11 +85,17 @@ export class DashboardComponent implements OnInit {
               : null
           }))
       })
-    )
-      .subscribe(
+    ).subscribe(
         action => {
+          console.log(action.selectedJob)
           if (action)
-            this.store.dispatch(DashboardActions.jobMoved(action))
+            this.store.dispatch(DashboardActions.jobMoved({
+              ...action,
+              selectedJob: {
+                ...action.selectedJob,
+                historyOnlyNotes: `Moved to Awarded`
+              }
+            }))
         }
       )
 
@@ -92,16 +108,21 @@ export class DashboardComponent implements OnInit {
         }).afterClosed().pipe(
           map(resp => {
             return resp
-              ? { ...action, selectedJob: resp }
+              ? { ...action, ...resp }
               : null
           }))
       })
     )
-      .subscribe(
-        action => {
-          if (action)
-            this.store.dispatch(DashboardActions.jobMoved(action))
-        })
+      .subscribe(action => {
+        if (action)
+          this.store.dispatch(DashboardActions.jobMoved({
+            ...action,
+            selectedJob: {
+              ...action.selectedJob,
+              historyOnlyNotes: `Moved to Estimating; Assigned to ${action.name}`
+            }
+          }))
+      })
   }
 
   onCreateContractor() {
@@ -171,5 +192,9 @@ export class DashboardComponent implements OnInit {
       if (resp && resp.error) return showSnackbar(this.snackBar, "ERROR:" + resp.error.sqlMessage)
       if (resp) showSnackbar(this.snackBar, "Estimate Saved")
     })
+  }
+
+  onRefresh() {
+    this.backendService.refreshBackend('dashboard')
   }
 }
