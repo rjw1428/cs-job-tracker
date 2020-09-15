@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { Observable, of, forkJoin, throwError, iif, noop, Subscription } from 'rxjs';
+import { Observable, of, forkJoin, throwError, iif, noop, Subscription, BehaviorSubject, Subject, ReplaySubject } from 'rxjs';
 import { Store, select } from '@ngrx/store';
 import { AppState } from '../../../models/appState';
 import { BackendService } from '../../services/backend.service';
@@ -18,28 +18,30 @@ import { TimeShortcut } from '../../../models/timeShortcut';
 import { ChartConfig } from 'src/models/chartConfig';
 import { ChartsActions } from './charts.action-types';
 import { AppActions } from 'src/app/app.action-types';
-import { chartConfigSelector, activeIndexSelector, selectedChartConfigSelector, chartSpecificTimeShortcutSelector } from './charts.selectors';
+import { activeIndexSelector, chartSpecificTimeShortcutSelector, selectedTimeSelector } from './charts.selectors';
 import { EventService } from 'src/app/services/event.service';
 import { RawTimeShortcut } from 'src/models/rawTimeShortcut';
-
+import { showSnackbar } from 'src/app/shared/utility';
+import { convertRawShortcut } from 'src/app/shared/utility'
 
 @Component({
   selector: 'app-charts',
   templateUrl: './charts.component.html',
   styleUrls: ['./charts.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChartsComponent implements OnInit, OnDestroy {
-  selectedTab$: Observable<number>
-  timeShortcuts$: Observable<TimeShortcut[]>
+  initialTab$: Observable<number>
+  timeShortcuts$: Observable<any[]>
   charts$: Observable<ChartConfig[]>
+  charts: ChartConfig[] = []
+  timeShortcuts: TimeShortcut[] = []
+  selectedIndex: number
+  selectedChart$: Observable<ChartConfig>
   ganttChart: am4charts.XYChart;
-  // timeframe: { from: number, to: number }
+  timeframe: { start: number, end: number }
   currentTab: number
   selectedShortcut: string
-  ganttChartEventSubscription: Subscription
-  updateRouterSubscription: Subscription
-
+  dataSubscription: Subscription
   yAxisLabelRight: string = 'Outsourcing Cost ($)';
   legendPosition = 'right';
   xAxisLabel = 'Month';
@@ -57,77 +59,170 @@ export class ChartsComponent implements OnInit, OnDestroy {
     group: 'Ordinal',
     domain: ['#01579b']
   }
-
+  refreshInterval: any;
   constructor(
     private store: Store<AppState>,
     private backendService: BackendService,
     private eventService: EventService,
     private route: ActivatedRoute,
+    private snackBar: MatSnackBar
   ) {
   }
 
   ngOnDestroy() {
-    if (this.ganttChart)
-      this.ganttChart.dispose()
-    this.ganttChartEventSubscription.unsubscribe()
-    this.updateRouterSubscription.unsubscribe()
+    this.dataSubscription.unsubscribe()
+    clearInterval(this.refreshInterval)
   }
 
   ngOnInit(): void {
-    this.store.dispatch(ChartsActions.initCharts())
-    this.timeShortcuts$ = this.store.select(chartSpecificTimeShortcutSelector)
-    this.charts$ = this.store.select(chartConfigSelector)
-    this.selectedTab$ = this.store.select(activeIndexSelector)
-
-    // Gantt chart special load
-    this.ganttChartEventSubscription = this.eventService.createGanttChart
-      .subscribe(config => {
-        setTimeout(() => {
-          this.createGanttChart(config.dataSource)
-        }, 0)
-      })
-
-    // On Load, store the chart config ID
-    this.route.paramMap.pipe(
+    this.initialTab$ = this.store.pipe(
       first(),
-      map((paramsMap: Params) => paramsMap.params.chartId),
-      tap(chartId => this.store.dispatch(ChartsActions.setInitialChartId({ chartId })))
-    ).subscribe(noop)
+      map(state => state.app.chartConfigs),
+      switchMap(charts => {
+        this.charts = JSON.parse(JSON.stringify(charts))
+        const onLoadIndex = this.route.paramMap.pipe(
+          first(),
+          map((paramsMap: Params) => {
+            const selectedChartId = paramsMap.params.chartId
+            const matchingIndex = charts.findIndex(chart => chart.id == selectedChartId)
+            const resultingIndex = matchingIndex == -1 ? 0 : matchingIndex
+            if (charts.length)
+              this.onTabChanged(resultingIndex, true)
+            return resultingIndex
+          })
+        )
+        return onLoadIndex
+      }),
+      catchError(err => throwError(err)))
 
-    // Update Router params as chart changes
-    this.updateRouterSubscription = this.store.select(selectedChartConfigSelector).pipe(
-      tap(config => {
-        if (config) this.updateRouterParams(config.id)
+    this.refreshInterval = setInterval(() => {
+      console.log("UPDATE")
+      this.onTabChanged(this.currentTab, false)
+    }, 60 * 1000)
+  }
+
+  onTabChanged(tabNumber: number, init: boolean) {
+    this.store.dispatch(AppActions.startLoading())
+    const activeChart = this.charts[tabNumber]
+    this.timeShortcuts$ = this.store.pipe(
+      first(),
+      map(state => state.app.timeShortcuts.map(sc => convertRawShortcut(sc))),
+      map(shortcuts => {
+        return shortcuts.filter(shortcut => {
+          return activeChart.excludedTimes && activeChart.excludedTimes.length
+            ? !activeChart.excludedTimes.includes(shortcut.id)
+            : true
+        })
+      }),
+      tap((shortcuts: TimeShortcut[]) => {
+        // Set default time
+        if (!shortcuts.length || !init) return
+        const defaultTime = shortcuts.find(sc => sc.id == activeChart.defaultTime ? activeChart.defaultTime : 'last_year')
+        this.selectedShortcut = defaultTime
+          ? activeChart.defaultTime ? activeChart.defaultTime : 'last_year'
+          : shortcuts[0].id
+
+        const selectedTime = shortcuts.find(sc => sc.id == this.selectedShortcut)
+        this.timeframe = { start: selectedTime.start(new Date()).getTime() / 1000, end: selectedTime.end(new Date()).getTime() / 1000 }
       })
-    ).subscribe(noop)
+    )
+
+
+    this.dataSubscription = this.timeShortcuts$.pipe(
+      switchMap(shortcuts => {
+        // Set time
+        if (!shortcuts.length) return of(null)
+        const start = this.timeframe.start
+        const end = this.timeframe.end
+        const timeClause = { start, end }
+        this.currentTab = tabNumber
+        return this.backendService.fetchData(activeChart.storedProcedure, timeClause)
+      }))
+
+      .subscribe(
+        (resp: any[]) => {
+          if (resp) {
+            this.updateRouterParams(activeChart.id)
+            if (this.ganttChart)
+              this.ganttChart.dispose();
+            this.setChartFromData(resp, activeChart)
+          }
+        },
+        err => {
+          console.log(err)
+          showSnackbar(this.snackBar, err.error.error.sqlMessage)
+          this.store.dispatch(AppActions.stopLoading())
+        },
+        () => {
+          this.store.dispatch(AppActions.stopLoading())
+        }
+      )
+  }
+
+  onDateRangeSet(dateRange: { from: Date, to: Date }) {
+    this.timeframe = { start: dateRange.from.getTime() / 1000, end: dateRange.to.getTime() / 1000 }
+    this.onTabChanged(this.currentTab, false)
+  }
+
+  setChartFromData(resp: any[], chart: ChartConfig) {
+    if (resp.length) {
+      const titlePipe = new TitleCasePipe()
+      chart.xAxisLabel = titlePipe.transform(Object.keys(resp[0])[0])
+      chart.yAxisLabel = titlePipe.transform(Object.keys(resp[0])[1])
+      switch (chart.chartType) {
+        case ('bar_vertical'):
+          chart.dataSource = this.barChart(resp)
+          break;
+        case ('bar_horizontal'):
+          chart.dataSource = this.barChart(resp)
+          break;
+        case ('single_line'):
+          chart.dataSource = this.singleLineChart(resp, chart.seriesName)
+          break;
+        case ('pie'):
+          chart.dataSource = this.barChart(resp)
+          break;
+        case ('pie_advanced'):
+          chart.dataSource = this.barChart(resp)
+          break;
+        case ('gantt'):
+          this.createGanttChart(resp)
+          break;
+        case ('combo'):
+          chart['dataSource1'] = this.barChart(resp.map(dataPoint => {
+            const keys = Object.keys(dataPoint)
+            return { [keys[0]]: dataPoint[keys[0]], [keys[1]]: dataPoint[keys[1]] }
+          }))
+          chart['dataSource2'] = this.singleLineChart(resp.map(dataPoint => {
+            const keys = Object.keys(dataPoint)
+            return { [keys[0]]: dataPoint[keys[0]], [keys[2]]: dataPoint[keys[2]] }
+          }), chart.seriesName)
+          break;
+      }
+    }
   }
 
   updateRouterParams(chartId) {
     window.history.replaceState({}, '', `/charts/${chartId}`);
   }
 
-  onTabChanged(index: number) {
-    this.store.dispatch(AppActions.startLoading())
-    this.store.dispatch(ChartsActions.setSelectedChartByIndex({ index }))
-    this.currentTab = index
-  }
-
-
   createGanttChart(data) {
     am4core.useTheme(am4themes_animated);
-    let chart = am4core.create("chartdiv", am4charts.XYChart);
-    chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
+
+    let chart = am4core.create("chartDiv", am4charts.XYChart);
+    chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm";
     chart.paddingRight = 20;
     let colorSet = new am4core.ColorSet();
     let seriesNames = Object.keys(data.map(dataPoint => ({ [dataPoint.name]: 0 })).reduce((acc, cur) => ({ ...acc, ...cur }), {}));
     chart.data = data.map(dataPoint => ({ ...dataPoint, color: colorSet.getIndex(8 + 2 * seriesNames.findIndex(name => name == dataPoint.name)) }))
+
     var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
     categoryAxis.dataFields.category = "name";
     categoryAxis.renderer.grid.template.location = 0;
     categoryAxis.renderer.inversed = true;
 
     var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-    dateAxis.dateFormatter.dateFormat = "yyyy-MM-dd";
+    dateAxis.dateFormatter.dateFormat = "yyyy-MM-dd HH:mm";
     dateAxis.renderer.minGridDistance = 70;
     dateAxis.baseInterval = { count: 30, timeUnit: "day" };
     dateAxis.renderer.tooltipLocation = 0;
@@ -144,19 +239,32 @@ export class ChartsComponent implements OnInit, OnDestroy {
     series1.columns.template.strokeOpacity = 1;
 
     chart.scrollbarX = new am4core.Scrollbar();
+
     this.ganttChart = chart;
   }
 
+  singleLineChart(data: any[], name) {
+    const series = data.map(dataPoint => {
+      const keys = Object.keys(dataPoint)
+      return {
+        name: dataPoint[keys[0]],
+        value: dataPoint[keys[1]]
+      }
+    })
+    return [{ name, series }]
+  }
 
-  onDateRangeSet({ from, to }: { from: Date, to: Date }) {
-    const start = new Date(from.getFullYear(), from.getMonth(), from.getDate()).getTime() / 1000
-    const end = new Date(to.getFullYear(), to.getMonth(), to.getDate()).getTime() / 1000
-    this.store.dispatch(ChartsActions.setSelectedTime({ start, end }))
-    this.onTabChanged(this.currentTab)
+  barChart(data: any[]) {
+    return data.map(dataPoint => {
+      const keys = Object.keys(dataPoint)
+      return {
+        name: dataPoint[keys[0]],
+        value: dataPoint[keys[1]]
+      }
+    });
   }
 
   onRefresh() {
     this.backendService.refreshBackend('charts')
   }
-
 }

@@ -95,3 +95,21 @@ export const convertRawShortcut = (shortcut: RawTimeShortcut): TimeShortcut => {
     }
     return { ...shortcut, start, end }
 }
+
+
+export function formatDate(date) {
+    let d = new Date(date)
+    let month = (d.getMonth() + 1).toString()
+    let day = d.getDate().toString()
+    let year = d.getFullYear().toString()
+    let hour = d.getHours().toString()
+    let min = d.getMinutes().toString()
+    let sec = d.getSeconds().toString()
+
+    if (month.length < 2)  month = '0' + month;
+    if (day.length < 2)  day = '0' + day;
+    if (hour.length < 2) hour = '0' + hour;
+    if (min.length < 2) min = '0' + min;
+    if (sec.length < 2) sec = '0' + sec;
+    return [year, month, day].join('-') + " " +[hour, min, sec].join("");
+}

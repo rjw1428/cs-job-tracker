@@ -183,12 +183,10 @@ export class DashboardComponent implements OnInit {
     }).afterClosed().pipe(
       first(),
       mergeMap(formResp => {
-        console.log(formResp)
         if (!formResp) return of(null)
         return this.backendService.saveData('addEstimate', formResp)
       })
     ).subscribe(resp => {
-      console.log(resp)
       if (resp && resp.error) return showSnackbar(this.snackBar, "ERROR:" + resp.error.sqlMessage)
       if (resp) showSnackbar(this.snackBar, "Estimate Saved")
     })

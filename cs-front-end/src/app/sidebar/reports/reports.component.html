@@ -1,6 +1,5 @@
 <header style="display: flex; justify-content: space-between;">
   <h1 style="display: inline; margin-right: 24px; font-weight: 500; padding: 10px">Reports</h1>
-  <!-- <div id="chartdiv" class="test chart" style="height: 500px"></div> -->
   <div style="padding-right: 16px; color: lightgray">
     <button mat-icon-button>
       <mat-icon style="font-size: 36px;" (click)="onRefresh()">refresh</mat-icon>
@@ -8,42 +7,41 @@
   </div>
 </header>
 
-<mat-tab-group (selectedIndexChange)="onTabChanged($event)" [selectedIndex]="selectedTab$ | async">
-  <mat-tab *ngFor="let report of reports$ | async">
+<mat-tab-group (selectedIndexChange)="onTabChanged($event, true)" [selectedIndex]="initialTab$ | async">
+  <mat-tab *ngFor="let report of reports">
     <ng-template mat-tab-label>{{report.name}}</ng-template>
     <ng-template matTabContent>
 
       <div style="height: 85vh">
         <div style="display: flex; justify-content: space-between;">
-          <!-- <mat-form-field>
-            <mat-label>Search</mat-label>
+          <mat-form-field style="margin-left: 16px;">
+            <mat-label>Filter</mat-label>
             <input matInput (keyup)="applyFilter($event, report.dataSource)" placeholder="Filter" #input>
             <button mat-button *ngIf="input.value" matSuffix mat-icon-button aria-label="Clear"
               (click)="input.value=null; report.dataSource.filter=null">
               <mat-icon>close</mat-icon>
             </button>
-          </mat-form-field> -->
+          </mat-form-field>
           <div style="width: 75%">
-            <!-- <app-filter 
+            <app-filter 
                 [shortcuts]="timeShortcuts$ | async" 
-                [selectedShortcut]="'last_year'"
+                [selectedShortcut]="selectedShortcut"
                 (dateRange)="onDateRangeSet($event)">
-            </app-filter> -->
+            </app-filter>
           </div>
           <button mat-mini-fab color="primary" style="margin-top: 4px" (click)="onExport(report)">
             <mat-icon>system_update_alt</mat-icon>
           </button>
         </div>
         <div class="wrapper">
-          <mat-table matSort [dataSource]="report.dataSource" matSortDisableClear [matSortActive]="sortCol"
-            (matSortChange)="onSortChanged()" class="mat-elevation-z8">
+          <mat-table matSort [dataSource]="report.dataSource" matSortDisableClear  class="mat-elevation-z8" (matSortChange)="onSortChanged()">
 
             <ng-container [matColumnDef]="columnDef" *ngFor="let columnDef of report.displayedColumns; let i = index">
 
               <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header>
                 {{columnDef | titlecase}} </mat-header-cell>
 
-              <mat-cell *matCellDef="let element">
+              <mat-cell *matCellDef="let element" [ngStyle]="{'backgroundColor': element.color}">
                 <div>{{(columnDef != 'project value')?element[columnDef]:element[columnDef] | currency}}</div>
               </mat-cell>
 

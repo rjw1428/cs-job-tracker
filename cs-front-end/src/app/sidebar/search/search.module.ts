@@ -12,7 +12,9 @@ export const routes: Routes = [
 ]
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    SearchComponent
+  ],
   imports: [
     CommonModule,
     SharedModule,

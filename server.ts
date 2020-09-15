@@ -8,7 +8,7 @@ import { createServer } from 'http'
 import { emailRoute } from './email'
 import { fileShareRoute } from './fileio';
 import { firebaseRoute, fetchInitialFirebaseConfigs } from './firebase';
-import { fetchInitialSQLData, insertIntoTable, fetchFromTable, updateTable, runStoredProcedure } from './db';
+import { fetchInitialSQLData, insertIntoTable, fetchFromTable, updateTable, runStoredProcedure, runSearch, runQuery } from './db';
 import { Contractor } from './cs-front-end/src/models/contractor'
 import { Project } from './cs-front-end/src/models/project'
 import { Estimator } from './cs-front-end/src/models/estimator'
@@ -408,12 +408,12 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('addEstimate', async ({ estimate, jobIds }, callback) => {
+    socket.on('addEstimate', async ({ estimate, jobs }, callback) => {
         try {
             const estimateId = await insertIntoTable('estimates', estimate)
-            const mapIds = await Promise.all(jobIds.map(jobId => {
-                return insertIntoTable('map_estimates_to_jobs', { estimateId, jobId })
-            }))
+            const estimateMapResp = await Promise.all(jobs.map(job => insertIntoTable('map_estimates_to_jobs', { estimateId, jobId: job.jobId })))
+            const estimateType = state.estimateTypes.find(type => estimate.estimateTypeId == type.id)
+            const updatedTransactionResp = await Promise.all(jobs.map((job) => writeJobTransaction({ ...job, historyOnlyNotes: `${estimateType.type} Estimate added` })))
             const newInvites = await fetchFromTable('bid_dashboard', "Bid Invites", { currentDashboardColumn: ['estimating'] })
             state.dashboardColumns = state.dashboardColumns.map(col => {
                 return col.id == 'estimating'
@@ -421,9 +421,6 @@ io.on('connection', (socket) => {
                     : col
             })
             io.to(room).emit('getInvitesForSingleColumn', { items: newInvites, columnId: 'estimating' })
-            const jobs = state.invites.filter(invite => jobIds.includes(invite.jobId))
-            const estimateType = state.estimateTypes.find(type => estimate.estimateTypeId == type.id)
-            const resp = Promise.all(jobs.map((job) => writeJobTransaction({ ...job, historyOnlyNotes: `${estimateType.type} Estimate added` })))
 
             callback(jobs)
         }
@@ -498,9 +495,6 @@ io.on('connection', (socket) => {
             await writeJobTransaction({
                 ...updatedJob,
                 statusId: state.dashboardColumns.find(col => col.id == updatedJob.currentDashboardColumn).defaultStatusId,
-                // historyOnlyNotes: updatedJob.currentDashboardColumn != 'estimating'
-                //     ? `Moved to ${updatedJob.currentDashboardColumn}`
-                //     : `Assigned to ${state.estimators.find(estimator => estimator.id == updatedJob.assignedTo).name}`
             })
             const sourceColumn = state.dashboardColumns.find(col => updatedJob.previousDashboardColumn == col.id)
             const targetColumn = state.dashboardColumns.find(col => updatedJob.currentDashboardColumn == col.id)
@@ -535,9 +529,10 @@ io.on('connection', (socket) => {
             )
             await writeJobTransaction({ ...updatedJob, historyOnlyNotes: updatedJob.isNoBid ? "Not Bidding" : "Returned To Bid Invitation" })
             const matchingColumn = state.dashboardColumns.find(col => updatedJob.currentDashboardColumn == col.id)
+            const newJob = await fetchFromTable('bid_dashboard', "Bid Invites", { jobId: updatedJob.jobId })
             const updatedInvites = matchingColumn.items.map(invite => {
                 return invite.jobId == updatedJob.jobId
-                    ? { ...invite, isNoBid: updatedJob.isNoBid }
+                    ? newJob[0]
                     : invite
             })
             state.dashboardColumns = state.dashboardColumns.map(col => {
@@ -556,6 +551,7 @@ io.on('connection', (socket) => {
         try {
             await writeJobTransaction(updatedJob)
             const [newJob] = await fetchFromTable('bid_dashboard', "Bid Invites", { jobId: updatedJob.jobId })
+            console.log({ transactionId: newJob.transactionId })
             const matchingColumn = state.dashboardColumns.find(col => newJob.currentDashboardColumn == col.id)
             const updatedInvites = matchingColumn.items.map(invite => {
                 return invite.jobId == updatedJob.jobId
@@ -604,39 +600,43 @@ io.on('connection', (socket) => {
 
     // ------------------------Charts---------------------------
 
-    socket.on('charts', () => {
-        socket.emit('getChartConfigs', state.chartConfigs)
-        socket.emit('getTimeShortcuts', state.timeShortcuts)
-    })
+    // socket.on('charts', () => {
+    //     socket.emit('getChartConfigs', state.chartConfigs)
+    //     socket.emit('getTimeShortcuts', state.timeShortcuts)
+    // })
 
-    socket.on('fetchChartData', async (config: ChartConfig, start: number, end: number) => {
-        try {
-            console.log(new Date(start * 1000).toDateString())
-            const data = await runStoredProcedure(config.storedProcedure, start, end, config.name)
-            socket.emit('updateChart', { config, data: data[0] })
-        }
-        catch (e) {
-            console.log(e)
-        }
-    })
+    // socket.on('fetchChartData', async (config: ChartConfig, start: number, end: number) => {
+    //     try {
+    //         console.log(new Date(start * 1000).toDateString())
+    //         const data = await runStoredProcedure(config.storedProcedure, start, end, config.name)
+    //         socket.emit('updateChart', { config, data: data[0] })
+    //     }
+    //     catch (e) {
+    //         console.log(e)
+    //     }
+    // })
 
     // ------------------------Reports---------------------------
 
-    socket.on('reports', () => {
-        socket.emit('getReportConfigs', state.reportConfigs)
-        socket.emit('getTimeShortcuts', state.timeShortcuts)
+
+    socket.on('init', callback => {
+        callback({
+            chartConfigs: state.chartConfigs,
+            reportConfigs: state.reportConfigs,
+            rawShortcuts: state.timeShortcuts
+        })
     })
 
-    socket.on('fetchReportData', async (config: ChartConfig, start: number, end: number) => {
-        try {
-            console.log(new Date(start * 1000).toDateString())
-            const data = await runStoredProcedure(config.storedProcedure, start, end, config.name)
-            socket.emit('updateReport', { config, data: data[0] })
-        }
-        catch (e) {
-            console.log(e)
-        }
-    })
+    // socket.on('fetchReportData', async (config: ChartConfig, start: number, end: number) => {
+    //     try {
+    //         console.log(new Date(start * 1000).toDateString())
+    //         const data = await runStoredProcedure(config.storedProcedure, start, end, config.name)
+    //         socket.emit('updateReport', { config, data: data[0] })
+    //     }
+    //     catch (e) {
+    //         console.log(e)
+    //     }
+    // })
 
     socket.on('refreshBackend', async (triggerEvent: string, callback) => {
         await initializeBackend()
@@ -647,7 +647,38 @@ io.on('connection', (socket) => {
         state.users = state.users.filter(user => user.id != socket.id)
         console.log('User Left')
     })
+
+    // -------------------------Search------------------------
+
+    // socket.on('seach', async (term, callback) => {
+    //     console.log("HERE")
+    //     callback(await runSearch(term))
+    // })
 })
+
+router.get('/api/data/:procedure', (req, resp) => {
+    const procedure = req.params.procedure
+    if (procedure == 'undefined') return resp.status(500).send({ error: "Missing Chart Stored Procedure to query from" })
+    const params = Object.keys(req.query)
+        .map(key => {
+            return { [key]: +req.query[key] }
+        })
+        .reduce((acc, cur) => ({ ...acc, ...cur }), {})
+    const timeRange = createTimeRange(params)
+    if (!timeRange) return resp.status(500).send({ error: "Missing Time Frame" })
+
+    runQuery(`CALL ${procedure}${timeRange}`, procedure, ({ error, results }) => {
+        if (error) return resp.status(500).send({ error })
+        resp.send(results[0])
+    })
+})
+
+function createTimeRange(time: {}): string {
+    if (Object.keys(time).length === 0) return ""
+    const start = time['start'] - +(time['start'] == time['end']) * 86400
+    const end = time['end']
+    return `(${start},${end})`
+}
 
 
 async function writeJobTransaction(updatedJob: Job) {

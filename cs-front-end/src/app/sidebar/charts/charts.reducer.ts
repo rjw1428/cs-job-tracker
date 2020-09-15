@@ -7,9 +7,7 @@ import { TitleCasePipe } from '@angular/common';
 import { convertRawShortcut } from 'src/app/shared/utility';
 
 export const initialChartState: ChartState = {
-    chartConfigs: [],
     selectedTime: { start: null, end: null },
-    timeShortcuts: [],
     initialTimeRange: null,
     chartSpecificTimeShortcuts: [],
     activeTab: 0,
@@ -21,6 +19,7 @@ export const chartReducer = createReducer(
     initialChartState,
     on(ChartsActions.initCharts, (state) => state),
     on(ChartsActions.storeChartConfigs, (state, action) => {
+        console.log(action.chartConfigs)
         return { ...state, chartConfigs: action.chartConfigs }
     }),
     on(ChartsActions.storeTimeShortcuts, (state, action) => {
@@ -32,41 +31,44 @@ export const chartReducer = createReducer(
     on(ChartsActions.setInitialChartId, (state, action) => {
         return { ...state, initialConfigId: action.chartId }
     }),
-    on(ChartsActions.setSelectedChartById, (state) => {
-        // ONLY RUNS I THERE IS AN ID SET IN URL
-        const matchingIndex = state.chartConfigs.findIndex(chart => chart.id == state.initialConfigId)
-        const activeTab = matchingIndex == -1 ? 0 : matchingIndex
-        return {
-            ...state,
-            activeTab,
-            initialConfigId: null
-        }
+    on(ChartsActions.setSelectedTab, (state, action) => {
+        return { ...state, activeTab: action.index }
     }),
-    on(ChartsActions.setSelectedChartByIndex, (state, action) => {
-        return {
-            ...state,
-            activeTab: action.index,
-            initialTimeRange: state.chartConfigs[action.index].defaultTime
-                ? state.chartConfigs[action.index].defaultTime
-                : 'last_year'
-        }
-    }),
-    on(ChartsActions.addDataToConfig, (state, action) => {
-        const updatedConfigList = state.chartConfigs.map(config => {
-            return config.id == action.config.id
-                ? setChartFromData(action.data, action.config)
-                : config
-        })
-        const currentCOnfig = state.chartConfigs[state.activeTab]
-        const exclusionList = currentCOnfig.excludedTimes
-            ? currentCOnfig.excludedTimes
-            : []
-        return {
-            ...state,
-            chartConfigs: updatedConfigList,
-            chartSpecificTimeShortcuts: state.timeShortcuts.filter(shortcut => !exclusionList.includes(shortcut.id))
-        }
-    }),
+    // on(ChartsActions.setSelectedChartById, (state) => {
+    //     // ONLY RUNS I THERE IS AN ID SET IN URL
+    //     const matchingIndex = state.chartConfigs.findIndex(chart => chart.id == state.initialConfigId)
+    //     const activeTab = matchingIndex == -1 ? 0 : matchingIndex
+    //     return {
+    //         ...state,
+    //         activeTab,
+    //         initialConfigId: null
+    //     }
+    // }),
+    // on(ChartsActions.setSelectedChartByIndex, (state, action) => {
+    //     return {
+    //         ...state,
+    //         activeTab: action.index,
+    //         initialTimeRange: state.chartConfigs[action.index].defaultTime
+    //             ? state.chartConfigs[action.index].defaultTime
+    //             : 'last_year'
+    //     }
+    // }),
+    // on(ChartsActions.addDataToConfig, (state, action) => {
+    //     const updatedConfigList = state.chartConfigs.map(config => {
+    //         return config.id == action.config.id
+    //             ? setChartFromData(action.data, action.config)
+    //             : config
+    //     })
+    //     const currentCOnfig = state.chartConfigs[state.activeTab]
+    //     const exclusionList = currentCOnfig.excludedTimes
+    //         ? currentCOnfig.excludedTimes
+    //         : []
+    //     return {
+    //         ...state,
+    //         chartConfigs: updatedConfigList,
+    //         chartSpecificTimeShortcuts: state.timeShortcuts.filter(shortcut => !exclusionList.includes(shortcut.id))
+    //     }
+    // }),
     on(ChartsActions.setSelectedTime, (state, action) => {
         return {
             ...state,

@@ -18,6 +18,6 @@ export class AppComponent {
 
   ngOnInit() {
     // this.store.dispatch(AppActions.startLoading())
-    // this.store.dispatch(AppActions.initApp())
+    this.store.dispatch(AppActions.initApp())
   }
 }

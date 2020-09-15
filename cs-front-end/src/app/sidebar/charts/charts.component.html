@@ -7,16 +7,15 @@
     </button>
   </div>
 </header>
-
-<mat-tab-group (selectedIndexChange)="onTabChanged($event)" [selectedIndex]="selectedTab$ | async">
-  <mat-tab *ngFor="let chart of charts$ | async">
+<mat-tab-group (selectedIndexChange)="onTabChanged($event, true)" [selectedIndex]="initialTab$ | async">
+  <mat-tab *ngFor="let chart of charts">
     <ng-template mat-tab-label>{{chart.name}}</ng-template>
     <ng-template matTabContent>
       <div style="display: flex; flex-direction: column; flex-grow: 1; align-items: strech;" class="wrapper">
         <div style="width: 75%">
           <app-filter 
             [shortcuts]="timeShortcuts$ | async"
-            [selectedShortcut]="chart.defaultTime"
+            [selectedShortcut]="chart.defaultTime ?chart.defaultTime : 'last_year' "
             (dateRange)="onDateRangeSet($event)">
           </app-filter>
         </div>
@@ -107,10 +106,8 @@
           </div>
 
           <div *ngSwitchCase="'gantt'" class="wrapper">
-            <div style="display: flex; flex-direction: column; height: 100%; box-sizing:border-box">
-                <div id="chartdiv" style="flex-grow: 2"></div>
-            </div>
-          </div> 
+            <ng-container *ngTemplateOutlet="gantt"></ng-container>
+          </div>
 
         </div>
       </div>
@@ -118,4 +115,10 @@
   </mat-tab>
 </mat-tab-group>
 <loading-wrapper></loading-wrapper>
+
+<ng-template #gantt>
+  <div style="display: flex; flex-direction: column; height: 100%; box-sizing:border-box">
+    <div id="chartDiv" style="flex-grow: 2;"></div>
+  </div>
+</ng-template>
 

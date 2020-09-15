@@ -7,10 +7,11 @@ export class ReportConfig {
         public storedProcedure: string,
         public order: number,
         public excludedTimes: string[] = [],
+        public data: any[] = [],
         public defaultTime: string,
         public footer?: string,
         public displayedColumns?: string[],
-        public dataSource?: MatTableDataSource<any[]>
+        public dataSource?: MatTableDataSource<any>
     ) { }
 }
 

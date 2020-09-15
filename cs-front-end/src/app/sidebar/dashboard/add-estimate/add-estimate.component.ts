@@ -88,9 +88,10 @@ export class AddEstimateComponent implements OnInit {
       fee: this.costFormGroup.get('fee').value ? this.costFormGroup.get('fee').value : 0,
       estimateDateCreated: new Date().toLocaleString()
     }
+
     this.dialogRef.close({
       estimate,
-      jobIds: this.selectedJobs.map(job => job.jobId)
+      jobs: this.selectedJobs
     })
   }
 

@@ -40,7 +40,7 @@ export const fetchReportData = createAction(
 
 export const addDataToConfig = createAction(
     "[Backend Service (Data Fetch)] Append Data",
-    props<{ config: ReportConfig, data: any[] }>()
+    props<{ config: ReportConfig, data: any }>()
 )
 
 

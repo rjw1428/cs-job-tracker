@@ -17,7 +17,7 @@ export const activeIndexSelector = createSelector(
 
 export const selectedReportConfigSelector = createSelector(
     initialReportState,
-    reportState =>  reportState.reportConfigs[reportState.activeTab]
+    reportState => reportState.reportConfigs[reportState.activeTab]
 )
 
 export const reportDataForFetchSelector = createSelector(
@@ -29,4 +29,13 @@ export const reportSpecificTimeShortcutSelector = createSelector(
     initialReportState,
     reportState => reportState.reportSpecificTimeShortcuts
         .map((shortcut: RawTimeShortcut) => convertRawShortcut(shortcut))
+)
+
+export const selectedReportSelector = createSelector(
+    initialReportState,
+    reportState => {
+        return reportState.reportConfigs.length
+            ? reportState.reportConfigs[reportState.activeTab]
+            : null
+    }
 )

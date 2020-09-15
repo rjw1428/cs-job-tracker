@@ -28,6 +28,11 @@ export const setSelectedChartByIndex = createAction(
     props<{ index: number }>()
 )
 
+export const setSelectedTab = createAction(
+    "[Charts Component] Set Selected Tab",
+    props<{ index: number }>()
+)
+
 export const fetchChartData = createAction(
     "[Charts Effect] Fetch Chart Data"
 )

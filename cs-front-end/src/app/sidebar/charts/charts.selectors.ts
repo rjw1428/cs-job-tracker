@@ -9,28 +9,33 @@ import { convertRawShortcut } from 'src/app/shared/utility'
 
 export const initialChartState = createFeatureSelector<ChartState>("charts")
 
-export const chartConfigSelector = createSelector(
-    initialChartState,
-    chartState => chartState.chartConfigs
-)
+// export const chartConfigSelector = createSelector(
+//     initialChartState,
+//     chartState => chartState.chartConfigs
+// )
 
 export const activeIndexSelector = createSelector(
     initialChartState,
     chartState => chartState.activeTab
 )
 
-export const selectedChartConfigSelector = createSelector(
-    initialChartState,
-    chartState => chartState.chartConfigs[chartState.activeTab]
-)
+// export const selectedChartConfigSelector = createSelector(
+//     initialChartState,
+//     chartState => chartState.chartConfigs[chartState.activeTab]
+// )
 
-export const chartDataForFetchSelector = createSelector(
-    initialChartState,
-    chartState => ({ ...chartState.selectedTime, config: chartState.chartConfigs[chartState.activeTab] })
-)
+// export const chartDataForFetchSelector = createSelector(
+//     initialChartState,
+//     chartState => ({ ...chartState.selectedTime, config: chartState.chartConfigs[chartState.activeTab] })
+// )
 
 export const chartSpecificTimeShortcutSelector = createSelector(
     initialChartState,
     chartState => chartState.chartSpecificTimeShortcuts
     .map((shortcut: RawTimeShortcut) => convertRawShortcut(shortcut))
+)
+
+export const selectedTimeSelector = createSelector(
+    initialChartState,
+    chartState => ({ ...chartState.selectedTime })
 )

@@ -7,14 +7,15 @@ import { Estimator } from 'src/models/estimator';
 import { AppState } from 'src/models/appState';
 import { select, Store } from '@ngrx/store';
 import { DashboardActions } from '../sidebar/dashboard/dashboard.action-types';
-import { first, map, tap } from 'rxjs/operators';
+import { first, map, shareReplay, tap } from 'rxjs/operators';
 import { Job } from 'src/models/job';
 import { AppActions } from '../app.action-types';
 import { ChartsActions } from '../sidebar/charts/charts.action-types';
 import { ReportActions } from '../sidebar/reports/reports.action-types';
-import { chartDataForFetchSelector } from '../sidebar/charts/charts.selectors';
-import { reportDataForFetchSelector } from '../sidebar/reports/reports.selectors';
 import { saveAs } from 'file-saver'
+import { ReportConfig } from 'src/models/reportConfig';
+import { ChartConfig } from 'src/models/chartConfig';
+import { RawTimeShortcut } from 'src/models/rawTimeShortcut';
 @Injectable({
   providedIn: 'root'
 })
@@ -38,6 +39,7 @@ export class BackendService {
     })
 
     this.socket.on('getInvitesForSingleColumn', ({ items, columnId }) => {
+      console.log(items)
       this.store.dispatch(DashboardActions.updateColumnInvites({ items, columnId }))
     })
 
@@ -91,12 +93,10 @@ export class BackendService {
 
     // ------------------------REPORTS---------------------------
     this.socket.on('getReportConfigs', reportConfigs => {
-      console.log(reportConfigs)
       this.store.dispatch(ReportActions.storeReportConfigs({ reportConfigs }))
     })
 
     this.socket.on('updateReport', ({ config, data }) => {
-      console.log(data)
       this.store.dispatch(ReportActions.addDataToConfig({ config, data }))
     })
   }
@@ -133,17 +133,28 @@ export class BackendService {
     this.socket.emit('addFileFormInit')
   }
 
-  initCharts() {
-    this.socket.emit('charts')
-  }
+  // initCharts() {
+  //   this.socket.emit('charts')
+  // }
 
-  initReports() {
-    this.socket.emit('reports')
+  initApp() {
+    let subj = new Subject<{ chartConfigs: ChartConfig[], rawShortcuts: RawTimeShortcut[], reportConfigs: ReportConfig[] }>()
+    this.socket.emit('init', (resp) => {
+      console.log(resp)
+      subj.next(resp)
+    })
+    return subj.asObservable().pipe(first())
   }
 
   initViewFileForm(job: Job) {
     this.socket.emit('viewFilesInit', job)
     this.socket.emit('updateColumn', job)
+  }
+
+  getSearch(term) {
+    return new Promise((resolve, reject) => {
+      this.socket.emit('seach', term, resolve)
+    })
   }
 
   saveData(socketEvent: string, data: any) {
@@ -177,24 +188,41 @@ export class BackendService {
       })
   }
 
-  fetchChartData() {
-    this.store.select(chartDataForFetchSelector).pipe(
-      first(),
-      map(({ config, start, end }) => {
-        console.log(start, end)
-        this.socket.emit('fetchChartData', config, start, end)
-      })
-    ).subscribe(noop)
+  // fetchChartData() {
+  //   this.store.select(chartDataForFetchSelector).pipe(
+  //     first(),
+  //     map(({ config, start, end }) => {
+  //       console.log(start, end)
+  //       this.socket.emit('fetchChartData', config, start, end)
+  //     })
+  //   ).subscribe(noop)
+  // }
+
+  // fetchReportData() {
+  //   this.store.select(reportDataForFetchSelector).pipe(
+  //     first(),
+  //     map(({ config, start, end }) => {
+  //       console.log(start, end)
+  //       this.socket.emit('fetchReportData', config, start, end)
+  //     })
+  //   ).subscribe(noop)
+  // }
+
+  fetchData(storedProcedure: string, params?: {}) {
+    const paramString = (params) ? this.convertObjToParma(params) : ""
+    return this.http.get<any[]>(`${environment.apiUrl}/api/data/${storedProcedure}${paramString}`).pipe(
+      shareReplay()
+    )
   }
 
-  fetchReportData() {
-    this.store.select(reportDataForFetchSelector).pipe(
-      first(),
-      map(({ config, start, end }) => {
-        console.log(start, end)
-        this.socket.emit('fetchReportData', config, start, end)
-      })
-    ).subscribe(noop)
+  convertObjToParma(obj: {}) {
+    return "?" + Object.keys(obj).map(key => {
+      return `${key}=${encodeURIComponent(
+        typeof obj[key] == 'object'
+          ? obj[key].join("|")
+          : obj[key]
+      )}`
+    }).join("&")
   }
 
 

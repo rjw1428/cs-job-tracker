@@ -19,7 +19,7 @@ export const reportReducer = createReducer(
     initialReportState,
     on(ReportActions.initReports, (state) => state),
     on(ReportActions.storeReportConfigs, (state, action) => {
-        return { ...state, reportConfigs: action.reportConfigs }
+        return { ...state, reportConfigs: action.reportConfigs.map(config => ({ ...config, data: [] })) }
     }),
     on(ReportActions.storeTimeShortcuts, (state, action) => {
         return { ...state, timeShortcuts: action.timeShortcuts }
@@ -47,12 +47,15 @@ export const reportReducer = createReducer(
         }
     }),
     on(ReportActions.addDataToConfig, (state, action) => {
-        const displayedColumns = action.data.length ? Object.keys(action.data[0]) : action.config.displayedColumns
+        const displayedColumns = action.data.length
+            ? Object.keys(action.data[0]).slice(0,-1)
+            : action.config.displayedColumns
+            
         const updatedConfigList = state.reportConfigs.map(config => {
             return config.id == action.config.id
                 ? {
                     ...action.config,
-                    datasource: new MatTableDataSource(action.data),
+                    data: action.data,
                     displayedColumns: displayedColumns
                 }
                 : config

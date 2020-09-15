@@ -18,7 +18,7 @@ const poolOptions = {
     waitForConnections: true
 };
 
-function runQuery(query: string, messagePrefix: string, callback) {
+export function runQuery(query: string, messagePrefix: string, callback) {
     const pool = mysql.createPool(poolOptions)
     pool.getConnection((err, conn) => {
         if (err) {
@@ -87,6 +87,20 @@ export const runStoredProcedure = (procedureName: string, start: number, end: nu
         })
     })
 }
+
+// RUN SEARCH
+export const runSearch = (term: string) => {
+    console.log(term)
+    return new Promise<any[]>((resolve, reject) => {
+        runQuery(`CALL search('${term}')`, `Search '${term}' -`, ({ error, results }) => {
+            if (error) return reject(error)
+            resolve(results[0])
+        })
+    })
+}
+
+
+
 
 export const fetchInitialSQLData = () => {
     // Get Estimators

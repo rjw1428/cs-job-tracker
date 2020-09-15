@@ -8,7 +8,6 @@ import { StoreModule } from '@ngrx/store';
 import { reducers, metaReducers } from './root.reducer';
 import { EffectsModule } from '@ngrx/effects';
 import { AppEffects } from './app.effects';
-import { DashboardEffects } from './sidebar/dashboard/dashboard.effects';
 import { SharedModule } from './shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { environment } from 'src/environments/environment';
