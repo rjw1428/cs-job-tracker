@@ -11,6 +11,7 @@ import { AppActions } from 'src/app/app.action-types';
 import { BackendService } from 'src/app/services/backend.service';
 import { showSnackbar } from 'src/app/shared/utility';
 import { AppState } from 'src/models/appState';
+import { DashboardActions } from '../dashboard/dashboard.action-types';
 
 @Component({
   selector: 'app-search',
@@ -26,14 +27,14 @@ import { AppState } from 'src/models/appState';
   // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchComponent implements OnInit {
-  // searchTerm: string = ''
+  searchTerm: string = ''
   sortCol: string = ""
   data: MatTableDataSource<any>
   displayedColumns: string[]
   expandedElement: any
   noData: boolean = false
 
-  // data$: Observable<MatTableDataSource<any>>
+  data$: Observable<MatTableDataSource<any>>
   @ViewChild(MatSort, { static: false }) sort: MatSort;
   @ViewChild('searchButton') searchButton: MatButton
   @ViewChild('search') searchField: ElementRef
@@ -44,6 +45,7 @@ export class SearchComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.backendService.initSearch()
   }
 
 
@@ -51,37 +53,17 @@ export class SearchComponent implements OnInit {
     this.noData = false
     let resp = await this.backendService.getSearch(searchValue.replace(/\'/g, "\\\'").trim()) as any[]
     if (!resp.length) return this.noData = true
-    this.displayedColumns = Object.keys(resp[0]).filter((key, i) => i > 0 && i < 8)
+    this.displayedColumns = Object.keys(resp[0]).filter((key, i) => i)
     this.data = new MatTableDataSource(resp)
     this.data.sort = this.sort
-    // this.data$ = this.backendService.saveData('search', searchValue.replace(/\'/g, "\\\'").trim()).pipe(
-    //   tap(resp => showSnackbar(this.snackBar, `${resp.length} ${resp.length == 1 ? 'item' : 'items'} found`)),
-    //   map(resp => new MatTableDataSource(resp))
-    // )
-
-    // this.data$.subscribe(noop)
-
-    // this.store.dispatch(AppActions.startLoading())
-    // this.backendService.getSearch(this.searchTerm.trim())
-    //   .subscribe(
-    //     resp => {
-    //       if (!resp.length) return this.noData = true
-    //       this.displayedColumns = Object.keys(resp[0]).filter((key, i) => i > 0 && i < 8)
-    //       this.data = new MatTableDataSource(resp);
-    //       
-    //     },
-    //     err => {
-    //       console.log(err)
-    //       showSnackbar(this.snackBar, err.error.error)
-    //       this.store.dispatch(AppActions.stopLoading())
-    //     },
-    //     () => {
-    //       this.store.dispatch(AppActions.stopLoading())
-    //     })
+    this.data$ = this.backendService.saveData('search', searchValue.replace(/\'/g, "\\\'").trim()).pipe(
+      tap(resp => showSnackbar(this.snackBar, `${resp.length} ${resp.length == 1 ? 'item' : 'items'} found`)),
+      map(resp => new MatTableDataSource(resp))
+    )
   }
 
   onSortChanged() {
-    this.sortCol = this.sort.active
+    this.data.sort = this.sort
   }
 
   onExpand(job) {

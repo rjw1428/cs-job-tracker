@@ -137,6 +137,10 @@ io.on('connection', (socket) => {
         socket.emit('getProjects', projects)
     })
 
+    socket.on('searchInit', () => {
+        socket.emit('getColumns', state.dashboardColumns)
+    })
+
     // On Bid Form Init
     socket.on('estimateFormInit', async () => {
         socket.emit('getEstimateTypes', state.estimateTypes)
@@ -529,12 +533,8 @@ io.on('connection', (socket) => {
             )
             await writeJobTransaction({ ...updatedJob, historyOnlyNotes: updatedJob.isNoBid ? "Not Bidding" : "Returned To Bid Invitation" })
             const matchingColumn = state.dashboardColumns.find(col => updatedJob.currentDashboardColumn == col.id)
-            const newJob = await fetchFromTable('bid_dashboard', "Bid Invites", { jobId: updatedJob.jobId })
-            const updatedInvites = matchingColumn.items.map(invite => {
-                return invite.jobId == updatedJob.jobId
-                    ? newJob[0]
-                    : invite
-            })
+            const updatedInvites = await fetchFromTable('bid_dashboard', "Bid Invites", { currentDashboardColumn: [matchingColumn.id] })
+
             state.dashboardColumns = state.dashboardColumns.map(col => {
                 return col.id == matchingColumn.id
                     ? { ...matchingColumn, items: updatedInvites }
@@ -650,10 +650,15 @@ io.on('connection', (socket) => {
 
     // -------------------------Search------------------------
 
-    // socket.on('seach', async (term, callback) => {
-    //     console.log("HERE")
-    //     callback(await runSearch(term))
-    // })
+    socket.on('seach', async (term, callback) => {
+        callback(await runSearch(term))
+    })
+
+    socket.on('getJob', async (jobId, callback) => {
+        const resp = await fetchFromTable('bid_invites_active', "Bid Invites", { jobId })
+        if (!resp.length) return callback(null)
+        callback(resp[0])
+    })
 })
 
 router.get('/api/data/:procedure', (req, resp) => {

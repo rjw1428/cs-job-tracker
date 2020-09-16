@@ -1,63 +1,57 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
-import { Job } from 'src/models/job';
-import { BackendService } from 'src/app/services/backend.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Store } from '@ngrx/store';
-import { AppState } from 'src/models/appState';
 import { MatSelectChange } from '@angular/material/select';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { environment } from 'src/environments/environment';
-import { AppActions } from 'src/app/app.action-types';
-import { showSnackbar, colorShade } from 'src/app/shared/utility';
-import { map, switchMap, mergeMap, first } from 'rxjs/operators';
-import { of, noop, Observable } from 'rxjs';
-import { DashboardActions } from '../dashboard.action-types';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Store } from '@ngrx/store';
+import { noop, Observable, Subject } from 'rxjs';
+import { first, map, switchMap } from 'rxjs/operators';
 import { ConfirmationSnackbarComponent } from 'src/app/popups/confirmation-snackbar/confirmation-snackbar.component';
-import { ViewFilesComponent } from '../view-files/view-files.component';
-import { BoxOption } from 'src/models/boxOption';
-import { boxOptionsSelector, statusOptionsSelector, estimatorsSelector, tileColorSelector } from '../dashboard.selectors';
-import { StatusOption } from 'src/models/statusOption';
-import { Estimator } from 'src/models/estimator';
-import { ViewCurrentProposalComponent } from '../view-current-proposal/view-current-proposal.component';
-import { ViewJobHistoryComponent } from '../view-job-history/view-job-history.component';
-import { AwardTimelineFormComponent } from '../award-timeline-form/award-timeline-form.component';
-import { AddFinalPriceComponent } from '../add-final-price/add-final-price.component';
-import { UpdateDueDateComponent } from '../update-due-date/update-due-date.component';
-import { ViewProposalHistoryComponent } from '../view-proposal-history/view-proposal-history.component';
+import { BackendService } from 'src/app/services/backend.service';
+import { showSnackbar } from 'src/app/shared/utility';
+import { AppState } from 'src/models/appState';
+import { DashboardColumn } from 'src/models/dashboardColumn';
+import { Job } from 'src/models/job';
+import { AddFinalPriceComponent } from '../../dashboard/add-final-price/add-final-price.component';
+import { AwardTimelineFormComponent } from '../../dashboard/award-timeline-form/award-timeline-form.component';
+import { DashboardActions } from '../../dashboard/dashboard.action-types';
+import { UpdateDueDateComponent } from '../../dashboard/update-due-date/update-due-date.component';
+import { ViewCurrentProposalComponent } from '../../dashboard/view-current-proposal/view-current-proposal.component';
+import { ViewFilesComponent } from '../../dashboard/view-files/view-files.component';
+import { ViewJobHistoryComponent } from '../../dashboard/view-job-history/view-job-history.component';
+import { ViewProposalHistoryComponent } from '../../dashboard/view-proposal-history/view-proposal-history.component';
 
 @Component({
-  selector: 'app-job-board-item',
-  templateUrl: './job-board-item.component.html',
-  styleUrls: ['./job-board-item.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-search-item',
+  templateUrl: './search-item.component.html',
+  styleUrls: ['./search-item.component.scss']
 })
-export class JobBoardItemComponent implements OnInit {
-  @Output('deleted') jobDeleted = new EventEmitter<number>()
-  @Input() job: Job
-
-  statusOptions$: Observable<StatusOption[]>
-  boxOptions$: Observable<BoxOption[]>
-  estimatorOptions$: Observable<Estimator[]>
-  tileColor$: Observable<string>
-
-  mailTo: string
-  isDev: boolean = false;
+export class SearchItemComponent implements OnInit {
+  @Input() jobId: number
+  columns$: Observable<DashboardColumn[]>
+  job: Job
+  mailTo: string = ""
+  updateJob = new Subject()
   constructor(
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private store: Store<AppState>,
     private backendService: BackendService
-  ) {
-  }
+  ) { }
 
-  ngOnInit(): void {
-    this.isDev = !environment.production
-    this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
-    this.boxOptions$ = this.store.select(boxOptionsSelector)
-    this.statusOptions$ = this.store.select(statusOptionsSelector, { columnId: this.job.currentDashboardColumn })
-    this.estimatorOptions$ = this.store.select(estimatorsSelector)
-    this.tileColor$ = this.store.select(tileColorSelector, { job: this.job })
+  ngOnInit() {
+    this.backendService.getJob(this.jobId).subscribe(job => {
+      this.job = job
+      this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
+    })
+
+    this.updateJob.pipe(
+      switchMap(() => this.backendService.getJob(this.jobId))
+    ).subscribe(job =>
+      this.job = job
+    )
+
+    this.columns$ = this.store.pipe(first(), map(state => state.dashboard.columns))
   }
 
   onDelete() {
@@ -71,12 +65,14 @@ export class JobBoardItemComponent implements OnInit {
   onNoBid(event: MatSlideToggleChange) {
     const updatedJob = { ...this.job, isNoBid: !!event.checked }
     this.store.dispatch(DashboardActions.toggleNoBidJobItem({ job: updatedJob }))
+    this.updateJob.next()
     showSnackbar(this.snackBar, `No Bid status updated for ${updatedJob.projectName}`)
   }
 
   onStatusChanged(value: MatSelectChange) {
     const updatedJob = { ...this.job, statusId: value.value, historyOnlyNotes: this.job.notes }
     this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+    this.updateJob.next()
     showSnackbar(this.snackBar, `Status Updated for ${updatedJob.projectName}`)
   }
 
@@ -85,6 +81,7 @@ export class JobBoardItemComponent implements OnInit {
       const estimator = state.dashboard.estimators.find(estimator => estimator.id == value.value)
       const updatedJob = { ...this.job, assignedTo: value.value, historyOnlyNotes: `Assigned to ${estimator.name}` }
       this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+      this.updateJob.next()
       showSnackbar(this.snackBar, `${estimator.name} assigned to ${updatedJob.projectName} `)
     })).subscribe(noop)
   }
@@ -92,12 +89,14 @@ export class JobBoardItemComponent implements OnInit {
   onSaveNote(value: string) {
     const updatedJob = { ...this.job, notes: value, historyOnlyNotes: value }
     this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+    this.updateJob.next()
     showSnackbar(this.snackBar, `Note Updated`)
   }
 
   onSaveReportNote(value: string) {
     const updatedJob = { ...this.job, reportOnlyNotes: value, historyOnlyNotes: value }
     this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+    this.updateJob.next()
     showSnackbar(this.snackBar, `Follow Up Note Updated`)
   }
 
@@ -106,6 +105,7 @@ export class JobBoardItemComponent implements OnInit {
       const box = state.dashboard.boxOptions.find(box => box.id == value.value)
       const updatedJob = { ...this.job, box: box.id, historyOnlyNotes: `Moved to Box ${box.boxId}` }
       this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+      this.updateJob.next()
       showSnackbar(this.snackBar, `Box Updated`)
     })).subscribe(noop)
   }
@@ -141,8 +141,10 @@ export class JobBoardItemComponent implements OnInit {
       data: this.job
     }).afterClosed()
       .subscribe(updatedJob => {
-        if (updatedJob)
+        if (updatedJob) {
           this.backendService.saveData('updateDueDate', updatedJob)
+          this.updateJob.next()
+        }
       })
   }
 
@@ -151,12 +153,12 @@ export class JobBoardItemComponent implements OnInit {
       width: '500px',
       data: this.job
     }).afterClosed()
-      .pipe(
-        map(updatedJob => updatedJob ? updatedJob : null)
-      )
+      .pipe(map(updatedJob => updatedJob ? updatedJob : null))
       .subscribe(updatedJob => {
-        if (updatedJob)
+        if (updatedJob) {
           this.backendService.saveData('updateTimeline', updatedJob)
+          this.updateJob.next()
+        }
       })
   }
 
@@ -166,8 +168,10 @@ export class JobBoardItemComponent implements OnInit {
       data: this.job
     }).afterClosed()
       .subscribe(finalCost => {
-        if (finalCost)
+        if (finalCost) {
           this.backendService.saveData('setFinalCost', { finalCost, job: this.job })
+          this.updateJob.next()
+        }
       })
   }
 
@@ -179,25 +183,23 @@ export class JobBoardItemComponent implements OnInit {
     });
   }
 
-  onAlert() {
-    const updatedJob = { ...this.job, isAlerted: !this.job.isAlerted }
-    this.store.dispatch(DashboardActions.highlightJobItem({ job: updatedJob }))
+  onMove(event: MatSelectChange) {
+    this.store.pipe(first(), map(state => {
+      const matchingColumn = state.dashboard.columns.find(col => col.id == this.job.currentDashboardColumn)
+
+      const sourceColIndex = this.job.currentDashboardColumn
+      const sourceOrderIndex = matchingColumn.items.findIndex(item => item.jobId == this.job.jobId)
+      const targetColIndex = event.value
+      const targetOrderIndex = 0
+
+      const selectedJob = this.job
+      this.store.dispatch(DashboardActions.jobMoveForm({
+        sourceColIndex,
+        sourceOrderIndex,
+        targetColIndex,
+        targetOrderIndex,
+        selectedJob
+      }))
+    })).subscribe(noop)
   }
-
-  onTitleClicked() {
-    if (this.isDev) console.log(this.job)
-  }
-
-  setDarkendFooter(color: string) {
-    if (color == 'initial') return "whitesmoke"
-    return colorShade(color, -20)
-  }
-
-
 }
-
-
-
-
-
-

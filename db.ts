@@ -123,6 +123,7 @@ export const injectScript = async (script: string) => {
 
 function createWhereClauses(obj: {}): string {
     if (Object.keys(obj).length === 0) return ""
+    console.log(obj)
     return 'WHERE ' + Object.keys(obj).map(key => {
         return obj[key].length > 1
             ? `${key} IN (${obj[key].join(",")})`

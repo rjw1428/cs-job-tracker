@@ -70,7 +70,8 @@ export class ChartsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.dataSubscription.unsubscribe()
+    if (this.dataSubscription)
+      this.dataSubscription.unsubscribe()
     clearInterval(this.refreshInterval)
   }
 
@@ -132,9 +133,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
       switchMap(shortcuts => {
         // Set time
         if (!shortcuts.length) return of(null)
-        const start = this.timeframe.start
-        const end = this.timeframe.end
-        const timeClause = { start, end }
+        const timeClause = { start: this.timeframe.start, end: this.timeframe.end }
         this.currentTab = tabNumber
         return this.backendService.fetchData(activeChart.storedProcedure, timeClause)
       }))

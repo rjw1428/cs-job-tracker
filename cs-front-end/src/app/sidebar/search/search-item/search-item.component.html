@@ -1,0 +1,77 @@
+<div style="display: flex; justify-content: space-around; width: 100%; background: whitesmoke" *ngIf="job">
+  <div style="display: flex; flex-direction: column; min-width: 20%">
+    <div style="display: flex; flex-direction: row; justify-content: space-between">
+      <div>
+        <h3>Contact Info:</h3>
+        <p style="margin: 0px">{{job.contractorName}}</p>
+        <a href="mailto:{{mailTo}}">{{job.contactName}}</a>
+        <p>{{job.contactNumber}}</p>
+      </div>
+
+      <div style="display: flex; flex-direction:column; justify-content: flex-start;">
+        <h3>Bid Status</h3>
+        <mat-slide-toggle color="warn" style="margin-bottom: 8px" (change)="onNoBid($event)" [checked]="!!job.isNoBid">
+          No Bid</mat-slide-toggle>
+        <p style="margin: 0px"><strong>Invite: </strong>{{job.dateAdded | date : 'MM/dd/yyyy'}}</p>
+        <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue!='ASAP'">
+          <p class="due-date" (click)="onDueDateSelected()"><strong>Due:
+            </strong>{{job.dateDue | date : 'MM/dd/yyyy'}}</p>
+          <mat-icon class="due-date-hidden">create</mat-icon>
+        </div>
+        <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue=='ASAP'">
+          <p class="due-date" (click)="onDueDateSelected()"><strong>Due: </strong>{{job.dateDue}}</p>
+          <mat-icon class="due-date-hidden">create</mat-icon>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content: center; margin: 8px 0px;">
+      <button mat-button matTooltipPosition="above" matTooltip="View Attached File" (click)="onViewFileList()">
+        <mat-icon [matBadge]="job.fileCount" matBadgeSize="small">
+          attach_file
+        </mat-icon>
+      </button>
+      <button mat-button matTooltipPosition="above" matTooltip="Proposal History" (click)="onProposalHistory()">
+        <mat-icon>library_books</mat-icon>
+      </button>
+      <button mat-button matTooltipPosition="above" matTooltip="Job History" (click)="onJobHistory()">
+        <mat-icon>history</mat-icon>
+      </button>
+    </div>
+  </div>
+
+
+  <section>
+    <h3>Edit Location</h3>
+    <mat-form-field style="width: 100%">
+      <mat-select [value]="job.currentDashboardColumn" (selectionChange)="onMove($event)">
+        <mat-option *ngFor="let option of columns$ | async" [value]="option.id">
+          {{option.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </section>
+
+  <section>
+    <h3>Award Timeline</h3>
+    <div style="display: flex; justify-content: space-between;">
+      <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>Start Date:
+        </strong>{{job.startTime | date : 'MM/dd/yyyy'}}
+      </p>
+      <mat-icon class="award-timeline-hidden">create</mat-icon>
+    </div>
+    <div style="display: flex; justify-content: space-between;">
+      <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>End Date:
+        </strong>{{job.endTime | date : 'MM/dd/yyyy'}}
+      </p>
+      <mat-icon class="award-timeline-hidden">create</mat-icon>
+    </div>
+  </section>
+
+  <div style="display: flex; align-items: center;">
+    <div>
+      <button mat-button matTooltipPosition="above" matTooltip="Delete" (click)="onDelete()">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

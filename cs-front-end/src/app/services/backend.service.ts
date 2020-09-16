@@ -81,24 +81,24 @@ export class BackendService {
       this.store.dispatch(ReportActions.storeTimeShortcuts({ timeShortcuts }))
     })
 
-    //  ------------------------CHARTS---------------------------
+    // //  ------------------------CHARTS---------------------------
 
-    this.socket.on('getChartConfigs', chartConfigs => {
-      this.store.dispatch(ChartsActions.storeChartConfigs({ chartConfigs }))
-    })
+    // this.socket.on('getChartConfigs', chartConfigs => {
+    //   this.store.dispatch(ChartsActions.storeChartConfigs({ chartConfigs }))
+    // })
 
-    this.socket.on('updateChart', ({ config, data }) => {
-      this.store.dispatch(ChartsActions.addDataToConfig({ config, data }))
-    })
+    // this.socket.on('updateChart', ({ config, data }) => {
+    //   this.store.dispatch(ChartsActions.addDataToConfig({ config, data }))
+    // })
 
-    // ------------------------REPORTS---------------------------
-    this.socket.on('getReportConfigs', reportConfigs => {
-      this.store.dispatch(ReportActions.storeReportConfigs({ reportConfigs }))
-    })
+    // // ------------------------REPORTS---------------------------
+    // this.socket.on('getReportConfigs', reportConfigs => {
+    //   this.store.dispatch(ReportActions.storeReportConfigs({ reportConfigs }))
+    // })
 
-    this.socket.on('updateReport', ({ config, data }) => {
-      this.store.dispatch(ReportActions.addDataToConfig({ config, data }))
-    })
+    // this.socket.on('updateReport', ({ config, data }) => {
+    //   this.store.dispatch(ReportActions.addDataToConfig({ config, data }))
+    // })
   }
 
   sendEmail(message: string) {
@@ -107,6 +107,10 @@ export class BackendService {
 
   initDashboard() {
     this.socket.emit('dashboard')
+  }
+
+  initSearch() {
+    this.socket.emit('searchInit')
   }
 
   initBidForm() {
@@ -133,14 +137,17 @@ export class BackendService {
     this.socket.emit('addFileFormInit')
   }
 
-  // initCharts() {
-  //   this.socket.emit('charts')
-  // }
-
   initApp() {
     let subj = new Subject<{ chartConfigs: ChartConfig[], rawShortcuts: RawTimeShortcut[], reportConfigs: ReportConfig[] }>()
     this.socket.emit('init', (resp) => {
-      console.log(resp)
+      subj.next(resp)
+    })
+    return subj.asObservable().pipe(first())
+  }
+
+  getJob(jobId: number) {
+    let subj = new Subject<Job>()
+    this.socket.emit('getJob', jobId, (resp) => {
       subj.next(resp)
     })
     return subj.asObservable().pipe(first())
@@ -153,7 +160,9 @@ export class BackendService {
 
   getSearch(term) {
     return new Promise((resolve, reject) => {
-      this.socket.emit('seach', term, resolve)
+      this.socket.emit('seach', term, (resp) => {
+        resolve(resp)
+      })
     })
   }
 
@@ -181,32 +190,11 @@ export class BackendService {
   }
 
   getFile({ jobId, fileName, folder, subFolder }) {
-    console.log(fileName)
     this.http.get(`${environment.apiUrl}/download/${jobId}/${fileName}?folder=${folder}&subfolder=${subFolder}`, { responseType: 'blob' })
       .subscribe((resp: any) => {
         saveAs(resp, decodeURIComponent(fileName))
       })
   }
-
-  // fetchChartData() {
-  //   this.store.select(chartDataForFetchSelector).pipe(
-  //     first(),
-  //     map(({ config, start, end }) => {
-  //       console.log(start, end)
-  //       this.socket.emit('fetchChartData', config, start, end)
-  //     })
-  //   ).subscribe(noop)
-  // }
-
-  // fetchReportData() {
-  //   this.store.select(reportDataForFetchSelector).pipe(
-  //     first(),
-  //     map(({ config, start, end }) => {
-  //       console.log(start, end)
-  //       this.socket.emit('fetchReportData', config, start, end)
-  //     })
-  //   ).subscribe(noop)
-  // }
 
   fetchData(storedProcedure: string, params?: {}) {
     const paramString = (params) ? this.convertObjToParma(params) : ""

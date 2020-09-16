@@ -8,8 +8,13 @@
   </div>
   <div class="list">
     <div *ngFor="let item of items$ | async">
-      <app-job-board-item class="box" cdkDrag [job]="item" cdkDragBoundary=".dashboard-wrapper"
-        (cdkDragStarted)="onDragStart()" (cdkDragReleased)="onDragRelease()">
+      <app-job-board-item 
+        class="box" 
+        cdkDrag 
+        [job]="item" 
+        cdkDragBoundary=".dashboard-wrapper"
+        (cdkDragStarted)="onDragStart()" 
+        (cdkDragReleased)="onDragRelease()">
         <mat-icon cdkDragHandle [matMenuTriggerFor]="quickMoveMenu" style="cursor: grab;">drag_indicator</mat-icon>
         <mat-menu #quickMoveMenu="matMenu">
           <ng-template matMenuContent>

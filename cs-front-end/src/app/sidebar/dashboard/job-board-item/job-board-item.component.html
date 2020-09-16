@@ -1,5 +1,5 @@
 <mat-card class="item mat-elevation-z8" style="margin-bottom: 10px; width: 250px;"
-  [ngStyle]="{'opacity': 1- (!!job.isNoBid ? 1 : 0) *.5, 'background': (tileColor$ | async)}" *ngIf="mode=='dashboard'; else search">
+  [ngStyle]="{'opacity': 1- (!!job.isNoBid ? 1 : 0) *.5, 'background': (tileColor$ | async)}">
  <mat-card-header style="display: flex; flex-direction: column-reverse;">
     <div style="display: flex; flex-direction: column-reverse;">
       <div style="display: flex; justify-content: space-between;">

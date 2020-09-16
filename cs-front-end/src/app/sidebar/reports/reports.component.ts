@@ -48,7 +48,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnDestroy() {
-    this.dataSubscription.unsubscribe()
+    if (this.dataSubscription)
+      this.dataSubscription.unsubscribe()
     clearInterval(this.refreshInterval)
   }
 
@@ -75,7 +76,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
 
     this.refreshInterval = setInterval(() => {
-      console.log("UPDATE")
       this.onTabChanged(this.currentTab, false)
     }, 60 * 1000)
   }
@@ -88,7 +88,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
       map(state => state.app.timeShortcuts.map(sc => convertRawShortcut(sc))),
       map(shortcuts => {
         return shortcuts.filter(shortcut => {
-          return activeReport.excludedTimes && activeReport.excludedTimes.length
+          return activeReport && activeReport.excludedTimes && activeReport.excludedTimes.length
             ? !activeReport.excludedTimes.includes(shortcut.id)
             : true
         })
@@ -111,11 +111,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.dataSubscription = this.timeShortcuts$.pipe(
       switchMap(shortcuts => {
         if (!shortcuts.length) return of(null)
-        const start = this.timeframe.start
-        const end = this.timeframe.end
-        const timeClause = { start, end }
+        const timeClause = { start: this.timeframe.start, end: this.timeframe.end }
         this.currentTab = tabNumber
-        console.log(timeClause)
         return this.backendService.fetchData(activeReport.storedProcedure, timeClause)
       })).subscribe(
         (resp: any[]) => {

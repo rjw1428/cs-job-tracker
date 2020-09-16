@@ -10,7 +10,8 @@
   </mat-form-field>
 
   <div>
-    <button #searchButton style="margin-left: 10px" mat-raised-button color="primary" (click)="onSearch(search.value)">Search</button>
+    <button #searchButton style="margin-left: 10px" mat-raised-button color="primary"
+      (click)="onSearch(search.value)">Search</button>
   </div>
 </div>
 
@@ -22,8 +23,12 @@
       <th mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header>
         {{columnDef | titlecase}}
       </th>
+
       <td mat-cell *matCellDef="let element">
-        <div>{{element[columnDef]}}</div>
+        <div *ngIf="columnDef == 'project value'">{{element[columnDef] | currency}}</div>
+        <div *ngIf="columnDef == 'last update'">{{element[columnDef] | date : 'short'}}</div>
+        <div *ngIf="columnDef == 'date created'">{{element[columnDef] | date : 'MM/dd/yy'}}</div>
+        <div *ngIf="!['date created', 'last update',  'project value'].includes(columnDef)">{{element[columnDef]}}</div>
       </td>
     </ng-container>
 
@@ -31,14 +36,10 @@
     <ng-container matColumnDef="expandedDetail">
       <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
         <div class="example-element-detail" [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-          <h1>{{element['jobDisplayId']}}</h1>
-          <!-- <section style="display: flex; justify-content: flex-end;">
-            <mat-slide-toggle color="warn" (change)="onNoBid($event, element)" [(ngModel)]="element['nobidStatus']">No
-              Bid
-            </mat-slide-toggle>
-          </section>
-          <app-job-board-item style="width: 100%" [job]="element" [mode]="search">
-          </app-job-board-item> -->
+
+          <!-- EXPANDED ELEMENT -->
+          <app-search-item *ngIf="element == expandedElement" [jobId]="element.jobId"></app-search-item>
+
         </div>
       </td>
     </ng-container>

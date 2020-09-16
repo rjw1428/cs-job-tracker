@@ -12,17 +12,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { StoreModule } from '@ngrx/store';
 import { dashboardReducer } from './dashboard.reducer';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { AddFileComponent } from './add-file/add-file.component';
-import { DragNDropDirective } from 'src/app/shared/drag-n-drop.directive';
-import { ViewFilesComponent } from './view-files/view-files.component';
-import { DecodeURIPipe } from 'src/app/shared/decode-uri.pipe';
-import { ViewJobHistoryComponent } from './view-job-history/view-job-history.component';
-import { ViewProposalHistoryComponent } from './view-proposal-history/view-proposal-history.component';
-import { ViewCurrentProposalComponent } from './view-current-proposal/view-current-proposal.component';
-import { AwardTimelineFormComponent } from './award-timeline-form/award-timeline-form.component';
-import { AssignBidFormComponent } from './assign-bid-form/assign-bid-form.component';
-import { AddFinalPriceComponent } from './add-final-price/add-final-price.component';
-import { UpdateDueDateComponent } from './update-due-date/update-due-date.component';
 import { EffectsModule } from '@ngrx/effects';
 import { DashboardEffects } from './dashboard.effects';
 
@@ -43,17 +32,6 @@ export const routes: Routes = [
     AddContractorComponent,
     AddInviteComponent,
     AddEstimateComponent,
-    AddFileComponent,
-    DragNDropDirective,
-    ViewFilesComponent,
-    DecodeURIPipe,
-    ViewJobHistoryComponent,
-    ViewProposalHistoryComponent,
-    ViewCurrentProposalComponent,
-    AwardTimelineFormComponent,
-    AssignBidFormComponent,
-    AddFinalPriceComponent,
-    UpdateDueDateComponent
   ],
   imports: [
     CommonModule,

@@ -146,6 +146,10 @@ export const storeFileTypeOptions = createAction(
     "[Backend Service (Add File Init) Store File Type Options",
     props<{ fileTypeOptions: string[] }>()
 )
+
+export const initSearch = createAction(
+    "[Search Component] Fetch Column Configs"
+)
 // export const formStartLoading = createAction(
 //     "[Job Board] Start Form Loading"
 // )
