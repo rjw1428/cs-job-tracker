@@ -2,21 +2,14 @@ import { Component, OnInit, ChangeDetectionStrategy, ViewChild, OnDestroy, Chang
 import { MatTableDataSource } from '@angular/material/table';
 import { BackendService } from '../../services/backend.service';
 import { ActivatedRoute, Params } from '@angular/router';
-import { saveAs } from 'file-saver'
-import { convertJsonToCSV, convertRawShortcut, formatDate, showSnackbar } from '../../shared/utility';
+import { convertRawShortcut, formatDate, showSnackbar } from '../../shared/utility';
 import { MatSort } from '@angular/material/sort';
 import { Store } from '@ngrx/store';
-// import { AppState } from '../root.reducers';
-// import { AppActions } from '../shared/app.action-types';
 import { CurrencyPipe } from '@angular/common';
-// import { reportSelector, timeShorcutSelector } from '../shared/app.selectors';
 import { Observable, throwError, of, noop, Subscription } from 'rxjs';
 import { switchMap, first, map, catchError, tap } from 'rxjs/operators';
-// import { TimeShortcut } from '../filter/filter.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AppState } from 'src/models/appState';
-import { ReportActions } from './reports.action-types';
-import { activeIndexSelector, reportConfigSelector, reportSpecificTimeShortcutSelector, selectedReportConfigSelector, selectedReportSelector } from './reports.selectors';
 import { TimeShortcut } from 'src/models/timeShortcut';
 import { ReportConfig } from 'src/models/reportConfig';
 import { AppActions } from 'src/app/app.action-types';
@@ -102,10 +95,13 @@ export class ReportsComponent implements OnInit, OnDestroy {
           : shortcuts[0].id
 
         const selectedTime = shortcuts.find(sc => sc.id == this.selectedShortcut)
-        this.timeframe = {
-          start: Math.floor(selectedTime.start(new Date()).getTime() / 1000),
-          end: Math.floor(selectedTime.end(new Date()).getTime() / 1000)
-        }
+        const start = selectedTime.start(new Date())
+          ? Math.floor(selectedTime.start(new Date()).getTime() / 1000)
+          : null
+        const end = selectedTime.end(new Date())
+          ? Math.floor(selectedTime.end(new Date()).getTime() / 1000)
+          : null
+        this.timeframe = { start, end }
       })
     )
     this.dataSubscription = this.timeShortcuts$.pipe(
@@ -123,7 +119,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
         },
         err => {
           console.log(err)
-          showSnackbar(this.snackBar, err.error.error.sqlMessage)
+          showSnackbar(this.snackBar, err.error.error ? err.error.error.sqlMessage : err.error.message)
           this.store.dispatch(AppActions.stopLoading())
         },
         () => {
@@ -201,7 +197,14 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
 
   onDateRangeSet(dateRange: { from: Date, to: Date }) {
-    this.timeframe = { start: Math.floor(dateRange.from.getTime() / 1000), end: Math.floor(dateRange.to.getTime() / 1000) }
+    this.timeframe = {
+      start: dateRange.from
+        ? Math.floor(dateRange.from.getTime() / 1000)
+        : null,
+      end: dateRange.to
+        ? Math.floor(dateRange.to.getTime() / 1000)
+        : null
+    }
     this.onTabChanged(this.currentTab, false)
   }
 

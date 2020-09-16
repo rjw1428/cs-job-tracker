@@ -71,6 +71,9 @@ export const colorShade = (col, amt) => {
 export const convertRawShortcut = (shortcut: RawTimeShortcut): TimeShortcut => {
     let start = null
     let end = null
+
+    if (shortcut.id == 'all') return { ...shortcut, start: () => null, end: () => null }
+
     const startFunc = shortcut.start
     if (typeof startFunc == 'string') {
         const terms = startFunc.split("-")
@@ -106,10 +109,10 @@ export function formatDate(date) {
     let min = d.getMinutes().toString()
     let sec = d.getSeconds().toString()
 
-    if (month.length < 2)  month = '0' + month;
-    if (day.length < 2)  day = '0' + day;
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
     if (hour.length < 2) hour = '0' + hour;
     if (min.length < 2) min = '0' + min;
     if (sec.length < 2) sec = '0' + sec;
-    return [year, month, day].join('-') + " " +[hour, min, sec].join("");
+    return [year, month, day].join('-') + " " + [hour, min, sec].join("");
 }

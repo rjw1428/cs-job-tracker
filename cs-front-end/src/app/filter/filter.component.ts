@@ -29,6 +29,7 @@ export class FilterComponent implements OnInit {
     const shortcut = this.shortcuts
       ? this.shortcuts.find(sc => sc.id == this.selectedShortcutId)
       : null
+
     this.timeFilterFormGroup = this.formBuilder.group({
       from: [shortcut ? shortcut.start(new Date()) : "", Validators.required],
       to: [shortcut ? shortcut.end(new Date()) : "", Validators.required],

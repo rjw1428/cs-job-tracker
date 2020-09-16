@@ -6,7 +6,7 @@ import { BackendService } from 'src/app/services/backend.service';
 import { AppActions } from 'src/app/app.action-types';
 import { Observable, iif, of, throwError } from 'rxjs';
 import { Estimator } from 'src/models/estimator';
-import { map, mergeMap, finalize, catchError, first, switchMap, tap } from 'rxjs/operators'
+import { map, mergeMap, finalize, catchError, first, switchMap, tap, debounceTime } from 'rxjs/operators'
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AddContractorComponent } from './add-contractor/add-contractor.component';
@@ -24,6 +24,7 @@ import { ConfirmationSnackbarComponent } from 'src/app/popups/confirmation-snack
 import { AssignBidFormComponent } from './assign-bid-form/assign-bid-form.component';
 import { AwardTimelineFormComponent } from './award-timeline-form/award-timeline-form.component';
 import { Job } from 'src/models/job';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
@@ -33,6 +34,7 @@ import { Job } from 'src/models/job';
 })
 export class DashboardComponent implements OnInit {
   isLoading$: Observable<boolean>
+  filterFormControl: FormControl
   constructor(
     private store: Store<AppState>,
     private backendService: BackendService,
@@ -42,10 +44,13 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.filterFormControl = new FormControl('')
     this.store.dispatch(DashboardActions.initDashboard())
     this.store.dispatch(AppActions.startLoading())
     this.isLoading$ = this.store.select(loadingSelector)
     this.backendService.initDashboard()
+
+    this.filterFormControl.valueChanges.pipe(debounceTime(500)).subscribe(val=>console.log(val))
 
     this.eventService.confirmProposal.pipe(
       switchMap(action => {

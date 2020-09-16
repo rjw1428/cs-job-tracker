@@ -1,5 +1,5 @@
 import * as express from 'express';
-// import * as cors from 'cors';
+import * as cors from 'cors';
 import * as path from 'path';
 import * as socketio from 'socket.io';
 import { Application } from "express";
@@ -45,7 +45,7 @@ router.get('/api/state/:key', (req, resp) => {
     return resp.send(result)
 })
 
-// app.use(cors())
+app.use(cors())
 app.use(express.json())
 app.use(router)
 app.use(firebaseRoute)
@@ -107,6 +107,17 @@ export async function initializeBackend() {
         items: itemsByColumn[column.id] ? itemsByColumn[column.id] : [],
         statusOptions: options[i]
     }))
+
+    setInterval(async () => {
+        try {
+            const [report, chart, time, dash] = await fetchInitialFirebaseConfigs()
+            state.reportConfigs = report
+            state.chartConfigs = chart
+            state.timeShortcuts = time
+        } catch (e) {
+            console.log(e)
+        }
+    }, 1000 * 60)
 }
 
 io.on('connection', (socket) => {
@@ -665,9 +676,7 @@ router.get('/api/data/:procedure', (req, resp) => {
     const procedure = req.params.procedure
     if (procedure == 'undefined') return resp.status(500).send({ error: "Missing Chart Stored Procedure to query from" })
     const params = Object.keys(req.query)
-        .map(key => {
-            return { [key]: +req.query[key] }
-        })
+        .map(key => ({ [key]: req.query[key] !== 'null' ? +req.query[key] : null }))
         .reduce((acc, cur) => ({ ...acc, ...cur }), {})
     const timeRange = createTimeRange(params)
     if (!timeRange) return resp.status(500).send({ error: "Missing Time Frame" })

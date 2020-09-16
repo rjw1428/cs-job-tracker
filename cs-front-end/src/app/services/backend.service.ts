@@ -207,7 +207,7 @@ export class BackendService {
     return "?" + Object.keys(obj).map(key => {
       return `${key}=${encodeURIComponent(
         typeof obj[key] == 'object'
-          ? obj[key].join("|")
+          ? obj[key] ? obj[key].join("|") : null 
           : obj[key]
       )}`
     }).join("&")

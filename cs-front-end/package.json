@@ -11,6 +11,10 @@
     "e2e": "ng e2e",
     "start:electron": "ng build --prod --base-href ./ && electron ."
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rjw1428/cs-job-tracker"
+  },
   "private": true,
   "dependencies": {
     "@amcharts/amcharts4": "^4.9.37",

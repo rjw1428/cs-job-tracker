@@ -32,6 +32,7 @@ export class Job {
         public startTime: string,
         public endTime: string,
         public proposalId: number,
-        public projectValue: number
+        public projectValue: number,
+        public dateSent: string
     ) {}
 }
