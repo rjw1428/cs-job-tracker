@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:9000',
+  assetPath: '../../assets',
   version: "1.0.0",
 
   jobsTableName: 'projects_ready_for_proposal',

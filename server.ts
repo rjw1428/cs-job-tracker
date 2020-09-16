@@ -1,5 +1,5 @@
-import * as express from 'express'
-import * as cors from 'cors'
+import * as express from 'express';
+// import * as cors from 'cors';
 import * as path from 'path';
 import * as socketio from 'socket.io';
 import { Application } from "express";
@@ -45,7 +45,7 @@ router.get('/api/state/:key', (req, resp) => {
     return resp.send(result)
 })
 
-app.use(cors())
+// app.use(cors())
 app.use(express.json())
 app.use(router)
 app.use(firebaseRoute)

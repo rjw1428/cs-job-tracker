@@ -23,6 +23,7 @@ export class SidebarComponent implements OnInit {
   activeButton: string;
   version = environment.version
   isExpanded: boolean = false
+  logoPath: string
   constructor(
     private router: Router,
     private store: Store<AppState>,
@@ -32,6 +33,7 @@ export class SidebarComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.logoPath = environment.assetPath+'img/logo.png'
     // this.defaultWidth$ = this.store.pipe(select(defaultSidebarWidth))
     // this.width$ = this.store.pipe(select(sidebarWidth))
   }

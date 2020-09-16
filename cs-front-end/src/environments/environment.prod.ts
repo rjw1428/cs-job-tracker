@@ -1,6 +1,8 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://cs-work-tracker.herokuapp.com',
+  // apiUrl: 'https://cs-work-tracker.herokuapp.com',
+  apiUrl: 'http://localhost:9000',
+  assetPath: './assets/',
   version: "1.0.0",
 
   jobsTableName: 'projects_ready_for_proposal',

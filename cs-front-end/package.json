@@ -1,13 +1,15 @@
 {
   "name": "cs-front-end",
   "version": "0.0.0",
+  "main": "main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config ./proxy.config.json",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "start:electron": "ng build --prod --base-href ./ && electron ."
   },
   "private": true,
   "dependencies": {
@@ -26,11 +28,13 @@
     "@ngrx/router-store": "^10.0.0",
     "@ngrx/store": "^10.0.0",
     "@swimlane/ngx-charts": "^16.0.0",
+    "electron": "^10.1.2",
     "file-saver": "^2.0.2",
     "rxjs": "~6.5.4",
     "sheetjs-style": "^0.15.6",
     "socket.io-client": "^2.3.0",
     "tslib": "^1.10.0",
+    "update-electron-app": "^1.5.0",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
