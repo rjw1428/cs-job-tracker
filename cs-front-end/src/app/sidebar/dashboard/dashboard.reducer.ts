@@ -15,7 +15,7 @@ export const initialDashboardState: DashboardState = {
     estimateTypes: [],
     selectedJob: null,
     selectedJobFiles: [],
-    selectedSingleProposal: [],
+    selectedSingleProposal: null,
     selectedJobHistory: [],
     selectedProposalHistory: [],
     formLoading: false,
@@ -214,7 +214,7 @@ export const dashboardReducer = createReducer(
         return {
             ...state,
             selectedJob: action.job,
-            selectedSingleProposal: action.estimates
+            selectedSingleProposal: action.proposal
         }
     }),
     on(DashboardActions.clearSelectedProposal, (state) => {

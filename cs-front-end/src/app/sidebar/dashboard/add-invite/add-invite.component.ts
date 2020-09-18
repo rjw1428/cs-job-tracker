@@ -70,6 +70,11 @@ export class AddInviteComponent implements OnInit {
     if (!this.timelineFormGroup.get('dateDue').value && !this.timelineFormGroup.get('isAsap').value)
       return this.error = "There must be a due date"
 
+    this.attemptToSubmitForm()
+  }
+
+
+  attemptToSubmitForm() {
     const form = {
       contractorId: this.contractorFormGroup.get('contractor').value.contractorId,
       projectId: this.projectFormGroup.get('project').value.projectId,
@@ -80,12 +85,10 @@ export class AddInviteComponent implements OnInit {
 
     if (!form.projectId)
       this.onAddProject(this.projectFormGroup.get('project').value)
-    if (!form.contractorId)
+    else if (!form.contractorId)
       this.onAddContractor(this.contractorFormGroup.get('contractor').value)
 
-    if (!form.contractorId || !form.projectId)
-      this.error = "Information was missing last time you selected save. Now that the data has been provided, please select save again"
-    else
+    if (form.contractorId && form.projectId)
       this.dialogRef.close(form)
   }
 
@@ -109,6 +112,7 @@ export class AddInviteComponent implements OnInit {
         if (resp) {
           console.log(resp)
           this.contractorFormGroup.patchValue({ contractor: resp })
+          this.attemptToSubmitForm()
         }
       },
         err => {
@@ -136,6 +140,7 @@ export class AddInviteComponent implements OnInit {
         if (resp) {
           console.log(resp)
           this.projectFormGroup.patchValue({ project: resp })
+          this.attemptToSubmitForm()
         }
       },
         err => {
@@ -164,7 +169,7 @@ export class AddInviteComponent implements OnInit {
     })
 
     this.timelineFormGroup = this.formBuilder.group({
-      dateAdded: ["", Validators.required],
+      dateAdded: [new Date(), Validators.required],
       dateDue: [""],
       isAsap: [false]
     })

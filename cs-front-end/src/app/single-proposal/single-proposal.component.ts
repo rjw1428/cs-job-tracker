@@ -17,6 +17,7 @@ export class SingleProposalComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    console.log(this.proposal)
   }
 
   onDelete() {

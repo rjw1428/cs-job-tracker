@@ -1,14 +1,13 @@
 const {app, BrowserWindow} = require('electron')
 const url = require("url");
 const path = require("path");
-require('update-electron-app')()
 
 let mainWindow
 
 function createWindow () {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1280,
+    height: 960,
     webPreferences: {
       nodeIntegration: true
     }

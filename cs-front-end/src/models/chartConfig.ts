@@ -12,6 +12,7 @@ export class ChartConfig {
         public yAxisLabel?: string,
         public dataSource?: any[],
         public dataSource1?: any[],
-        public dataSource2?: any[]
+        public dataSource2?: any[],
+        public footer?: string
     ) { }
 }

@@ -8,6 +8,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/models/appState';
 import { singleProposalSelector } from '../dashboard.selectors';
 import { Proposal } from 'src/models/proposal';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-view-current-proposal',

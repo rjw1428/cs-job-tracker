@@ -12,12 +12,17 @@
     <ng-template mat-tab-label>{{chart.name}}</ng-template>
     <ng-template matTabContent>
       <div style="display: flex; flex-direction: column; flex-grow: 1; align-items: strech;" class="wrapper">
-        <div style="width: 75%">
-          <app-filter 
-            [shortcuts]="timeShortcuts$ | async"
-            [selectedShortcut]="chart.defaultTime ?chart.defaultTime : 'last_year' "
-            (dateRange)="onDateRangeSet($event)">
-          </app-filter>
+        <div style="display: flex; justify-content: space-between;">
+          <div style="width: 75%">
+            <app-filter 
+              [shortcuts]="timeShortcuts$ | async"
+              [selectedShortcut]="chart.defaultTime ?chart.defaultTime : 'last_year' "
+              (dateRange)="onDateRangeSet($event)">
+            </app-filter>
+          </div>
+          <div style="width: 300px; display: flex; justify-self: start; align-items: center;" >
+            <h3 *ngIf="chart.footer"><strong>Total: </strong>{{footer}}</h3>
+          </div>
         </div>
         <div  [ngSwitch]="chart.chartType" style="flex-grow: 2;">
           <div *ngSwitchCase="'bar_vertical'" class="wrapper chart">
@@ -71,7 +76,7 @@
               [legendTitle]="chart.name"
               [legend]="true"
               [labels]="true"
-              [gradient]="true">
+              [gradient]="true">  
             </ngx-charts-pie-chart>
           </div>
 

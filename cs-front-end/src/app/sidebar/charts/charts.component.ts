@@ -59,6 +59,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
     group: 'Ordinal',
     domain: ['#01579b']
   }
+  footer: string
   refreshInterval: any;
   constructor(
     private store: Store<AppState>,
@@ -165,6 +166,10 @@ export class ChartsComponent implements OnInit, OnDestroy {
 
   setChartFromData(resp: any[], chart: ChartConfig) {
     if (resp.length) {
+
+      this.footer = chart.footer
+        ? resp.reduce((acc, cur) => acc + cur[chart.footer], 0).toString()
+        : ""
       const titlePipe = new TitleCasePipe()
       chart.xAxisLabel = titlePipe.transform(Object.keys(resp[0])[0])
       chart.yAxisLabel = titlePipe.transform(Object.keys(resp[0])[1])
@@ -179,7 +184,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
           chart.dataSource = this.singleLineChart(resp, chart.seriesName)
           break;
         case ('pie'):
-          chart.dataSource = this.barChart(resp)
+          chart.dataSource = this.pieChart(resp)
           break;
         case ('pie_advanced'):
           chart.dataSource = this.barChart(resp)
@@ -258,6 +263,17 @@ export class ChartsComponent implements OnInit, OnDestroy {
       const keys = Object.keys(dataPoint)
       return {
         name: dataPoint[keys[0]],
+        value: dataPoint[keys[1]]
+      }
+    });
+  }
+
+  
+  pieChart(data: any[]) {
+    return data.map(dataPoint => {
+      const keys = Object.keys(dataPoint)
+      return {
+        name: `${dataPoint[keys[0]]}: ${dataPoint[keys[1]]}`,
         value: dataPoint[keys[1]]
       }
     });

@@ -33,3 +33,12 @@ p {
 .award-timeline:hover+.award-timeline-hidden {
   visibility: visible;
 }
+
+.content {
+  animation: fadeIn 0.25s ease-in-out 0.25s both;
+}
+
+@keyframes fadeIn {
+  0% {opacity: 0;}
+  100% {opacity: 100%;}
+}

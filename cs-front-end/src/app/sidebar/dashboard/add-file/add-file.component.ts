@@ -34,15 +34,29 @@ export class AddFileComponent implements OnInit {
     this.backendService.initAddFileForm()
 
     this.fileTypeSelector$ = this.store.select(fileOptionTypesSelector)
-    this.fileTypeFormGroup = this.formBuilder.group({ fileType: ["", Validators.required] })
+    this.fileTypeFormGroup = this.formBuilder.group({
+      fileType: ["", Validators.required],
+      all: [false]
+    })
   }
 
-  onFilesSelected(files: File[]) {
+  async onFilesSelected(files: File[]) {
+    const jobList = this.fileTypeFormGroup.get('all').value
+      ? await this.backendService.getMatchingProjects(this.job.projectId)
+      : await new Promise<Job[]>((resolve, reject) => resolve([this.job]))
+
+    jobList.forEach(job => {
+      this.uploadFile(files, job)
+    })
+  }
+
+
+  uploadFile(files: File[], job: Job) {
     let fileIndex = this.files.length
     for (const item of files) {
       this.files.push(item)
       this.uploadSubscription[fileIndex] = this.backendService
-        .sendFile({ jobId: this.job.jobId, file: item, fileIndex, folder: this.job.jobDisplayId, subFolder: this.fileTypeFormGroup.get('fileType').value })
+        .sendFile({ jobId: job.jobId, file: item, fileIndex, folder: job.jobDisplayId, subFolder: this.fileTypeFormGroup.get('fileType').value })
         .pipe(
           map((data: any) => {
             return this.getEventMessage(data.response, data.index)
@@ -50,8 +64,9 @@ export class AddFileComponent implements OnInit {
           last()
         )
         .subscribe((resp: any) => {
-          this.backendService.initViewFileForm(this.job)
-          this.backendService.saveData('addFiles', this.job)
+          if (job.jobId == this.job.jobId)
+            this.backendService.initViewFileForm(this.job)
+          this.backendService.saveData('addFiles', job)
         });
       fileIndex++
     }

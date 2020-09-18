@@ -21,88 +21,80 @@ import { RawTimeShortcut } from 'src/models/rawTimeShortcut';
 })
 export class BackendService {
   socket: SocketIOClient.Socket;
+  apiUrl: string
+  version: string
   constructor(
     private http: HttpClient,
     private store: Store<AppState>
   ) {
-    this.socket = io(environment.apiUrl)
-    this.socket.on('getEstimators', (estimators) => {
-      this.store.dispatch(DashboardActions.storeEstimators({ estimators }))
-    })
+  }
 
-    this.socket.on('getContractors', (contractors) => {
-      this.store.dispatch(DashboardActions.storeContractors({ contractors }))
-    })
+  setupBackend() {
+    return this.http.get(environment.assetPath + 'config.json')
+      .toPromise()
+      .then((data: { endpoint: {}, version: string }) => {
+        this.apiUrl = data.endpoint[environment.env]
+        this.version = data.version
 
-    this.socket.on('getProjects', (projects) => {
-      this.store.dispatch(DashboardActions.storeProjects({ projects }))
-    })
+        this.socket = io(this.apiUrl)
+        this.socket.on('getEstimators', (estimators) => {
+          this.store.dispatch(DashboardActions.storeEstimators({ estimators }))
+        })
 
-    this.socket.on('getInvitesForSingleColumn', ({ items, columnId }) => {
-      console.log(items)
-      this.store.dispatch(DashboardActions.updateColumnInvites({ items, columnId }))
-    })
+        this.socket.on('getContractors', (contractors) => {
+          this.store.dispatch(DashboardActions.storeContractors({ contractors }))
+        })
 
-    this.socket.on('getBoxOptions', (boxOptions) => {
-      this.store.dispatch(DashboardActions.storeBoxOptions({ boxOptions }))
-    })
+        this.socket.on('getProjects', (projects) => {
+          this.store.dispatch(DashboardActions.storeProjects({ projects }))
+        })
 
-    this.socket.on('getEstimateTypes', (estimateTypes) => {
-      this.store.dispatch(DashboardActions.storeEstimateTypes({ estimateTypes }))
-    })
+        this.socket.on('getInvitesForSingleColumn', ({ items, columnId }) => {
+          this.store.dispatch(DashboardActions.updateColumnInvites({ items, columnId }))
+        })
 
-    this.socket.on('getColumns', (columns) => {
-      this.store.dispatch(DashboardActions.storeDashboardColumns({ columns }))
-      this.store.dispatch(AppActions.stopLoading())
-    })
+        this.socket.on('getBoxOptions', (boxOptions) => {
+          this.store.dispatch(DashboardActions.storeBoxOptions({ boxOptions }))
+        })
 
-    this.socket.on('getFiles', ({ job, jobFiles }) => {
-      this.store.dispatch(DashboardActions.storeViewFilesJob({ job, jobFiles }))
-    })
+        this.socket.on('getEstimateTypes', (estimateTypes) => {
+          this.store.dispatch(DashboardActions.storeEstimateTypes({ estimateTypes }))
+        })
 
-    this.socket.on('getFileTypes', (fileTypeOptions) => {
-      this.store.dispatch(DashboardActions.storeFileTypeOptions({ fileTypeOptions }))
-    })
+        this.socket.on('getColumns', (columns) => {
+          this.store.dispatch(DashboardActions.storeDashboardColumns({ columns }))
+          this.store.dispatch(AppActions.stopLoading())
+        })
 
-    this.socket.on('getSingleProposal', ({ job, estimates }) => {
-      this.store.dispatch(DashboardActions.storeSelectedProposal({ job, estimates }))
-    })
+        this.socket.on('getFiles', ({ job, jobFiles }) => {
+          this.store.dispatch(DashboardActions.storeViewFilesJob({ job, jobFiles }))
+        })
 
-    this.socket.on('getHistory', ({ job, transactions }) => {
-      this.store.dispatch(DashboardActions.storeSelectedHistory({ job, transactions }))
-    })
+        this.socket.on('getFileTypes', (fileTypeOptions) => {
+          this.store.dispatch(DashboardActions.storeFileTypeOptions({ fileTypeOptions }))
+        })
 
-    this.socket.on('getProposalHistory', ({ job, proposals }) => {
-      this.store.dispatch(DashboardActions.storeProposalHistory({ job, proposals }))
-    })
+        this.socket.on('getSingleProposal', ({ job, proposal }) => {
+          this.store.dispatch(DashboardActions.storeSelectedProposal({ job, proposal }))
+        })
 
-    this.socket.on('getTimeShortcuts', timeShortcuts => {
-      this.store.dispatch(ChartsActions.storeTimeShortcuts({ timeShortcuts }))
-      this.store.dispatch(ReportActions.storeTimeShortcuts({ timeShortcuts }))
-    })
+        this.socket.on('getHistory', ({ job, transactions }) => {
+          this.store.dispatch(DashboardActions.storeSelectedHistory({ job, transactions }))
+        })
 
-    // //  ------------------------CHARTS---------------------------
+        this.socket.on('getProposalHistory', ({ job, proposals }) => {
+          this.store.dispatch(DashboardActions.storeProposalHistory({ job, proposals }))
+        })
 
-    // this.socket.on('getChartConfigs', chartConfigs => {
-    //   this.store.dispatch(ChartsActions.storeChartConfigs({ chartConfigs }))
-    // })
-
-    // this.socket.on('updateChart', ({ config, data }) => {
-    //   this.store.dispatch(ChartsActions.addDataToConfig({ config, data }))
-    // })
-
-    // // ------------------------REPORTS---------------------------
-    // this.socket.on('getReportConfigs', reportConfigs => {
-    //   this.store.dispatch(ReportActions.storeReportConfigs({ reportConfigs }))
-    // })
-
-    // this.socket.on('updateReport', ({ config, data }) => {
-    //   this.store.dispatch(ReportActions.addDataToConfig({ config, data }))
-    // })
+        this.socket.on('getTimeShortcuts', timeShortcuts => {
+          this.store.dispatch(ChartsActions.storeTimeShortcuts({ timeShortcuts }))
+          this.store.dispatch(ReportActions.storeTimeShortcuts({ timeShortcuts }))
+        })
+      })
   }
 
   sendEmail(message: string) {
-    return this.http.post(`${environment.apiUrl}/email`, { message })
+    return this.http.post(`${this.apiUrl}/email`, { message })
   }
 
   initDashboard() {
@@ -158,6 +150,14 @@ export class BackendService {
     this.socket.emit('updateColumn', job)
   }
 
+  getMatchingProjects(projectId) {
+    return new Promise<Job[]>((resolve, reject) => {
+      this.socket.emit('getMatchingProjects', projectId, (resp) => {
+        resolve(resp)
+      })
+    })
+  }
+
   getSearch(term) {
     return new Promise((resolve, reject) => {
       this.socket.emit('seach', term, (resp) => {
@@ -184,13 +184,13 @@ export class BackendService {
   sendFile({ jobId, file, fileIndex, folder, subFolder }) {
     const formData: any = new FormData()
     formData.append("document", file, file.fileName);
-    const url = `${environment.apiUrl}/upload/${jobId}?folder=${folder}&subfolder=${subFolder}`
+    const url = `${this.apiUrl}/upload/${jobId}?folder=${folder}&subfolder=${subFolder}`
     const req = new HttpRequest('POST', url, formData, { reportProgress: true });
     return this.http.request(req).pipe(map(resp => ({ response: resp, index: fileIndex })))
   }
 
   getFile({ jobId, fileName, folder, subFolder }) {
-    this.http.get(`${environment.apiUrl}/download/${jobId}/${fileName}?folder=${folder}&subfolder=${subFolder}`, { responseType: 'blob' })
+    this.http.get(`${this.apiUrl}/download/${jobId}/${fileName}?folder=${folder}&subfolder=${subFolder}`, { responseType: 'blob' })
       .subscribe((resp: any) => {
         saveAs(resp, decodeURIComponent(fileName))
       })
@@ -198,7 +198,7 @@ export class BackendService {
 
   fetchData(storedProcedure: string, params?: {}) {
     const paramString = (params) ? this.convertObjToParma(params) : ""
-    return this.http.get<any[]>(`${environment.apiUrl}/api/data/${storedProcedure}${paramString}`).pipe(
+    return this.http.get<any[]>(`${this.apiUrl}/api/data/${storedProcedure}${paramString}`).pipe(
       shareReplay()
     )
   }
@@ -207,7 +207,7 @@ export class BackendService {
     return "?" + Object.keys(obj).map(key => {
       return `${key}=${encodeURIComponent(
         typeof obj[key] == 'object'
-          ? obj[key] ? obj[key].join("|") : null 
+          ? obj[key] ? obj[key].join("|") : null
           : obj[key]
       )}`
     }).join("&")

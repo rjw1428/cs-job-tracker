@@ -21,7 +21,7 @@ import { SettingsComponent } from './settings-component/settings.component';
 export class SidebarComponent implements OnInit {
   @Input() width: number
   activeButton: string;
-  version = environment.version
+  version: string
   isExpanded: boolean = false
   logoPath: string
   constructor(
@@ -33,6 +33,7 @@ export class SidebarComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.version = this.backendService.version
     this.logoPath = environment.assetPath+'img/logo.png'
     // this.defaultWidth$ = this.store.pipe(select(defaultSidebarWidth))
     // this.width$ = this.store.pipe(select(sidebarWidth))

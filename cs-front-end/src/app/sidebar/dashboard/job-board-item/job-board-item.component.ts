@@ -9,7 +9,7 @@ import { MatSelectChange } from '@angular/material/select';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { environment } from 'src/environments/environment';
 import { AppActions } from 'src/app/app.action-types';
-import { showSnackbar, colorShade } from 'src/app/shared/utility';
+import { colorShade, showSnackbar } from 'src/app/shared/utility';
 import { map, switchMap, mergeMap, first } from 'rxjs/operators';
 import { of, noop, Observable } from 'rxjs';
 import { DashboardActions } from '../dashboard.action-types';
@@ -25,11 +25,19 @@ import { AwardTimelineFormComponent } from '../award-timeline-form/award-timelin
 import { AddFinalPriceComponent } from '../add-final-price/add-final-price.component';
 import { UpdateDueDateComponent } from '../update-due-date/update-due-date.component';
 import { ViewProposalHistoryComponent } from '../view-proposal-history/view-proposal-history.component';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-job-board-item',
   templateUrl: './job-board-item.component.html',
   styleUrls: ['./job-board-item.component.scss'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JobBoardItemComponent implements OnInit {
@@ -40,7 +48,7 @@ export class JobBoardItemComponent implements OnInit {
   boxOptions$: Observable<BoxOption[]>
   estimatorOptions$: Observable<Estimator[]>
   tileColor$: Observable<string>
-
+  isExpanded: boolean = false
   mailTo: string
   isDev: boolean = false;
   constructor(
@@ -52,7 +60,7 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.isDev = !environment.production
+    // this.isDev = !environment.production
     this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
     this.boxOptions$ = this.store.select(boxOptionsSelector)
     this.statusOptions$ = this.store.select(statusOptionsSelector, { columnId: this.job.currentDashboardColumn })
@@ -185,6 +193,7 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   onTitleClicked() {
+    this.isExpanded = !this.isExpanded
     if (this.isDev) console.log(this.job)
   }
 

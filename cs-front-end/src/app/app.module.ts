@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -17,6 +17,11 @@ import { loadingReducer } from './app.reduce';
 import { HelpComponent } from './sidebar/help/help.component';
 import { SettingsComponent } from './sidebar/settings-component/settings.component';
 import { ConfirmationSnackbarComponent } from './popups/confirmation-snackbar/confirmation-snackbar.component';
+import { BackendService } from './services/backend.service';
+
+export function init(backend: BackendService) {
+  return () => backend.setupBackend()
+}
 
 @NgModule({
   declarations: [
@@ -44,7 +49,15 @@ import { ConfirmationSnackbarComponent } from './popups/confirmation-snackbar/co
     EffectsModule.forRoot([AppEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],
-  providers: [],
+  providers: [
+    BackendService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: init,
+      multi: true,
+      deps: [BackendService]
+    },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

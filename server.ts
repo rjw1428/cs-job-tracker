@@ -171,16 +171,9 @@ io.on('connection', (socket) => {
     // View Single Proposal Form Init
     socket.on('proposalFormInit', async ({ proposalId, job }) => {
         try {
-            let estimates = []
-            if (proposalId) {
-                const rawProposal = await fetchFromTable('proposal_snapshot', `Proposal ${proposalId} for ${job.jobDisplayId}`, { id: [proposalId] })
-                const proposal = packageProposal(rawProposal)
-                estimates = proposal[0].estimates
-            }
-            else
-                estimates = await fetchFromTable('proposal_current', `Current Proposal for ${job.jobDisplayId}`, { jobId: [job.jobId] })
-
-            socket.emit('getSingleProposal', { job, estimates })
+            const rawProposal = await fetchFromTable('proposal_snapshot', `Proposal ${proposalId} for ${job.jobDisplayId}`, { id: [proposalId] })
+            const proposal = packageProposal(rawProposal).pop()
+            socket.emit('getSingleProposal', { job, proposal })
         }
         catch (e) {
             console.log(e)
@@ -479,6 +472,10 @@ io.on('connection', (socket) => {
         catch (e) {
             console.log(e)
         }
+    })
+
+    socket.on('getMatchingProjects', async (projectId, callback) =>{
+        callback(await fetchFromTable('bid_invites_active', `Matching Proejcts`, { projectId }))
     })
 
     socket.on('removeProposal', async ({ proposalId, job }: { proposalId: number, job: Job }) => {

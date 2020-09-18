@@ -93,17 +93,18 @@ export const tileColorSelector = createSelector(
 export const singleProposalSelector = createSelector(
     selectDashboardState,
     dashboardState => {
-        const projectValue = dashboardState.selectedSingleProposal.map(estimate => estimate.cost).reduce((acc, cur) => acc + cur, 0)
-        const outsourceCost = dashboardState.selectedSingleProposal.map(estimate => estimate.fee).reduce((acc, cur) => acc + cur, 0)
-        return {
-            estimates: dashboardState.selectedSingleProposal,
-            id: null,
-            projectValue,
-            outsourceCost,
-            finalCost: null,
-            finalCostNote: null,
-            dateSent: null
-        } as Proposal
+        return  dashboardState.selectedSingleProposal
+        // const projectValue = dashboardState.selectedSingleProposal.map(estimate => estimate.cost).reduce((acc, cur) => acc + cur, 0)
+        // const outsourceCost = dashboardState.selectedSingleProposal.map(estimate => estimate.fee).reduce((acc, cur) => acc + cur, 0)
+        // return {
+        //     estimates: dashboardState.selectedSingleProposal,
+        //     id: null,
+        //     projectValue,
+        //     outsourceCost,
+        //     finalCost: null,
+        //     finalCostNote: null,
+        //     dateSent: null
+        // } as Proposal
     }
 )
 

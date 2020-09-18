@@ -50,6 +50,7 @@ export class SearchComponent implements OnInit {
 
 
   async onSearch(searchValue: string) {
+    console.log("HERE")
     this.noData = false
     let resp = await this.backendService.getSearch(searchValue.replace(/\'/g, "\\\'").trim()) as any[]
     if (!resp.length) return this.noData = true

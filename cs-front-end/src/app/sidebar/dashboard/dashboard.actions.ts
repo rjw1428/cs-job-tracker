@@ -113,7 +113,7 @@ export const highlightJobItem = createAction(
 
 export const storeSelectedProposal = createAction(
     "[Job Item] Store Selected Estimates",
-    props<{ job: Job, estimates: Estimate[] }>()
+    props<{ job: Job, proposal: Proposal }>()
 )
 
 export const clearSelectedProposal = createAction(

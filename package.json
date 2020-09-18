@@ -4,8 +4,10 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node -P ./server.tsconfig.json ./server.ts",
-    "start:watch": "nodemon"
+    "dev": "ts-node -P ./server.tsconfig.json ./server.ts",
+    "dev:watch": "nodemon",
+    "build": "tsc --build",
+    "start": "pm2 start ./build/server.js"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +23,7 @@
     "watch": [
       "./"
     ],
-    "exec": "npm start",
+    "exec": "npm run dev",
     "ext": "ts"
   },
   "dependencies": {

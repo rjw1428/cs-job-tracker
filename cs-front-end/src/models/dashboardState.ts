@@ -21,7 +21,7 @@ export interface DashboardState {
     estimateTypes: EstimateType[]
     selectedJob: Job
     selectedJobFiles: AttachedFile[]
-    selectedSingleProposal: Estimate[]
+    selectedSingleProposal: Proposal
     selectedJobHistory: HistoryEntry[]
     selectedProposalHistory: Proposal[]
     formLoading: boolean
