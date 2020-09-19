@@ -26,6 +26,21 @@ export const storeEstimateTypes = createAction(
     props<{ estimateTypes: EstimateType[] }>()
 )
 
+export const storeInvites = createAction(
+    "[Backend Service (Bid Form Init)] Store Invites",
+    props<{ invites: { [id: string]: Job } }>()
+)
+
+export const updateJob = createAction(
+    "[Backend Service] Update Job",
+    props<{ job: Job }>()
+)
+
+export const applyFilter = createAction(
+    "[Dashboard Component] Filter Dashboard",
+    props<{ value: string }>()
+)
+
 export const storeContractors = createAction(
     "[Backend Service (Bid Form Init)] Store Contractors",
     props<{ contractors: Contractor[] }>()
@@ -54,6 +69,11 @@ export const deleteJobItem = createAction(
     props<{ job: Job }>()
 )
 
+export const removeJob = createAction(
+    "[Backend Service (From Delete)] Recieved Deleted Job",
+    props<{ jobId: number }>()
+)
+
 export const toggleNoBidJobItem = createAction(
     "[Job Item] Toggle No Bid Self",
     props<{ job: Job }>()
@@ -77,7 +97,7 @@ export const jobMoved = createAction(
         sourceOrderIndex: number,
         targetColIndex: string,
         targetOrderIndex: number,
-        selectedJob: Job,
+        selectedJob: Job
     }>()
 )
 
@@ -149,6 +169,11 @@ export const storeFileTypeOptions = createAction(
 
 export const initSearch = createAction(
     "[Search Component] Fetch Column Configs"
+)
+
+export const expandItem = createAction(
+    "[Job Item] Toggle Job Item Expand",
+    props<{ id: number }>()
 )
 // export const formStartLoading = createAction(
 //     "[Job Board] Start Form Loading"

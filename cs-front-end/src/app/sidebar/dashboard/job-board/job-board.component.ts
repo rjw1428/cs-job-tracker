@@ -3,7 +3,7 @@ import { DashboardColumn } from 'src/models/dashboardColumn';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AppState } from 'src/models/appState';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { noop, Observable } from 'rxjs';
 import { columnsSelector } from '../dashboard.selectors';
 import { DashboardActions } from '../dashboard.action-types';
 import { Job } from 'src/models/job';
@@ -26,9 +26,6 @@ export class JobBoardComponent implements OnInit {
 
   ngOnInit(): void {
     this.columns$ = this.store.select(columnsSelector)
-    // .pipe(tap(cols=>{
-    //   console.log("UPDATE ALL COLS")
-    // }))
   }
 
   drop(event: CdkDragDrop<any>) {
@@ -36,15 +33,18 @@ export class JobBoardComponent implements OnInit {
     const sourceOrderIndex = event.previousIndex
     const targetColIndex = event.container.id
     const targetOrderIndex = event.currentIndex
-
-    const selectedJob = event.previousContainer.data[sourceOrderIndex]
-    this.store.dispatch(DashboardActions.jobMoveForm({
-      sourceColIndex,
-      sourceOrderIndex,
-      targetColIndex,
-      targetOrderIndex,
-      selectedJob
-    }))
+    const selectedJobId = event.previousContainer.data[sourceOrderIndex]
+    debugger
+    this.store.pipe(first(), map(state => {
+      const selectedJob = state.dashboard.invites[selectedJobId]
+      this.store.dispatch(DashboardActions.jobMoveForm({
+        sourceColIndex,
+        sourceOrderIndex,
+        targetColIndex,
+        targetOrderIndex,
+        selectedJob
+      }))
+    })).subscribe(noop)
   }
 
   onIsDragging(event) {

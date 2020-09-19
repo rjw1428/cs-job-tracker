@@ -33,7 +33,22 @@ export const contractorsSelector = createSelector(
 
 export const columnsSelector = createSelector(
     selectDashboardState,
-    dashboardState => dashboardState.columns
+    dashboardState => dashboardState.columns.map(col => {
+        return {
+            ...col,
+            itemIdList: (dashboardState.invites && Object.keys(dashboardState.invites).length > 0)
+                ? Object.keys(dashboardState.invites)
+                    .map(key => +key)
+                    .filter(key => dashboardState.invites[key].currentDashboardColumn == col.id)
+                    .filter(key => {
+                        const jobs = dashboardState.invites
+                        const job = jobs[key] as Job
+                        const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId].join(" ").toLowerCase()
+                        return searchString.includes(dashboardState.filterValue.toLowerCase())
+                    })
+                : []
+        }
+    })
 )
 
 export const selectedJobSelector = createSelector(
@@ -54,12 +69,17 @@ export const formLoadingSelector = createSelector(
 export const itemsSelector = createSelector(
     selectDashboardState,
     (dashboardState: DashboardState, { columnId }: { columnId: string }) => {
-        const matchingCol = dashboardState.columns.find(column => column.id == columnId)
-        const items = matchingCol && matchingCol.items
-            ? matchingCol.items
-                .filter(item => item.currentDashboardColumn == columnId)
-                .map(item => ({ ...item, longName: `${item['contractorName']} ${item['projectName']}` }))
-            : []
+        if (!dashboardState.invites || Object.keys(dashboardState.invites).length === 0) return []
+
+        const jobs = dashboardState.invites
+        const keys = Object.keys(dashboardState.invites)
+            .filter(key => dashboardState.invites[key].currentDashboardColumn == columnId)
+            .filter(key => {
+                const job = jobs[key] as Job
+                const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId].join(" ").toLowerCase()
+                return searchString.includes(dashboardState.filterValue.toLowerCase())
+            })
+        const items = keys.map(key => dashboardState.invites[key])
         return items
     }
 )
@@ -92,20 +112,7 @@ export const tileColorSelector = createSelector(
 
 export const singleProposalSelector = createSelector(
     selectDashboardState,
-    dashboardState => {
-        return  dashboardState.selectedSingleProposal
-        // const projectValue = dashboardState.selectedSingleProposal.map(estimate => estimate.cost).reduce((acc, cur) => acc + cur, 0)
-        // const outsourceCost = dashboardState.selectedSingleProposal.map(estimate => estimate.fee).reduce((acc, cur) => acc + cur, 0)
-        // return {
-        //     estimates: dashboardState.selectedSingleProposal,
-        //     id: null,
-        //     projectValue,
-        //     outsourceCost,
-        //     finalCost: null,
-        //     finalCostNote: null,
-        //     dateSent: null
-        // } as Proposal
-    }
+    dashboardState => dashboardState.selectedSingleProposal
 )
 
 export const proposalHistorySelector = createSelector(

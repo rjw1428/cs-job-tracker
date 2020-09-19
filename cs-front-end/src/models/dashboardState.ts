@@ -2,12 +2,10 @@ import { DashboardColumn } from './dashboardColumn';
 import { Contractor } from './contractor';
 import { Project } from './project';
 import { Estimator } from './estimator';
-import { BidInvite } from './bidInvite';
 import { BoxOption } from './boxOption';
 import { Job } from './job';
 import { EstimateType } from './estimateType';
 import { AttachedFile } from './attachedFile';
-import { Estimate } from './estimate';
 import { HistoryEntry } from './historyEntry';
 import { Proposal } from './proposal';
 
@@ -26,4 +24,6 @@ export interface DashboardState {
     selectedProposalHistory: Proposal[]
     formLoading: boolean
     fileTypeOptions: string[]
+    invites: {[jobId: number]: Job},
+    filterValue: string
 }

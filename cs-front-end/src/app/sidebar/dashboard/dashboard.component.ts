@@ -11,11 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AddContractorComponent } from './add-contractor/add-contractor.component';
 import { showSnackbar } from 'src/app/shared/utility';
-import { Contractor } from 'src/models/contractor';
-import { Project } from 'src/models/project';
-import { estimatorsSelector, contractorsSelector, projectsSelector, estimatorsAllSelector } from './dashboard.selectors';
 import { AddProjectComponent } from './add-project/add-project.component';
-import { BidInvite } from 'src/models/bidInvite';
 import { AddInviteComponent } from './add-invite/add-invite.component';
 import { AddEstimateComponent } from './add-estimate/add-estimate.component';
 import { loadingSelector } from 'src/app/app.selectors';
@@ -23,8 +19,8 @@ import { EventService } from 'src/app/services/event.service';
 import { ConfirmationSnackbarComponent } from 'src/app/popups/confirmation-snackbar/confirmation-snackbar.component';
 import { AssignBidFormComponent } from './assign-bid-form/assign-bid-form.component';
 import { AwardTimelineFormComponent } from './award-timeline-form/award-timeline-form.component';
+import { FormControl } from '@angular/forms';
 import { Job } from 'src/models/job';
-import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
@@ -50,7 +46,11 @@ export class DashboardComponent implements OnInit {
     this.isLoading$ = this.store.select(loadingSelector)
     this.backendService.initDashboard()
 
-    this.filterFormControl.valueChanges.pipe(debounceTime(500)).subscribe(val=>console.log(val))
+    this.filterFormControl.valueChanges.pipe(
+      debounceTime(500),
+    ).subscribe(value => {
+      this.store.dispatch(DashboardActions.applyFilter({ value }))
+    })
 
     this.eventService.confirmProposal.pipe(
       switchMap(action => {
@@ -64,7 +64,7 @@ export class DashboardComponent implements OnInit {
       switchMap(({ action, skipProposal }) => {
         if (skipProposal) return of({ action, propId: null })
         return this.backendService.saveData('snapshotProposal', action.selectedJob)
-        .pipe(map(resp => ({ action, propId: resp })))
+          .pipe(map(resp => ({ action, propId: resp })))
       })
     ).subscribe(({ action, propId }) => {
       this.store.dispatch(DashboardActions.jobMoved({
@@ -72,7 +72,8 @@ export class DashboardComponent implements OnInit {
         selectedJob: {
           ...action.selectedJob,
           historyOnlyNotes: `Moved to Proposal`,
-          proposalId: propId
+          proposalId: propId,
+          assignedTo: 0
         }
       }))
     })
@@ -91,18 +92,18 @@ export class DashboardComponent implements OnInit {
           }))
       })
     ).subscribe(
-        action => {
-          console.log(action.selectedJob)
-          if (action)
-            this.store.dispatch(DashboardActions.jobMoved({
-              ...action,
-              selectedJob: {
-                ...action.selectedJob,
-                historyOnlyNotes: `Moved to Awarded`
-              }
-            }))
-        }
-      )
+      action => {
+        console.log(action.selectedJob)
+        if (action)
+          this.store.dispatch(DashboardActions.jobMoved({
+            ...action,
+            selectedJob: {
+              ...action.selectedJob,
+              historyOnlyNotes: `Moved to Awarded`
+            }
+          }))
+      }
+    )
 
     this.eventService.triggerAssignmentFrom.pipe(
       switchMap(action => {
@@ -195,6 +196,11 @@ export class DashboardComponent implements OnInit {
       if (resp && resp.error) return showSnackbar(this.snackBar, "ERROR:" + resp.error.sqlMessage)
       if (resp) showSnackbar(this.snackBar, "Estimate Saved")
     })
+  }
+
+  onRemoveFilter() {
+    this.filterFormControl.setValue('')
+    this.store.dispatch(DashboardActions.applyFilter({ value: '' }))
   }
 
   onRefresh() {

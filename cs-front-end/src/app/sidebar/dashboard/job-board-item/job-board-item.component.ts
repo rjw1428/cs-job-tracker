@@ -48,7 +48,6 @@ export class JobBoardItemComponent implements OnInit {
   boxOptions$: Observable<BoxOption[]>
   estimatorOptions$: Observable<Estimator[]>
   tileColor$: Observable<string>
-  isExpanded: boolean = false
   mailTo: string
   isDev: boolean = false;
   constructor(
@@ -60,7 +59,7 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.isDev = !environment.production
+    this.isDev = !environment.production
     this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
     this.boxOptions$ = this.store.select(boxOptionsSelector)
     this.statusOptions$ = this.store.select(statusOptionsSelector, { columnId: this.job.currentDashboardColumn })
@@ -193,7 +192,7 @@ export class JobBoardItemComponent implements OnInit {
   }
 
   onTitleClicked() {
-    this.isExpanded = !this.isExpanded
+    this.store.dispatch(DashboardActions.expandItem({ id: this.job.jobId }))
     if (this.isDev) console.log(this.job)
   }
 

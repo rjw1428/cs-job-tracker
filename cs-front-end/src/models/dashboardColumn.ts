@@ -5,7 +5,8 @@ export interface DashboardColumn {
     id: string;
     name: string;
     // dataTable: string;
-    items: Job[];
+    // items: Job[];
+    itemIdList: number[],
     order: number;
     defaultStatusId: number;
     statusOptions?: StatusOption[]

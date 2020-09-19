@@ -31,20 +31,28 @@ export class JobBoardColumnComponent implements OnInit {
   onShortcutMenuSelect(targetColIndex: string, selectedJob: Job) {
     const sourceColIndex = selectedJob.currentDashboardColumn
     const targetOrderIndex = 0
-    this.store.pipe(first(),
-      map(state => {
-        const matchingColumn = state.dashboard.columns.find(col => col.id == sourceColIndex)
-        return matchingColumn.items.findIndex(item => item.jobId == selectedJob.jobId)
-      })
-    ).subscribe(sourceOrderIndex => {
-      this.store.dispatch(DashboardActions.jobMoveForm({
-        sourceColIndex,
-        sourceOrderIndex,
-        targetColIndex,
-        targetOrderIndex,
-        selectedJob
-      }))
-    })
+    // this.store.pipe(first(),
+    //   map(state => {
+    //     const matchingColumn = state.dashboard.columns.find(col => col.id == sourceColIndex)
+    //     return matchingColumn.itemIdList.findIndex(id => id == selectedJob.jobId)
+    //   })
+    // ).subscribe(sourceOrderIndex => {
+    //   this.store.dispatch(DashboardActions.jobMoveForm({
+    //     sourceColIndex,
+    //     sourceOrderIndex,
+    //     targetColIndex,
+    //     targetOrderIndex,
+    //     selectedJob
+    //   }))
+    // })
+    const sourceOrderIndex = 0
+    this.store.dispatch(DashboardActions.jobMoveForm({
+      sourceColIndex,
+      sourceOrderIndex,
+      targetColIndex,
+      targetOrderIndex,
+      selectedJob
+    }))
   }
 
   onSortSelected(sortKey: string, direction: "asc" | "desc") {

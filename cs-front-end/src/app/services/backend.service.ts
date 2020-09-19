@@ -49,8 +49,17 @@ export class BackendService {
           this.store.dispatch(DashboardActions.storeProjects({ projects }))
         })
 
-        this.socket.on('getInvitesForSingleColumn', ({ items, columnId }) => {
-          this.store.dispatch(DashboardActions.updateColumnInvites({ items, columnId }))
+        this.socket.on('getInvites', (invites) => {
+          this.store.dispatch(DashboardActions.storeInvites({ invites }))
+        })
+
+        this.socket.on('getUpdatedJob', (job) => {
+          console.log(job)
+          this.store.dispatch(DashboardActions.updateJob({ job }))
+        })
+
+        this.socket.on('getRemovedJob', (jobId) => {
+          this.store.dispatch(DashboardActions.removeJob({ jobId }))
         })
 
         this.socket.on('getBoxOptions', (boxOptions) => {

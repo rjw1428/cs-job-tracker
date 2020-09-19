@@ -5,6 +5,7 @@ import { moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop'
 import { DashboardColumn } from 'src/models/dashboardColumn'
 import { sortFn } from 'src/app/shared/utility'
 import { initialLoadingState } from 'src/app/app.reduce'
+import { Job } from 'src/models/job'
 
 export const initialDashboardState: DashboardState = {
     columns: [],
@@ -19,7 +20,9 @@ export const initialDashboardState: DashboardState = {
     selectedJobHistory: [],
     selectedProposalHistory: [],
     formLoading: false,
-    fileTypeOptions: []
+    fileTypeOptions: [],
+    invites: null,
+    filterValue: ""
 }
 
 
@@ -36,6 +39,9 @@ export const dashboardReducer = createReducer(
     }),
     on(DashboardActions.storeEstimateTypes, (state, action) => {
         return { ...state, estimateTypes: action.estimateTypes }
+    }),
+    on(DashboardActions.storeInvites, (state, action) => {
+        return { ...state, invites: action.invites }
     }),
     on(DashboardActions.storeProjects, (state, action) => {
         return { ...state, projects: action.projects }
@@ -71,97 +77,39 @@ export const dashboardReducer = createReducer(
                 : initialSort.direction
                     ? initialSort.direction
                     : 'asc'
-            const items = [...col.items].sort((a, b) => sortFn(a, b, sortKey, sortDirection))
             return {
                 ...col,
                 sortKey,
-                sortDirection,
-                items
+                sortDirection
             }
         })
         return { ...state, columns: sortedCols }
     }),
-    on(DashboardActions.deleteJobItem, (state, action) => {
-        const updatedColumns = state.columns.map(column => {
-            return column.id != action.job.currentDashboardColumn
-                ? column
-                : { ...column, items: column.items.filter(invite => invite.jobId !== action.job.jobId) }
-        })
+    on(DashboardActions.removeJob, (state, action) => {
+        const invites = Object.keys(state.invites)
+            .filter(key => +key != action.jobId)
+            .map(key => ({ [key]: state.invites[key] }))
+            .reduce((acc, cur) => ({ ...acc, ...cur }), {})
         return {
             ...state,
-            columns: updatedColumns
+            invites
         }
     }),
-    on(DashboardActions.toggleNoBidJobItem, (state, action) => {
-        const updatedColumns = state.columns.map(column => {
-            return column.id != action.job.currentDashboardColumn
-                ? column
-                : {
-                    ...column,
-                    items: column.items.map(job => {
-                        if (job.jobId == action.job.jobId) {
-                            return { ...job, isNoBid: action.job.isNoBid }
-                        }
-                        return job
-                    })
-                }
-        })
-        return {
-            ...state,
-            columns: updatedColumns
-        }
-    }),
-    on(DashboardActions.onColumnSort, (state, action) => {
-        return {
-            ...state,
-            columns: state.columns.map(col => {
-                if (col.id != action.columnId) return col
-                const items = [...col.items].sort((a, b) => sortFn(a, b, action.sortKey, action.direction))
-                return {
-                    ...col,
-                    sortKey: action.sortKey,
-                    sortDirection: action.direction,
-                    items
-                }
-            })
-        }
-    }),
-    on(DashboardActions.jobMoved, (state, action) => {
-        const sourceColumn = state.columns.find(col => col.id == action.sourceColIndex)
-        const targetColumn = state.columns.find(col => col.id == action.targetColIndex)
-        let updatedSource = [...sourceColumn.items]
-        let updatedTarget = [...targetColumn.items]
-
-        // If Move within the same column
-        if (action.sourceColIndex == action.targetColIndex) {
-            moveItemInArray(updatedSource, action.sourceOrderIndex, action.targetOrderIndex);
-            return {
-                ...state,
-                columns: state.columns.map(col => {
-                    return col.id == action.sourceColIndex
-                        ? { ...sourceColumn, items: updatedSource, sortKey: 'manual' }
-                        : col
-                })
-            }
-        }
-        // Move within different column
-        transferArrayItem(
-            updatedSource,
-            updatedTarget,
-            action.sourceOrderIndex,
-            action.targetOrderIndex
-        );
-        return {
-            ...state,
-            columns: state.columns.map(col => {
-                if (col.id == action.sourceColIndex)
-                    return { ...sourceColumn, items: updatedSource }
-                if (col.id == action.targetColIndex)
-                    return { ...targetColumn, items: updatedTarget, sortKey: 'manual' }
-                return col
-            })
-        }
-    }),
+    // on(DashboardActions.onColumnSort, (state, action) => {
+    //     return {
+    //         ...state,
+    //         columns: state.columns.map(col => {
+    //             if (col.id != action.columnId) return col
+    //             const items = [...col.items].sort((a, b) => sortFn(a, b, action.sortKey, action.direction))
+    //             return {
+    //                 ...col,
+    //                 sortKey: action.sortKey,
+    //                 sortDirection: action.direction,
+    //                 items
+    //             }
+    //         })
+    //     }
+    // }),
     on(DashboardActions.storeViewFilesJob, (state, action) => {
         return {
             ...state,
@@ -179,35 +127,23 @@ export const dashboardReducer = createReducer(
                 .filter(file => file.fileId !== action.file.fileId)
         }
     }),
-    on(DashboardActions.updateJobItem, (state, action) => {
-        const updatedColumns = state.columns.map(column => {
-            return column.id != action.job.currentDashboardColumn
-                ? column
-                : {
-                    ...column,
-                    items: column.items.map(job => {
-                        return (job.jobId == action.job.jobId) ? action.job : job
-                    })
-                }
-        })
+    on(DashboardActions.updateJob, (state, action) => {
+        const oldJob = state.invites[action.job.jobId]
+        const newJob = {
+            [action.job.jobId]: {
+                ...action.job,
+                isExpanded: oldJob ? oldJob.isExpanded : false
+            }
+        }
         return {
             ...state,
-            columns: updatedColumns
+            invites: { ...state.invites, ...newJob }
         }
     }),
-    on(DashboardActions.highlightJobItem, (state, action) => {
-        console.log(action.job.isAlerted)
-        const updatedColumns = state.columns.map(column => {
-            return column.id != action.job.currentDashboardColumn
-                ? column
-                : {
-                    ...column,
-                    items: column.items.map(job => job.jobId == action.job.jobId ? action.job : job)
-                }
-        })
+    on(DashboardActions.applyFilter, (state, action) => {
         return {
             ...state,
-            columns: updatedColumns
+            filterValue: action.value
         }
     }),
     on(DashboardActions.storeSelectedProposal, (state, action) => {
@@ -254,11 +190,13 @@ export const dashboardReducer = createReducer(
             ...state,
             fileTypeOptions: action.fileTypeOptions
         }
+    }),
+    on(DashboardActions.expandItem, (state, action) => {
+        const job = state.invites[action.id]
+        const updatedJob = { [action.id]: { ...job, isExpanded: !job.isExpanded } }
+        return {
+            ...state,
+            invites: { ...state.invites, ...updatedJob }
+        }
     })
-    // on(DashboardActions.formStartLoading, (state) =>{
-    //     return {...state, formLoading: true}
-    // }),
-    // on(DashboardActions.formStopLoading, (state) =>{
-    //     return {...state, formLoading: false}
-    // })
 )

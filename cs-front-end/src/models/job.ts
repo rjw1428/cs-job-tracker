@@ -21,9 +21,11 @@ export class Job {
         public noBidDate: string,
         public estimateCount: number,
         public statusId: number,
+        public status: string,
         public fileCount: number,
         public transactionId: number,
         public assignedTo: number,
+        public assignedToName: string,
         public box: number,
         public notes: string,
         public reportOnlyNotes: string,
@@ -33,6 +35,7 @@ export class Job {
         public endTime: string,
         public proposalId: number,
         public projectValue: number,
-        public dateSent: string
+        public dateSent: string,
+        public isExpanded: boolean
     ) {}
 }

@@ -59,7 +59,7 @@ export class DashboardEffects {
             tap(job => {
                 if (job.currentDashboardColumn != job.previousDashboardColumn)
                     this.backendService.saveData('moveBid', job)
-                console.log(job)
+                    
                 if (job.currentDashboardColumn == 'awarded' && job.previousDashboardColumn != "awarded")
                     this.backendService.saveData('awardTimeline', job)
             }),

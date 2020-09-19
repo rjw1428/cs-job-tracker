@@ -3,7 +3,7 @@
         cdkDropList
         (cdkDropListDropped)="drop($event)"
         (isDragging)="onIsDragging($event)"
-        [cdkDropListData]="column.items"
+        [cdkDropListData]="column.itemIdList"
         [id]="column.id"
         [columnConfig]="column"
         class="wrapper divider"

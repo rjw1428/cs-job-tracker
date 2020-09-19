@@ -1,20 +1,19 @@
 <mat-card class="item mat-elevation-z8" style="margin-bottom: 10px; width: 250px;"
   [ngStyle]="{'opacity': 1- (!!job.isNoBid ? 1 : 0) *.5, 'background': (tileColor$ | async)}">
- <mat-card-header style="display: flex; flex-direction: column-reverse; cursor: pointer;" (click)="onTitleClicked()">
+ <mat-card-header style="display: flex; flex-direction: column-reverse; cursor: pointer;">
     <div style="display: flex; flex-direction: column-reverse;">
       <div style="display: flex; justify-content: space-between;">
-        <mat-card-title [matTooltip]="job.jobId" [matTooltipDisabled]="!isDev">
-          {{job.projectName}}</mat-card-title>
+        <mat-card-title [matTooltip]="job.jobId" [matTooltipDisabled]="!isDev"  (click)="onTitleClicked()">{{job.projectName}}</mat-card-title>
         <div style="width:50px; display:flex; justify-content: flex-end;" *ngIf="!job.isNoBid">
           <ng-content></ng-content>
         </div>
       </div>
-      <div style="font-style: italic;">{{job.jobDisplayId}}</div>
+      <div style="font-style: italic;"  (click)="onTitleClicked()">{{job.jobDisplayId}}</div>
     </div>
   </mat-card-header>
 
-   <mat-card-content [@detailExpand]="isExpanded ? 'expanded' : 'collapsed'">
-    <div *ngIf="isExpanded" class="content">
+   <mat-card-content [@detailExpand]="job.isExpanded ? 'expanded' : 'collapsed'">
+    <div *ngIf="job.isExpanded" class="content">
       <mat-card-subtitle>
         <p style="margin: 0px">{{job.contractorName}}</p>
         <a href="mailto:{{mailTo}}">{{job.contactName}}</a>

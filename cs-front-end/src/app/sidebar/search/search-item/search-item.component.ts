@@ -184,22 +184,35 @@ export class SearchItemComponent implements OnInit {
   }
 
   onMove(event: MatSelectChange) {
-    this.store.pipe(first(), map(state => {
-      const matchingColumn = state.dashboard.columns.find(col => col.id == this.job.currentDashboardColumn)
+    // this.store.pipe(first(), map(state => {
+    //   const matchingColumn = state.dashboard.columns.find(col => col.id == this.job.currentDashboardColumn)
 
-      const sourceColIndex = this.job.currentDashboardColumn
-      const sourceOrderIndex = matchingColumn.items.findIndex(item => item.jobId == this.job.jobId)
-      const targetColIndex = event.value
-      const targetOrderIndex = 0
+    //   const sourceColIndex = this.job.currentDashboardColumn
+    //   const sourceOrderIndex = matchingColumn.items.findIndex(item => item.jobId == this.job.jobId)
+    //   const targetColIndex = event.value
+    //   const targetOrderIndex = 0
 
-      const selectedJob = this.job
-      this.store.dispatch(DashboardActions.jobMoveForm({
-        sourceColIndex,
-        sourceOrderIndex,
-        targetColIndex,
-        targetOrderIndex,
-        selectedJob
-      }))
-    })).subscribe(noop)
+    //   const selectedJob = this.job
+    //   this.store.dispatch(DashboardActions.jobMoveForm({
+    //     sourceColIndex,
+    //     sourceOrderIndex,
+    //     targetColIndex,
+    //     targetOrderIndex,
+    //     selectedJob
+    //   }))
+    // })).subscribe(noop)
+
+    const sourceColIndex = this.job.currentDashboardColumn
+    const sourceOrderIndex = 0
+    const targetColIndex = event.value
+    const targetOrderIndex = 0
+    const selectedJob = this.job
+    this.store.dispatch(DashboardActions.jobMoveForm({
+      sourceColIndex,
+      sourceOrderIndex,
+      targetColIndex,
+      targetOrderIndex,
+      selectedJob
+    }))
   }
 }
