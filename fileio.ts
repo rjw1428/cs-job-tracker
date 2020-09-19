@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const folder = req.query.folder
         const subfolder = req.query.subfolder
-        const dir = path.join(__dirname, `${storageFolder}/${folder}/${subfolder}`)
+        const dir = path.join(__dirname, `${process.env.STORAGE_ROOT}/${storageFolder}/${folder}/${subfolder}`)
         fs.exists(dir, exist => {
             if (!exist)
                 return fs.mkdir(dir, { recursive: true }, error => cb(error, dir))
@@ -45,7 +45,7 @@ fileShareRoute.get('/download/:jobId/:fileName', async (req, res) => {
         const folder = req.query.folder
         const subfolder = req.query.subfolder
         const fileName = encodeURIComponent(req.params.fileName)
-        res.download(path.join(__dirname, `${storageFolder}/${folder}/${subfolder}/${fileName}`));
+        res.download(path.join(__dirname, `${process.env.STORAGE_ROOT}/${storageFolder}/${folder}/${subfolder}/${fileName}`));
     } catch (e) {
         res.status(404).send(e)
     }

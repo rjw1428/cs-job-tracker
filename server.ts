@@ -35,6 +35,7 @@ router.get('/api/state/:key', (req, resp) => {
     const key = req.params.key
     const filters = Object.keys(req.query)
     if (key == 'invites') {
+        if (!filters.length) return resp.send(state.invites)
         if (filters.length == 1 && filters[0] == 'jobId') {
             const id = +req.query[filters[0]]
             return resp.send(state.invites[id])
@@ -49,6 +50,7 @@ router.get('/api/state/:key', (req, resp) => {
         }
     }
     else {
+        if (!state[key]) return resp.send("Key Not In State")
         const result = filters.length
             ? state[key].filter(obj => {
                 return filters
@@ -145,7 +147,7 @@ io.on('connection', (socket) => {
         socket.emit('getReportConfigs', state.reportConfigs)
         socket.emit('getInvites', state.invites)
 
-        console.log("USERS: " + state.users.filter(user => user.room == room).length)
+        console.log("Users: " + state.users.filter(user => user.room == room).length)
     })
 
     // On Bid Form Init
@@ -473,6 +475,7 @@ io.on('connection', (socket) => {
                 { jobId: updatedJob.jobId },
                 `Highlight ${updatedJob.jobDisplayId}`
             )
+            emitUpdatedJob(updatedJob.jobId)
         }
         catch (e) {
             console.log(e)
@@ -528,7 +531,7 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         state.users = state.users.filter(user => user.id != socket.id)
-        console.log('User Left')
+        console.log('User Left: (' + state.users.length + ")")
     })
 
     // -------------------------Search------------------------

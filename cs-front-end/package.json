@@ -1,15 +1,21 @@
 {
-  "name": "cs-front-end",
+  "name": "workflow-manger",
   "version": "0.0.0",
   "main": "main.js",
+  "author": "Ryan Wilk",
+  "description": "Workflow Manager",
+
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config ./proxy.config.json",
+    "start": "electron-forge start",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "start:electron": "ng build --prod --base-href ./ && electron ."
+    "start:electron": "ng build --prod --base-href ./ && electron .",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "electron": "electron ."
   },
   "repository": {
     "type": "git",
@@ -32,24 +38,32 @@
     "@ngrx/router-store": "^10.0.0",
     "@ngrx/store": "^10.0.0",
     "@swimlane/ngx-charts": "^16.0.0",
-    "electron": "^10.1.2",
+    "electron-squirrel-startup": "^1.0.0",
     "file-saver": "^2.0.2",
     "rxjs": "~6.5.4",
     "sheetjs-style": "^0.15.6",
     "socket.io-client": "^2.3.0",
     "tslib": "^1.10.0",
+    "update-electron-app": "^1.5.0",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.901.6",
     "@angular/cli": "~9.1.6",
     "@angular/compiler-cli": "~9.1.7",
+    "@electron-forge/cli": "^6.0.0-beta.53",
+    "@electron-forge/maker-deb": "^6.0.0-beta.53",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.53",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.53",
+    "@electron-forge/maker-zip": "^6.0.0-beta.53",
     "@ngrx/store-devtools": "^10.0.0",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^12.11.1",
     "@types/socket.io-client": "^1.4.33",
     "codelyzer": "^5.1.2",
+    "electron": "^10.1.2",
+    "electron-packager": "^15.1.0",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~5.0.0",
@@ -61,5 +75,32 @@
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~3.8.3"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "workflowManager"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
   }
 }

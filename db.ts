@@ -1,10 +1,7 @@
 import * as mysql from 'mysql'
-import * as express from 'express'
 import * as path from 'path';
 import * as dotenv from "dotenv";
 import { Estimator } from './cs-front-end/src/models/estimator'
-import { EstimateType } from './cs-front-end/src/models/estimateType';
-import { Contractor } from './cs-front-end/src/models/contractor';
 
 dotenv.config({ path: path.join(__dirname, "./.env") })
 
@@ -18,6 +15,7 @@ const poolOptions = {
     waitForConnections: true
 };
 
+console.log(`${poolOptions.user}@${poolOptions.host}:${poolOptions.port} - ${poolOptions.database}`)
 export function runQuery(query: string, messagePrefix: string, callback) {
     const pool = mysql.createPool(poolOptions)
     pool.getConnection((err, conn) => {
@@ -252,7 +250,7 @@ function createSetClause(setObj: {}) {
 
 export function saveFile(jobId, folderName, subfolderName, fileName, date) {
     const _table = "job_files"
-    const _fields = ["jobId", "displayId", "fileName", "fileLocation", "dateCreated", "type"].join(',')
+    const _fields = ["jobId", "displayId", "fileName", "fileLoc", "dateCreated", "type"].join(',')
     const _values = [`'${jobId}'`, `'${folderName}'`, `'${fileName}'`, `'${folderName}/${subfolderName}/${fileName}'`, `'${date}'`, `'${subfolderName}'`].join(',')
     return new Promise<any[]>((resolve, reject) => {
         runQuery(`REPLACE INTO ${_table} (${_fields}) VALUES (${_values})`, `Saving File - ${folderName}/${subfolderName}/${fileName}`, ({ error, results }) => {

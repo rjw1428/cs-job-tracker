@@ -1,7 +1,8 @@
 {
   "endpoint": {
       "dev": "http://localhost:9000",
-      "prod": "10.0.0.144:9000"
+      "prod": "http://localhost:9000",
+      "_prod": "10.0.0.144:9000"
   },
   "version": "1.0.0"
 }

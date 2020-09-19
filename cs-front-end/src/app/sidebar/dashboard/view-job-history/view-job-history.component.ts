@@ -54,16 +54,17 @@ export class ViewJobHistoryComponent implements OnInit {
   }
 
   getTotal() {
-    const seconds = this.transactions.map(transaction => transaction['Time Spent']).reduce((acc, cur) => cur > 0 ? acc + cur : acc, 0)
+    const seconds = this.dataSource.filteredData
+      .map(transaction => transaction['Time Spent'])
+      .reduce((acc, cur) => cur > 0 ? acc + cur : acc, 0)
     return this.getTime(seconds)
   }
 
   getTime(seconds) {
     const d = Math.floor(seconds / 86400)
     const hr = Math.floor(seconds / 3600) - (d * 24)
-    const min = Math.floor(seconds / 60) - (hr * 60)
-    const s = seconds % 60
-    return (d ? d + ":" : "") + this.padNumber(hr) + ":" + this.padNumber(min) + ":" + this.padNumber(s)
+    const min = Math.floor(seconds / 60) - (hr * 60)  - (d * 24 * 60)
+    return d + ":" + this.padNumber(hr) + ":" + this.padNumber(min)
   }
 
   padNumber(n: number): string {
