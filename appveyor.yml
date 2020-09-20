@@ -15,7 +15,6 @@ init:
 
 install:
  - ps: Install-Product node $env:nodejs_version
- - npm install
 
 test_script:
   - node --version
@@ -23,6 +22,7 @@ test_script:
 
 before_build:
   - cd ./cs-front-end
+  - npm install
 
 build_script:
  - npm run dist
