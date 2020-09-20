@@ -1,6 +1,6 @@
 {
   "name": "wf-manager",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "author": "Ryan Wilk",
   "description": "Workflow Manager",
   "main": "main.js",
