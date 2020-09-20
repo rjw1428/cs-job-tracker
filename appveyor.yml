@@ -1,6 +1,8 @@
 platform:
  - x64
-   
+ environment:
+    nodejs_version: ''
+
 cache:
  - node_modules
  - '%APPDATA%\npm-cache'
@@ -11,8 +13,12 @@ init:
  - set
 
 install:
- - ps: Install-Product Node
+ - ps: Install-Product node $env:nodejs_version
  - npm install
+
+test_script:
+  - node --version
+  - npm --version
 
 build_script:
  - npm run dist
