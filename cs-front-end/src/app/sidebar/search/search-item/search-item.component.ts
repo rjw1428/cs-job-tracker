@@ -51,7 +51,7 @@ export class SearchItemComponent implements OnInit {
       this.job = job
     )
 
-    this.columns$ = this.store.pipe(first(), map(state => state.dashboard.columns))
+    this.columns$ = this.store.pipe(first(), map(state => Object.values(state.dashboard.columns)))
   }
 
   onDelete() {

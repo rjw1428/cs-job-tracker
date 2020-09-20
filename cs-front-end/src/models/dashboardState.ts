@@ -10,7 +10,7 @@ import { HistoryEntry } from './historyEntry';
 import { Proposal } from './proposal';
 
 export interface DashboardState {
-    columns: DashboardColumn[];
+    columns: { [id: string]: DashboardColumn };
     contractors: Contractor[]
     projects: Project[]
     estimators: Estimator[]
@@ -24,6 +24,7 @@ export interface DashboardState {
     selectedProposalHistory: Proposal[]
     formLoading: boolean
     fileTypeOptions: string[]
-    invites: {[jobId: number]: Job},
+    invites: { [jobId: number]: Job },
     filterValue: string
+    dragItem: number
 }

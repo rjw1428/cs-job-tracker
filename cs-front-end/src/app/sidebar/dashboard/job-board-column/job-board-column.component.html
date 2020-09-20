@@ -1,10 +1,10 @@
 <div class="wrapper">
   <div class="title mat-elevation-z8" style="display: flex; justify-content: space-around;">
-    <div></div>
+    <!-- <div></div> -->
     <h3>{{columnConfig.name}}</h3>
-    <button mat-icon-button [matMenuTriggerFor]="sortMenu" style="color: white;">
+    <!-- <button mat-icon-button [matMenuTriggerFor]="sortMenu" style="color: white;">
       <mat-icon>sort</mat-icon>
-    </button>
+    </button> -->
   </div>
   <div class="list">
     <div *ngFor="let item of items$ | async">
@@ -13,8 +13,8 @@
         cdkDrag 
         [job]="item" 
         cdkDragBoundary=".dashboard-wrapper"
-        (cdkDragStarted)="onDragStart()" 
-        (cdkDragReleased)="onDragRelease()">
+        (cdkDragStarted)="onDragStart(item)" 
+        (cdkDragReleased)="onDragRelease(item)">
         <mat-icon cdkDragHandle [matMenuTriggerFor]="quickMoveMenu" style="cursor: grab;">drag_indicator</mat-icon>
         <mat-menu #quickMoveMenu="matMenu">
           <ng-template matMenuContent>

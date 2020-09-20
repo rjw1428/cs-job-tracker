@@ -3,15 +3,10 @@
         cdkDropList
         (cdkDropListDropped)="drop($event)"
         (isDragging)="onIsDragging($event)"
-        [cdkDropListData]="column.itemIdList"
+        [cdkDropListData]="[]"
         [id]="column.id"
         [columnConfig]="column"
         class="wrapper divider"
         style="flex-direction: column;">
     </app-job-board-column>
 </div>
-
-
-<!-- 
-[estimatorOptions]="estimators"
-[boxOptions]="boxOptions" -->

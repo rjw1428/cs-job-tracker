@@ -8,7 +8,7 @@ import { initialLoadingState } from 'src/app/app.reduce'
 import { Job } from 'src/models/job'
 
 export const initialDashboardState: DashboardState = {
-    columns: [],
+    columns: null,
     projects: [],
     contractors: [],
     estimators: [],
@@ -22,7 +22,8 @@ export const initialDashboardState: DashboardState = {
     formLoading: false,
     fileTypeOptions: [],
     invites: null,
-    filterValue: ""
+    filterValue: "",
+    dragItem: null
 }
 
 
@@ -41,21 +42,66 @@ export const dashboardReducer = createReducer(
         return { ...state, estimateTypes: action.estimateTypes }
     }),
     on(DashboardActions.storeInvites, (state, action) => {
-        return { ...state, invites: action.invites }
-    }),
-    on(DashboardActions.storeProjects, (state, action) => {
-        return { ...state, projects: action.projects }
-    }),
-    on(DashboardActions.updateColumnInvites, (state, action) => {
-        const updateColumn = action.columnId
+        // const columns = Object.keys(state.columns).map(colId => {
+        //     return {
+        //         [colId]: {
+        //             ...state.columns[colId],
+        //             itemIdList: Object.keys(action.invites)
+        //                 .map(key => +key)
+        //                 .filter(key => action.invites[key].currentDashboardColumn == colId)
+        //                 .filter(key => {
+        //                     const jobs = action.invites
+        //                     const job = jobs[key] as Job
+        //                     const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId].join(" ").toLowerCase()
+        //                     return searchString.includes(state.filterValue.toLowerCase())
+        //                 })
+        //                 .map((key, i) => ({ [i]: key }))
+        //                 .reduce((acc, cur) => ({ ...acc, ...cur }), {})
+        //         }
+        //     }
+        // }).reduce((acc, cur) => ({ ...acc, ...cur }), {})
         return {
             ...state,
-            columns: state.columns.map(column => {
-                return column.id == updateColumn
-                    ? { ...column, items: action.items }
-                    : column
-            })
+            invites: action.invites,
+            // columns
         }
+    }),
+    // on(DashboardActions.jobMoved, (state, action) => {
+    //     if (action.sourceColIndex == action.targetColIndex) return state
+    //     const sourceCol = state.columns[action.sourceColIndex]
+    //     const newSourceColItems = Object.values(sourceCol.itemIdList)
+    //         .filter(jobId => jobId != action.selectedJob.jobId)
+    //         .map((id, i) => ({ [i]: id }))
+    //         .reduce((acc, cur) => ({ ...acc, ...cur }), {})
+
+    //     const targetCol = state.columns[action.targetColIndex]
+    //     const maxIndex = Object.keys(targetCol.itemIdList)
+    //         .map(key => +key)
+    //         .reduce((a, b) => a > b ? a : b, 0)
+
+    //     console.log(`FROM ${action.sourceColIndex} -> TO ${action.targetColIndex}`)
+    //     return {
+    //         ...state,
+    //         columns: {
+    //             ...state.columns,
+    //             [action.targetColIndex]: {
+    //                 ...targetCol,
+    //                 itemIdList: {
+    //                     ...targetCol.itemIdList,
+    //                     [maxIndex + 1]: action.selectedJob.jobId
+    //                 }
+    //             },
+    //             // [action.sourceOrderIndex]: {
+    //             //     ...sourceCol,
+    //             //     itemIdList: {
+    //             //         newSourceColItems
+    //             //     }
+    //             // }
+    //         }
+    //     }
+    // }),
+    on(DashboardActions.storeProjects, (state, action) => {
+        return { ...state, projects: action.projects }
     }),
     on(DashboardActions.storeBoxOptions, (state, action) => {
         return { ...state, boxOptions: action.boxOptions }
@@ -78,11 +124,13 @@ export const dashboardReducer = createReducer(
                     ? initialSort.direction
                     : 'asc'
             return {
-                ...col,
-                sortKey,
-                sortDirection
+                [col.id]: {
+                    ...col,
+                    sortKey,
+                    sortDirection
+                }
             }
-        })
+        }).reduce((acc, cur) => ({ ...acc, ...cur }), {})
         return { ...state, columns: sortedCols }
     }),
     on(DashboardActions.removeJob, (state, action) => {
@@ -198,5 +246,11 @@ export const dashboardReducer = createReducer(
             ...state,
             invites: { ...state.invites, ...updatedJob }
         }
-    })
+    }),
+    on(DashboardActions.setItemDragging, (state, action) => {
+        return { ...state, dragItem: action.jobId }
+    }),
+    // on(DashboardActions.clearItemDragging, (state, action) => {
+    //     return { ...state, dragItem: null }
+    // })
 )

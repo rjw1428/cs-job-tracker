@@ -33,22 +33,7 @@ export const contractorsSelector = createSelector(
 
 export const columnsSelector = createSelector(
     selectDashboardState,
-    dashboardState => dashboardState.columns.map(col => {
-        return {
-            ...col,
-            itemIdList: (dashboardState.invites && Object.keys(dashboardState.invites).length > 0)
-                ? Object.keys(dashboardState.invites)
-                    .map(key => +key)
-                    .filter(key => dashboardState.invites[key].currentDashboardColumn == col.id)
-                    .filter(key => {
-                        const jobs = dashboardState.invites
-                        const job = jobs[key] as Job
-                        const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId].join(" ").toLowerCase()
-                        return searchString.includes(dashboardState.filterValue.toLowerCase())
-                    })
-                : []
-        }
-    })
+    dashboardState => dashboardState.columns ? Object.values(dashboardState.columns) : []
 )
 
 export const selectedJobSelector = createSelector(
@@ -92,7 +77,7 @@ export const boxOptionsSelector = createSelector(
 export const statusOptionsSelector = createSelector(
     selectDashboardState,
     (dashboardState: DashboardState, { columnId }: { columnId: string }) => {
-        const matchingCol = dashboardState.columns.find(column => column.id == columnId)
+        const matchingCol = dashboardState.columns[columnId]
         const options = matchingCol && matchingCol.statusOptions
             ? matchingCol.statusOptions
             : []
@@ -104,7 +89,7 @@ export const tileColorSelector = createSelector(
     selectDashboardState,
     (dashboardState: DashboardState, { job }: { job: Job }) => {
         if (job.isAlerted) return '#fdfd96'
-        const matchingCol = dashboardState.columns.find(column => column.id == job.currentDashboardColumn)
+        const matchingCol = dashboardState.columns[job.currentDashboardColumn]
         const matchingOption = matchingCol.statusOptions.find(option => option.id == job.statusId)
         return matchingOption && matchingOption.color ? matchingOption.color : 'white'
     }

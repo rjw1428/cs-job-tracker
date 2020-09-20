@@ -93,7 +93,6 @@ export class DashboardComponent implements OnInit {
       })
     ).subscribe(
       action => {
-        console.log(action.selectedJob)
         if (action)
           this.store.dispatch(DashboardActions.jobMoved({
             ...action,

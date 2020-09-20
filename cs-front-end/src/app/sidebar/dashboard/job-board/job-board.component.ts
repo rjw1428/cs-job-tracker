@@ -32,10 +32,17 @@ export class JobBoardComponent implements OnInit {
     const sourceColIndex = event.previousContainer.id
     const sourceOrderIndex = event.previousIndex
     const targetColIndex = event.container.id
-    const targetOrderIndex = event.currentIndex
-    const selectedJobId = event.previousContainer.data[sourceOrderIndex]
-    debugger
+    const targetOrderIndex = 0//event.currentIndex
+    // const selectedJobId = event.previousContainer.data[sourceOrderIndex]
+    // console.log({
+    //   sourceColIndex,
+    //   sourceOrderIndex,
+    //   targetColIndex,
+    //   targetOrderIndex,
+    //   selectedJobId
+    // })
     this.store.pipe(first(), map(state => {
+      const selectedJobId = state.dashboard.dragItem
       const selectedJob = state.dashboard.invites[selectedJobId]
       this.store.dispatch(DashboardActions.jobMoveForm({
         sourceColIndex,

@@ -51,10 +51,10 @@ export const storeProjects = createAction(
     props<{ projects: Project[] }>()
 )
 
-export const updateColumnInvites = createAction(
-    "[Backend Service (Dashboard Init)] Update Column Bid Invites",
-    props<{ items: Job[], columnId: string }>()
-)
+// export const updateColumnInvites = createAction(
+//     "[Backend Service (Dashboard Init)] Update Column Bid Invites",
+//     props<{ items: Job[], columnId: string }>()
+// )
 export const storeBoxOptions = createAction(
     "[Backend Service (Dashboard Init)] Store Box Options",
     props<{ boxOptions: BoxOption[] }>()
@@ -175,10 +175,13 @@ export const expandItem = createAction(
     "[Job Item] Toggle Job Item Expand",
     props<{ id: number }>()
 )
-// export const formStartLoading = createAction(
-//     "[Job Board] Start Form Loading"
-// )
 
-// export const formStopLoading = createAction(
-//     "[Form] Stop Form Loading"
+export const setItemDragging = createAction(
+    "[Job Column] Store Dragging Item ID",
+    props<{ jobId: number }>()
+)
+
+// export const clearItemDragging = createAction(
+//     "[Job Column] Clear Dragging Item ID",
+//     props<{ jobId: number }>()
 // )

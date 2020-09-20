@@ -29,6 +29,8 @@ export class JobBoardColumnComponent implements OnInit {
   }
 
   onShortcutMenuSelect(targetColIndex: string, selectedJob: Job) {
+    this.store.dispatch(DashboardActions.setItemDragging({jobId: selectedJob.jobId}))
+    
     const sourceColIndex = selectedJob.currentDashboardColumn
     const targetOrderIndex = 0
     // this.store.pipe(first(),
@@ -61,11 +63,13 @@ export class JobBoardColumnComponent implements OnInit {
   }
 
 
-  onDragStart() {
+  onDragStart(job: Job) {
     this.isDragging.emit(true)
+    this.store.dispatch(DashboardActions.setItemDragging({jobId: job.jobId}))
   }
 
-  onDragRelease() {
+  onDragRelease(job: Job) {
     this.isDragging.emit(false)
+    // this.store.dispatch(DashboardActions.clearItemDragging({jobId: job.jobId}))
   }
 }

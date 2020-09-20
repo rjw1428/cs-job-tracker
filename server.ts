@@ -525,6 +525,8 @@ io.on('connection', (socket) => {
     // })
 
     socket.on('refreshBackend', async (triggerEvent: string, callback) => {
+        state.users = state.users.filter(user => user.id != socket.id)
+        console.log('User Left: (' + state.users.length + ")")
         await initializeBackend()
         callback(triggerEvent)
     })
