@@ -1,7 +1,8 @@
+environment:
+    nodejs_version: ''
+
 platform:
  - x64
- environment:
-    nodejs_version: ''
 
 cache:
  - node_modules
