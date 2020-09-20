@@ -1,10 +1,9 @@
 {
-  "name": "app",
-  "version": "0.0.0",
-  "main": "main.js",
+  "name": "wf-manager",
+  "version": "0.1.0",
   "author": "Ryan Wilk",
   "description": "Workflow Manager",
-
+  "main": "main.js",
   "scripts": {
     "ng": "ng",
     "start": "electron-forge start",
@@ -13,9 +12,10 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "start:electron": "ng build --prod --base-href ./ && electron .",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "electron": "electron ."
+    "electron": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --x64",
+    "postinstall": "install-app-deps"
   },
   "repository": {
     "type": "git",
@@ -51,11 +51,6 @@
     "@angular-devkit/build-angular": "~0.901.6",
     "@angular/cli": "~9.1.6",
     "@angular/compiler-cli": "~9.1.7",
-    "@electron-forge/cli": "^6.0.0-beta.53",
-    "@electron-forge/maker-deb": "^6.0.0-beta.53",
-    "@electron-forge/maker-rpm": "^6.0.0-beta.53",
-    "@electron-forge/maker-squirrel": "^6.0.0-beta.53",
-    "@electron-forge/maker-zip": "^6.0.0-beta.53",
     "@ngrx/store-devtools": "^10.0.0",
     "@types/jasmine": "~3.5.0",
     "@types/jasminewd2": "~2.0.3",
@@ -63,7 +58,7 @@
     "@types/socket.io-client": "^1.4.33",
     "codelyzer": "^5.1.2",
     "electron": "^10.1.2",
-    "electron-packager": "^15.1.0",
+    "electron-builder": "^22.8.1",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~5.0.0",
@@ -76,14 +71,46 @@
     "tslint": "~6.1.0",
     "typescript": "~3.8.3"
   },
-  "config": {
-    "forge": {
-      "packagerConfig": {},
-      "makers": [
-        {
-          "name": "@electron-forge/maker-zip"
-        }
-      ]
+  "build": {
+    "asar": false,
+    "files": [
+      "!src",
+      "!e2e",
+      "!wf-manager-win32-x64",
+      "!dist/win-unpacked",
+      "dist",
+      "main.js",
+      "LICENSE"
+    ],
+    "appId": "com.example.todo",
+    "productName": "Workflow Manager",
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "src/assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "installerIcon": "src/assets/icon.ico",
+      "uninstallerIcon": "src/assets/icon.ico",
+      "license": "LICENSE",
+      "runAfterFinish": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Workflow Manager"
+    },
+    "portable": {
+      "requestExecutionLevel": "user"
+    },
+    "publish": {
+      "provider": "github",
+      "repo": "cs-job-tracker",
+      "owner": "rjw1428"
+    },
+    "directories": {
+      "output": "packaged"
     }
   }
 }
