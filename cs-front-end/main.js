@@ -1,10 +1,40 @@
-const {
-  app,
-  BrowserWindow
-} = require('electron')
+const { app, BrowserWindow } = require('electron')
 const url = require("url");
 const path = require("path");
-require('update-electron-app')()
+const { autoUpdater } = require('electron-updater')
+const isDev = require('electron-is-dev')
+
+autoUpdater.logger = require('electron-log')
+autoUpdater.logger.transports.file.level = 'info'
+
+autoUpdater.on('checking-for-update', ()=>{
+  console.log('Checking for updates...')
+})
+
+autoUpdater.on('update-available', (info)=>{
+  console.log('Update Available!')
+  console.log('Version', info.version)
+  console.log('Release Date', info.releaseDate)
+})
+
+autoUpdater.on('update-not-available', ()=>{
+  console.log('Nothing to see here')
+})
+
+autoUpdater.on('download-progress', (progress)=>{
+  console.log(`Progress ${Math.floor(progress.percent)}`)
+})
+
+autoUpdater.on('update-downloaded', (info)=>{
+  console.log('Update Downloaded');
+  autoUpdater.quitAndInstall()
+})
+
+autoUpdater.on('error', (error)=>{
+  console.log(error)
+})
+
+
 
 let mainWindow
 let splash
@@ -67,6 +97,7 @@ function createMain() {
 }
 
 app.on('ready', function () {
+  if (!isDev) autoUpdater.checkForUpdates()
   createLoadingScreen()
   createMain()
 })
