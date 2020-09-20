@@ -64,10 +64,10 @@ router.get('/api/state/:key', (req, resp) => {
 
 app.use(cors())
 app.use(express.json())
+app.use(router)
 app.use(firebaseRoute)
 app.use(emailRoute)
 app.use(fileShareRoute)
-app.use(router)
 app.use(express.static(distDir));
 
 // I DONT THINK THIS WORKS
@@ -238,7 +238,6 @@ io.on('connection', (socket) => {
 
     socket.on('snapshotProposal', async (job: Job, callback) => {
         try {
-            console.log(job.jobId)
             const estimates = await fetchFromTable('proposal_current', `Proposals for ${job.jobDisplayId}`, { jobId: [job.jobId] })
             const ids = estimates.map((estimate: Estimate) => ({ [estimate.type + 'Id']: estimate.estimateId })).reduce((acc, cur) => ({ ...acc, ...cur }), {})
             const entry = { ...ids, jobId: job.jobId, isActive: 1, dateSent: new Date().toLocaleString() }
