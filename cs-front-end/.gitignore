@@ -44,3 +44,6 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+wf-manager-win32-x64
+out
+packaged

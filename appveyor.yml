@@ -1,0 +1,31 @@
+environment:
+    nodejs_version: ''
+
+platform:
+ - x64
+
+cache:
+ - node_modules
+ - '%APPDATA%\npm-cache'
+ - '%USERPROFILE%\.electron'
+
+init:
+ - git config --global core.autocrlt input
+ - set
+
+install:
+ - ps: Install-Product node $env:nodejs_version
+
+test_script:
+  - node --version
+  - npm --version
+
+before_build:
+  - cd ./cs-front-end
+  - npm install
+
+build_script:
+ - npm run build
+ - npm run dist
+
+test: off 
