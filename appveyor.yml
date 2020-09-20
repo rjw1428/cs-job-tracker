@@ -20,6 +20,8 @@ install:
 test_script:
   - node --version
   - npm --version
+before_script:
+  - cd ./cs-front-end
 
 build_script:
  - npm run dist
