@@ -1,7 +1,6 @@
 environment:
     nodejs_version: ''
-    auth_token:
-        secure: yOP1Q87yi+ABH6qSrkuEg5f2GPMrF2yNaQDPOnUIBspKd7LliF1QZvzhV8QIc+mZ
+    auth_token: yOP1Q87yi+ABH6qSrkuEg5f2GPMrF2yNaQDPOnUIBspKd7LliF1QZvzhV8QIc+mZ
 
 platform:
  - x64
