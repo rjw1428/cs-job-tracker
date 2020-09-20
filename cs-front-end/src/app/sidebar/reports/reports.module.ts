@@ -16,7 +16,10 @@ export const routes: Routes = [
   {
     path: ':reportId',
     component: ReportsComponent
-  }
+  },
+  {
+    path: "**", redirectTo: ''
+  },
 ]
 
 @NgModule({

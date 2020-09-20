@@ -27,7 +27,7 @@ const port = process.env.PORT || 9000
 const app: Application = express();
 const server = createServer(app)
 const io = socketio.listen(server)
-const distDir = path.join(__dirname, "./dist/cs-front-end");
+const distDir = path.join(__dirname, "./dist");
 
 // State Endpoint
 const router = express.Router()
@@ -64,13 +64,15 @@ router.get('/api/state/:key', (req, resp) => {
 
 app.use(cors())
 app.use(express.json())
-app.use(router)
 app.use(firebaseRoute)
 app.use(emailRoute)
 app.use(fileShareRoute)
+app.use(router)
 app.use(express.static(distDir));
 
+// I DONT THINK THIS WORKS
 app.get('*', (req, res) => {
+    console.log("HERE")
     res.sendFile(path.resolve(distDir, 'index.html'));
 });
 
@@ -236,6 +238,7 @@ io.on('connection', (socket) => {
 
     socket.on('snapshotProposal', async (job: Job, callback) => {
         try {
+            console.log(job.jobId)
             const estimates = await fetchFromTable('proposal_current', `Proposals for ${job.jobDisplayId}`, { jobId: [job.jobId] })
             const ids = estimates.map((estimate: Estimate) => ({ [estimate.type + 'Id']: estimate.estimateId })).reduce((acc, cur) => ({ ...acc, ...cur }), {})
             const entry = { ...ids, jobId: job.jobId, isActive: 1, dateSent: new Date().toLocaleString() }
@@ -405,6 +408,10 @@ io.on('connection', (socket) => {
         try {
             await updateTable('map_proposals_sent', { isActive: 0 }, { id: proposalId }, 'Delete File')
             const rawProp = await fetchFromTable('proposal_snapshot', `Proposal History for ${job.jobDisplayId}`, { jobId: [job.jobId] })
+            const proposals = packageProposal(rawProp)
+
+            if (job.currentDashboardColumn != 'estimating') 
+                return socket.emit('getProposalHistory', { job, proposals })
             const currentEstimates = await fetchFromTable('proposal_current', `Current Proposal for ${job.jobDisplayId}`, { jobId: [job.jobId] })
             const currentProp = {
                 id: null,
@@ -415,8 +422,7 @@ io.on('connection', (socket) => {
                 finalCost: null,
                 finalCostNote: null
             }
-            const proposals = packageProposal(rawProp).concat(currentProp)
-            socket.emit('getProposalHistory', { job, proposals })
+            socket.emit('getProposalHistory', { job, proposals: proposals.concat(currentProp) })
         }
         catch (e) {
             console.log(e)
@@ -625,39 +631,39 @@ function packageProposal(dbResponse): Proposal[] {
             type: "concrete",
             cost: resp['concreteCost'],
             fee: resp['concreteFee'],
-            estimator: resp['concreteEstimator'],
-            dateCreated: resp['concreteDateCreated'],
+            estimatorName: resp['concreteEstimator'],
+            estimateDateCreated: resp['concreteDateCreated'],
         }
 
         const excavationEstimate = {
             type: "excavation",
             cost: resp['excavationCost'],
             fee: resp['excavationFee'],
-            estimator: resp['excavationEstimator'],
-            dateCreated: resp['excavationDateCreated'],
+            estimatorName: resp['excavationEstimator'],
+            estimateDateCreated: resp['excavationDateCreated'],
         }
 
         const brickEstimate = {
             type: "brick",
             cost: resp['brickCost'],
             fee: resp['brickFee'],
-            estimator: resp['brickEstimator'],
-            dateCreated: resp['brickDateCreated'],
+            estimatorName: resp['brickEstimator'],
+            estimateDateCreated: resp['brickDateCreated'],
         }
 
         const cmuEstimate = {
             type: "cmu",
             cost: resp['cmuCost'],
             fee: resp['cmuFee'],
-            estimator: resp['cmuEstimator'],
-            dateCreated: resp['cmuDateCreated'],
+            estimatorName: resp['cmuEstimator'],
+            estimateDateCreated: resp['cmuDateCreated'],
         }
         const otherEstimate = {
             type: "other",
             cost: resp['otherCost'],
             fee: resp['otherFee'],
-            estimator: resp['otherEstimator'],
-            dateCreated: resp['otherDateCreated'],
+            estimatorName: resp['otherEstimator'],
+            estimateDateCreated: resp['otherDateCreated'],
         }
         return {
             id: resp['id'],

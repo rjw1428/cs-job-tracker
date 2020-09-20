@@ -52,3 +52,4 @@ storage/*
 build
 
 workflow-manger-win32-x64
+out

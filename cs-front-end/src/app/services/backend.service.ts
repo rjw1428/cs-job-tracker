@@ -33,6 +33,7 @@ export class BackendService {
     return this.http.get(environment.assetPath + 'config.json')
       .toPromise()
       .then((data: { endpoint: {}, version: string }) => {
+        console.log(data)
         this.apiUrl = data.endpoint[environment.env]
         this.version = data.version
 
