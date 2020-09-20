@@ -8,7 +8,8 @@
     "dev:watch": "nodemon",
     "build": "tsc --build",
     "_build2": "tsc --build && pushd cs-front-end && ng build --prod && popd",
-    "start": "pm2 start ./build/server.js"
+    "start": "pm2 start ./build/server.js",
+    "dist": "pushd cs-front-end && electron-builder --x64 && popd"
   },
   "main": "./build/sever.js",
   "keywords": [],
