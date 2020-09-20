@@ -1,5 +1,5 @@
 {
-  "name": "workflow-manger",
+  "name": "app",
   "version": "0.0.0",
   "main": "main.js",
   "author": "Ryan Wilk",
@@ -81,24 +81,7 @@
       "packagerConfig": {},
       "makers": [
         {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "workflowManager"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
+          "name": "@electron-forge/maker-zip"
         }
       ]
     }

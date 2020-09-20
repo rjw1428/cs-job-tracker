@@ -18,7 +18,7 @@ function createLoadingScreen() {
     alwaysOnTop: true
   });
   splash.setResizable(false)
-  const splashPath = path.join(__dirname, `./dist/splash.html`)
+  const splashPath = path.join(__dirname, `./dist/assets/splash.html`)
   splash.loadURL(
     url.format({
       pathname: splashPath,
@@ -34,15 +34,13 @@ function createMain() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 960,
+    // transparent: true,
+    maximizable : true,
   })
  
-  mainWindow.maximize()
   mainWindow.hide()
 
 
-  // process.env['APP_PATH'] = app.getAppPath();
-  // const rootPath = process.cwd().concat('/resources/app/src/index.html');
-  // const rootPath = path.join(__dirname, `../build/dist/cs-front-end/index.html`)
   const rootPath = path.join(__dirname, `./dist/index.html`)
   console.log(rootPath)
   mainWindow.loadURL(
@@ -53,26 +51,14 @@ function createMain() {
     })
   );
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
-  // mainWindow.once('did-finish-load', () => {
-  //   console.log("MAIN LOADED!!!")
-  //   /// then close the loading screen window and show the main window
-  //   if (splash) {
-  //     splash.close();
-  //   }
-  //   mainWindow.show();
-  // });
-
   mainWindow.webContents.once('dom-ready', () => {
     if (splash)
       setTimeout(()=>{
         mainWindow.show()
         splash.close();
-      }, 1000)
+      }, 5000)
       
-
-    // mainWindow.show();
+    // mainWindow.maximize()
   });
 
   mainWindow.on('closed', function () {
