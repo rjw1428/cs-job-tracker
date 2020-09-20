@@ -20,7 +20,8 @@ install:
 test_script:
   - node --version
   - npm --version
-before_script:
+
+before_build:
   - cd ./cs-front-end
 
 build_script:
