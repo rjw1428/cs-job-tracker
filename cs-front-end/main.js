@@ -27,11 +27,12 @@ autoUpdater.on('download-progress', (progress)=>{
 
 autoUpdater.on('update-downloaded', (info)=>{
   console.log('Update Downloaded');
+  console.log(info)
   const dialogOpts = {
     type: 'info',
     buttons: ['Restart', 'Later'],
     title: 'Application Update',
-    message: process.platform === 'win32' ? releaseNotes : releaseName,
+    message: "Notification",
     detail: 'A new version has been downloaded. Restart the application to apply the updates.'
   }
 
