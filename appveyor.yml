@@ -1,6 +1,10 @@
 environment:
     nodejs_version: ''
 
+branches:
+  only:
+    - master
+
 platform:
  - x64
 

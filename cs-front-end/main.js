@@ -27,7 +27,17 @@ autoUpdater.on('download-progress', (progress)=>{
 
 autoUpdater.on('update-downloaded', (info)=>{
   console.log('Update Downloaded');
-  autoUpdater.quitAndInstall()
+  const dialogOpts = {
+    type: 'info',
+    buttons: ['Restart', 'Later'],
+    title: 'Application Update',
+    message: process.platform === 'win32' ? releaseNotes : releaseName,
+    detail: 'A new version has been downloaded. Restart the application to apply the updates.'
+  }
+
+  dialog.showMessageBox(dialogOpts).then((returnValue) => {
+    if (returnValue.response === 0) autoUpdater.quitAndInstall()
+  })
 })
 
 autoUpdater.on('error', (error)=>{
@@ -97,7 +107,12 @@ function createMain() {
 }
 
 app.on('ready', function () {
-  if (!isDev) autoUpdater.checkForUpdates()
+  if (!isDev) {
+    autoUpdater.checkForUpdates()
+    setInterval(() => {
+      autoUpdater.checkForUpdates()
+    }, 60000)
+  }
   createLoadingScreen()
   createMain()
 })
