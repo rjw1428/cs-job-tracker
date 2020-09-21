@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, dialog  } = require('electron')
 const url = require("url");
 const path = require("path");
 const { autoUpdater } = require('electron-updater')
@@ -32,7 +32,7 @@ autoUpdater.on('update-downloaded', (info)=>{
     type: 'info',
     buttons: ['Restart', 'Later'],
     title: 'Application Update',
-    message: "Notification",
+    message: info.releaseNotes ? info.releaseNotes: info.releaseName,
     detail: 'A new version has been downloaded. Restart the application to apply the updates.'
   }
 
