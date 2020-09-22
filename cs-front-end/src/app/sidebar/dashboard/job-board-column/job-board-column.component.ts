@@ -33,20 +33,6 @@ export class JobBoardColumnComponent implements OnInit {
     
     const sourceColIndex = selectedJob.currentDashboardColumn
     const targetOrderIndex = 0
-    // this.store.pipe(first(),
-    //   map(state => {
-    //     const matchingColumn = state.dashboard.columns.find(col => col.id == sourceColIndex)
-    //     return matchingColumn.itemIdList.findIndex(id => id == selectedJob.jobId)
-    //   })
-    // ).subscribe(sourceOrderIndex => {
-    //   this.store.dispatch(DashboardActions.jobMoveForm({
-    //     sourceColIndex,
-    //     sourceOrderIndex,
-    //     targetColIndex,
-    //     targetOrderIndex,
-    //     selectedJob
-    //   }))
-    // })
     const sourceOrderIndex = 0
     this.store.dispatch(DashboardActions.jobMoveForm({
       sourceColIndex,

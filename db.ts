@@ -24,9 +24,6 @@ export function runQuery(query: string, messagePrefix: string, callback) {
                 return callback({ error: err })
             console.log(err)
         }
-        conn.ping((resp)=>{
-            console.log(resp)
-        })
         try {
             conn.query(query, (err, results) => {
                 console.log(`${messagePrefix} MySQL connection made on port ${poolOptions.port}`)

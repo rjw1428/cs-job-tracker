@@ -1,12 +1,12 @@
 {
   "name": "wf-manager",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "author": "Ryan Wilk",
   "description": "Workflow Manager",
   "main": "main.js",
   "scripts": {
     "ng": "ng",
-    "start": "electron-forge start",
+    "start": "ng serve --proxy-config ./proxy.config.json",
     "build": "ng build --prod --base-href ./",
     "test": "ng test",
     "lint": "ng lint",

@@ -12,22 +12,6 @@ import { AppState } from 'src/models/appState';
 @Injectable()
 export class ReportsEffect {
 
-    // initializeReports$ = createEffect(() =>
-    //     this.actions$.pipe(
-    //         ofType(ReportActions.initReports),
-    //         tap(() => this.backendService.initReports())
-    //     ), { dispatch: false }
-    // )
-
-
-    // triggerDataFetch$ = createEffect(() =>
-    //     this.actions$.pipe(
-    //         ofType(ReportActions.setSelectedReportById, ReportActions.setSelectedReportByIndex),
-    //         tap(() => this.backendService.fetchReportData()),
-    //         map(() => ReportActions.fetchReportData())
-    //     )
-    // )
-
     setInitialReport$ = createEffect(() =>
         this.actions$.pipe(
             ofType(ReportActions.storeReportConfigs),

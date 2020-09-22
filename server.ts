@@ -364,6 +364,16 @@ io.on('connection', (socket) => {
         }
     })
 
+    socket.on('updateContact', async (updatedJob, callback) => {
+        try {
+            const resp = await updateTable('bid_invites', { contractorId: updatedJob.contractorId }, { jobId: updatedJob.jobId }, `Updated GC Info for ${updatedJob.jobId}`)
+            emitUpdatedJob(updatedJob.jobId)
+        }
+        catch (e) {
+            callback({ error: e })
+        }
+    })
+
     socket.on('addEstimate', async ({ estimate, jobs }, callback) => {
         try {
             const estimateId = await insertIntoTable('estimates', estimate)
@@ -409,7 +419,7 @@ io.on('connection', (socket) => {
             const rawProp = await fetchFromTable('proposal_snapshot', `Proposal History for ${job.jobDisplayId}`, { jobId: [job.jobId] })
             const proposals = packageProposal(rawProp)
 
-            if (job.currentDashboardColumn != 'estimating') 
+            if (job.currentDashboardColumn != 'estimating')
                 return socket.emit('getProposalHistory', { job, proposals })
             const currentEstimates = await fetchFromTable('proposal_current', `Current Proposal for ${job.jobDisplayId}`, { jobId: [job.jobId] })
             const currentProp = {

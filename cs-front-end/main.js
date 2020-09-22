@@ -98,8 +98,8 @@ function createMain() {
         mainWindow.show()
         splash.close();
       }, 5000)
-      
-    // mainWindow.maximize()
+      mainWindow.maximize()
+    
   });
 
   mainWindow.on('closed', function () {

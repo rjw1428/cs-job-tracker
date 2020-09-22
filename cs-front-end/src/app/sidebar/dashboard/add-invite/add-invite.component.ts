@@ -99,7 +99,7 @@ export class AddInviteComponent implements OnInit {
   onAddContractor(inputData?: string) {
     const dialogRef = this.dialog.open(AddContractorComponent, {
       width: '500px',
-      data: inputData
+      data: { name: inputData }
     });
     const dialogResp = dialogRef.afterClosed()
       .pipe(

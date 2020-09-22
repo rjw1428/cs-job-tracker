@@ -3,7 +3,7 @@ import { createEffect, ofType, Actions } from '@ngrx/effects';
 import { DashboardActions } from './dashboard.action-types';
 import { AppActions } from '../../app.action-types';
 import { BackendService } from '../../services/backend.service';
-import { tap, map, catchError } from 'rxjs/operators';
+import { tap, map, catchError, debounceTime } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { EventService } from 'src/app/services/event.service';
 
@@ -45,6 +45,13 @@ export class DashboardEffects {
         ), { dispatch: false }
     )
 
+    updateJobContact$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(DashboardActions.updateJobContact),
+            tap(({ job }) => this.backendService.saveData('updateContact', job))
+        ), { dispatch: false }
+    )
+
     saveManulaSort$ = createEffect(() =>
         this.actions$.pipe(
             ofType(DashboardActions.jobMoved),
@@ -59,7 +66,7 @@ export class DashboardEffects {
             tap(job => {
                 if (job.currentDashboardColumn != job.previousDashboardColumn)
                     this.backendService.saveData('moveBid', job)
-                    
+
                 if (job.currentDashboardColumn == 'awarded' && job.previousDashboardColumn != "awarded")
                     this.backendService.saveData('awardTimeline', job)
             }),
@@ -70,6 +77,7 @@ export class DashboardEffects {
     triggerMoveForm$ = createEffect(() =>
         this.actions$.pipe(
             ofType(DashboardActions.jobMoveForm),
+            tap(() => console.log("CHECKING FOR MOVE FORM")),
             map(action => {
                 switch (action.targetColIndex) {
                     case 'estimating':
@@ -89,7 +97,9 @@ export class DashboardEffects {
                         }
                     })
                 }
-            })
+            }),
+            debounceTime(1000),
+            tap(() => console.log("DEBOUNCE OVER"))
         )
     )
 

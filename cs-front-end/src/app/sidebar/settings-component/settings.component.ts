@@ -48,5 +48,6 @@ export class SettingsComponent implements OnInit {
     const estimator = this.newEstimatorForm.value
     if (!estimator.name) return this.error = "Missing Name"
     this.backendService.saveData('addEstimator', estimator)
+    this.newEstimatorForm.patchValue({name: ""})
   }
 }

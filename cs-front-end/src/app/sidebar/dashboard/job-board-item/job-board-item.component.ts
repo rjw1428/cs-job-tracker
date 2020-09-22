@@ -26,6 +26,7 @@ import { AddFinalPriceComponent } from '../add-final-price/add-final-price.compo
 import { UpdateDueDateComponent } from '../update-due-date/update-due-date.component';
 import { ViewProposalHistoryComponent } from '../view-proposal-history/view-proposal-history.component';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { AddContractorComponent } from '../add-contractor/add-contractor.component';
 
 @Component({
   selector: 'app-job-board-item',
@@ -72,6 +73,33 @@ export class JobBoardItemComponent implements OnInit {
       data: { message: `Are you sure you want to delete ${this.job.projectName}?`, action: "Delete" }
     }).onAction().subscribe(
       () => this.store.dispatch(DashboardActions.deleteJobItem({ job: this.job }))
+    )
+  }
+
+  onEditContact() {
+    const dialogRef = this.dialog.open(AddContractorComponent, {
+      width: '500px',
+      data: { name: this.job.contractorName, contactName: this.job.contactName, contactNumber: this.job.contactNumber, contactEmail: this.job.contactEmail }
+    }).afterClosed().pipe(
+      first(),
+      mergeMap(formResp => {
+        if (!formResp) return of(null)
+        return this.backendService.saveData('addContractor', formResp)
+      }),
+    ).subscribe(resp => {
+      if (resp) {
+        const updatedJob = { ...this.job, contractorId: resp.contractorId }
+        this.store.dispatch(DashboardActions.updateJobContact({ job: updatedJob }))
+        showSnackbar(this.snackBar, "General Contractor Updated")
+      }
+      // this.dialogRef.close({ message: "General Contractor Saved", value: { ...form, contractorId: resp['insertId'] } });
+    },
+      err => {
+        console.log(err)
+        showSnackbar(this.snackBar, err)
+        // this.error = err.error.error.sqlMessage
+      },
+      () => console.log("COMPLETE")
     )
   }
 

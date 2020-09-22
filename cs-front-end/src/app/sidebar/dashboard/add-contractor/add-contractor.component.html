@@ -1,7 +1,7 @@
 <h1 mat-dialog-title>Add General Contractor</h1>
 <div mat-dialog-content>
   <p>Enter General Contractor Info</p>
-  <mat-vertical-stepper>
+  <mat-vertical-stepper #stepper>
     <mat-step [stepControl]="companyInfoFormGroup">
       <form [formGroup]="companyInfoFormGroup">
         <ng-template matStepLabel>Company Info</ng-template>

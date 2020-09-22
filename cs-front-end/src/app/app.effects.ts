@@ -14,7 +14,6 @@ export class AppEffects {
             switchMap(() => {
                 return this.backendService.initApp()
             }),
-            first(),
             switchMap(({ chartConfigs, reportConfigs, rawShortcuts }) => {
                 return [
                     AppActions.storeChartConfigs({ chartConfigs }),

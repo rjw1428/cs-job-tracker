@@ -4,20 +4,25 @@
     <div style="display: flex; flex-direction: column-reverse;">
       <div style="display: flex; justify-content: space-between;">
         <mat-card-title [matTooltip]="job.jobId" [matTooltipDisabled]="!isDev"  (click)="onTitleClicked()">{{job.projectName}}</mat-card-title>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <div style="font-style: italic;"  (click)="onTitleClicked()">{{job.jobDisplayId}}</div>
         <div style="width:50px; display:flex; justify-content: flex-end;" *ngIf="!job.isNoBid">
           <ng-content></ng-content>
         </div>
       </div>
-      <div style="font-style: italic;"  (click)="onTitleClicked()">{{job.jobDisplayId}}</div>
     </div>
   </mat-card-header>
 
    <mat-card-content [@detailExpand]="job.isExpanded ? 'expanded' : 'collapsed'">
     <div *ngIf="job.isExpanded" class="content">
-      <mat-card-subtitle>
-        <p style="margin: 0px">{{job.contractorName}}</p>
-        <a href="mailto:{{mailTo}}">{{job.contactName}}</a>
-        <p>{{job.contactNumber}}</p>
+      <mat-card-subtitle style="display: flex; justify-content: flex-start;" >
+        <div class="contact" (click)="onEditContact()">
+          <p style="margin: 0px">{{job.contractorName}}</p>
+          <a href="mailto:{{mailTo}}" class="email">{{job.contactName}}</a>
+          <p>{{job.contactNumber}}</p>
+        </div>
+        <mat-icon class="contact-hidden">create</mat-icon>
       </mat-card-subtitle>
       <section>
         <p style="margin: 0px"><strong>Invite: </strong>{{job.dateAdded | date : 'MM/dd/yyyy'}}</p>

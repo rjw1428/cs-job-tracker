@@ -36,6 +36,11 @@ export const updateJob = createAction(
     props<{ job: Job }>()
 )
 
+export const updateJobContact = createAction(
+    "[Backend Service] Update Job GC",
+    props<{ job: Job }>()
+)
+
 export const applyFilter = createAction(
     "[Dashboard Component] Filter Dashboard",
     props<{ value: string }>()

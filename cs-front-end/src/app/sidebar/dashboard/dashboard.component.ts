@@ -31,6 +31,7 @@ import { Job } from 'src/models/job';
 export class DashboardComponent implements OnInit {
   isLoading$: Observable<boolean>
   filterFormControl: FormControl
+
   constructor(
     private store: Store<AppState>,
     private backendService: BackendService,
@@ -53,18 +54,25 @@ export class DashboardComponent implements OnInit {
     })
 
     this.eventService.confirmProposal.pipe(
+      tap(()=>console.log("CONFIRMATION EVENT")),
       switchMap(action => {
+        // If it is dropped back on the same column, do nothing
         if (action.selectedJob.currentDashboardColumn == 'proposal') return of({ action, skipProposal: true })
-        if (action.selectedJob.estimateCount == 0)
+    
+
+        // If no estimates are attached, warn user
+        if (action.selectedJob.estimateCount == 0) {
+          console.log("OPENING CONFIRMATION FORM")
           return this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
             data: { message: "There are no estimates currently attached to this job. Are you sure you want to move to Proposal Sent?", action: "Move" }
-          }).onAction().pipe(map(() => ({ action, skipProposal: false })))
+          }).onAction().pipe(first(),map(() => ({ action, skipProposal: false })))
+        }
         return of(({ action, skipProposal: false }))
       }),
       switchMap(({ action, skipProposal }) => {
         if (skipProposal) return of({ action, propId: null })
         return this.backendService.saveData('snapshotProposal', action.selectedJob)
-          .pipe(map(resp => ({ action, propId: resp })))
+          .pipe(first(), map(resp => ({ action, propId: resp })))
       })
     ).subscribe(({ action, propId }) => {
       this.store.dispatch(DashboardActions.jobMoved({
@@ -79,12 +87,14 @@ export class DashboardComponent implements OnInit {
     })
 
     this.eventService.triggerTimelineForm.pipe(
+      tap(()=>console.log("TIMELINE EVENT")),
       switchMap(action => {
         if (action.selectedJob.currentDashboardColumn == 'awarded') return of(null)
         return this.dialog.open(AwardTimelineFormComponent, {
           width: '500px',
           data: action.selectedJob
         }).afterClosed().pipe(
+          first(),
           map(resp => {
             return resp
               ? { ...action, selectedJob: resp }
@@ -105,12 +115,14 @@ export class DashboardComponent implements OnInit {
     )
 
     this.eventService.triggerAssignmentFrom.pipe(
+      tap(()=>console.log("ASSIGNMENT EVENT")),
       switchMap(action => {
         if (action.selectedJob.currentDashboardColumn == 'estimating') return of(null)
         return this.dialog.open(AssignBidFormComponent, {
           width: '500px',
           data: action.selectedJob
         }).afterClosed().pipe(
+          first(),
           map(resp => {
             return resp
               ? { ...action, ...resp }
