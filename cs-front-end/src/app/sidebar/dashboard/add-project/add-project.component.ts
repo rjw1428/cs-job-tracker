@@ -25,6 +25,7 @@ export class AddProjectComponent implements OnInit {
       city: [''],
       state: [''],
       zip: [''],
+      street:['']
     })
   }
 

@@ -10,6 +10,7 @@ export class Job {
         public contactEmail: string,
         public projectId: number,
         public projectName: string,
+        public projectStreet: string,
         public city: string,
         public state: string,
         public zip: string,

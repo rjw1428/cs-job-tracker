@@ -5,5 +5,6 @@ export class Project {
         private city?: string,
         private state?: string,
         private zip?: string,
+        private street?: string
     ) { }
 }

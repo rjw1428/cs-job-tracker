@@ -6,8 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node -P ./server.tsconfig.json ./server.ts",
     "dev:watch": "nodemon",
-    "build": "tsc --build",
-    "_build2": "tsc --build && pushd cs-front-end && ng build --prod && popd",
+    "build": "tsc --build && pushd cs-front-end && ng build --prod --output-path=../build/dist && popd",
     "start": "pm2 start ./build/server.js"
   },
   "main": "./build/sever.js",

@@ -95,11 +95,10 @@ function createMain() {
   mainWindow.webContents.once('dom-ready', () => {
     if (splash)
       setTimeout(()=>{
+        mainWindow.maximize()
         mainWindow.show()
         splash.close();
       }, 5000)
-      mainWindow.maximize()
-    
   });
 
   mainWindow.on('closed', function () {
