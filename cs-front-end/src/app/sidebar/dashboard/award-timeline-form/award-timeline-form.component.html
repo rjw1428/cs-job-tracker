@@ -3,18 +3,24 @@
 <div mat-dialog-content [formGroup]="timelineFormGroup">
 
   <section style="display:flex; flex-direction: column; align-content: stretch; width: 100%;">
-    <mat-form-field>
-      <mat-label>Start Date</mat-label>
-      <input name="startDate" matInput [matDatepicker]="picker1" formControlName="startTime">
-      <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-      <mat-datepicker #picker1></mat-datepicker>
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>End Date</mat-label>
-      <input name="dueDate" matInput [matDatepicker]="picker2" formControlName="endTime">
-      <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-      <mat-datepicker #picker2></mat-datepicker>
-    </mat-form-field>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <mat-form-field style="width: 100%">
+        <mat-label>Start Date</mat-label>
+        <input name="startDate" matInput [matDatepicker]="picker1" formControlName="startTime">
+        <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+        <mat-datepicker #picker1></mat-datepicker>
+      </mat-form-field>
+      <mat-checkbox labelPosition="before" formControlName="startTBD" (click)="timelineFormGroup.get('startTime').setValue('')">TBD</mat-checkbox>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <mat-form-field style="width: 100%">
+        <mat-label>End Date</mat-label>
+        <input name="dueDate" matInput [matDatepicker]="picker2" formControlName="endTime">
+        <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+        <mat-datepicker #picker2></mat-datepicker>
+      </mat-form-field>
+      <mat-checkbox labelPosition="before" formControlName="endTBD" (click)="timelineFormGroup.get('endTime').setValue('')">TBD</mat-checkbox>
+    </div>
   </section>
   <p *ngIf="error" style="color: red;">ERROR: {{error}}</p>
 

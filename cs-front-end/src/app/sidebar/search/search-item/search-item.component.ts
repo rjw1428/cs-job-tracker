@@ -4,15 +4,17 @@ import { MatSelectChange } from '@angular/material/select';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
-import { noop, Observable, Subject } from 'rxjs';
-import { first, map, switchMap } from 'rxjs/operators';
+import { noop, Observable, of, Subject } from 'rxjs';
+import { first, map, mergeMap, switchMap } from 'rxjs/operators';
 import { ConfirmationSnackbarComponent } from 'src/app/popups/confirmation-snackbar/confirmation-snackbar.component';
 import { BackendService } from 'src/app/services/backend.service';
 import { showSnackbar } from 'src/app/shared/utility';
 import { AppState } from 'src/models/appState';
 import { DashboardColumn } from 'src/models/dashboardColumn';
 import { Job } from 'src/models/job';
+import { AddContractorComponent } from '../../dashboard/add-contractor/add-contractor.component';
 import { AddFinalPriceComponent } from '../../dashboard/add-final-price/add-final-price.component';
+import { AddProjectComponent } from '../../dashboard/add-project/add-project.component';
 import { AwardTimelineFormComponent } from '../../dashboard/award-timeline-form/award-timeline-form.component';
 import { DashboardActions } from '../../dashboard/dashboard.action-types';
 import { UpdateDueDateComponent } from '../../dashboard/update-due-date/update-due-date.component';
@@ -196,5 +198,61 @@ export class SearchItemComponent implements OnInit {
       targetOrderIndex,
       selectedJob
     }))
+  }
+
+  onEditContact(job: Job) {
+    const dialogRef = this.dialog.open(AddContractorComponent, {
+      width: '500px',
+      data: { name: job.contractorName, contactName: job.contactName, contactNumber: job.contactNumber, contactEmail: job.contactEmail }
+    }).afterClosed().pipe(
+      first(),
+      mergeMap(formResp => {
+        if (!formResp) return of(null)
+        return this.backendService.saveData('addContractor', formResp)
+      }),
+    ).subscribe(resp => {
+      if (resp) {
+        const updatedJob = { ...this.job, contractorId: resp.contractorId }
+        this.store.dispatch(DashboardActions.updateJobContact({ job: updatedJob }))
+        showSnackbar(this.snackBar, "General Contractor Updated")
+      }
+      // this.dialogRef.close({ message: "General Contractor Saved", value: { ...form, contractorId: resp['insertId'] } });
+    },
+      err => {
+        console.log(err)
+        showSnackbar(this.snackBar, err)
+
+        // this.error = err.error.error.sqlMessage
+      },
+      () => this.updateJob.next()
+    )
+  }
+
+  onEditProject(job: Job) {
+    const dialogRef = this.dialog.open(AddProjectComponent, {
+      width: '500px',
+      data: { projectName: job.projectName, city: job.city, state: job.state, zip: job.zip, street: job.projectStreet }
+    }).afterClosed().pipe(
+      switchMap(formResp => {
+        if (!formResp) return of(null)
+        return this.backendService.saveData('addProject', formResp)
+      })
+    ).subscribe((resp) => {
+      if (resp) {
+        const updatedJob = { ...this.job, projectId: resp['projectId'] }
+        this.backendService.saveData('updateProject', updatedJob)
+        this.updateJob.next()
+        showSnackbar(this.snackBar, "Project Updated")
+      }
+    },
+      err => {
+        console.log(err)
+        showSnackbar(this.snackBar, err)
+        // this.error = err.error.error.sqlMessage
+      },
+      () => {
+
+      }
+    )
   }
 }

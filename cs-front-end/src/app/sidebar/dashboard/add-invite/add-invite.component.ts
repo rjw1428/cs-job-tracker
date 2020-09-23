@@ -126,7 +126,7 @@ export class AddInviteComponent implements OnInit {
   onAddProject(inputData?: string) {
     const dialogRef = this.dialog.open(AddProjectComponent, {
       width: '350px',
-      data: inputData
+      data: {projectName: inputData}
     });
 
     const dialogResp = dialogRef.afterClosed()

@@ -1,56 +1,63 @@
 <mat-card class="item mat-elevation-z8" style="margin-bottom: 10px; width: 250px;"
   [ngStyle]="{'opacity': 1- (!!job.isNoBid ? 1 : 0) *.5, 'background': (tileColor$ | async)}">
- <mat-card-header style="display: flex; flex-direction: column-reverse; cursor: pointer;">
+  <mat-card-header style="display: flex; flex-direction: column-reverse; cursor: pointer;">
     <div style="display: flex; flex-direction: column-reverse;">
       <div style="display: flex; justify-content: space-between;" (click)="onTitleClicked()">
         <mat-card-title [matTooltip]="job.jobId" [matTooltipDisabled]="!isDev">{{job.projectName}}</mat-card-title>
       </div>
       <div style="display: flex; justify-content: space-between;">
-        <div style="font-style: italic;"  (click)="onTitleClicked()">{{job.jobDisplayId}}</div>
+        <div style="font-style: italic;" (click)="onTitleClicked()">{{job.jobDisplayId}}</div>
         <div style="width:50px; display:flex; justify-content: flex-end;" *ngIf="!job.isNoBid">
           <ng-content></ng-content>
         </div>
       </div>
     </div>
-    <mat-card-subtitle *ngIf="job.projectStreet" class="street" (click)="onTitleClicked()">{{job.projectStreet}}</mat-card-subtitle>
+    <mat-card-subtitle *ngIf="job.projectStreet" class="street" (click)="onTitleClicked()">{{job.projectStreet}}
+    </mat-card-subtitle>
   </mat-card-header>
 
-   <mat-card-content [@detailExpand]="job.isExpanded ? 'expanded' : 'collapsed'">
+  <mat-card-content [@detailExpand]="job.isExpanded ? 'expanded' : 'collapsed'">
     <div *ngIf="job.isExpanded" class="content">
-      <mat-card-subtitle style="display: flex; justify-content: flex-start;" >
+      <mat-card-subtitle style="display: flex; justify-content: flex-start;">
         <div class="contact" (click)="onEditContact()">
           <p style="margin: 0px">{{job.contractorName}}</p>
-          <a href="mailto:{{mailTo}}" class="email">{{job.contactName}}</a>
+          <a href="mailto:{{mailTo}}" class="email" (click)="$event.stopPropagation()">{{job.contactName}}</a>
           <p>{{job.contactNumber}}</p>
         </div>
         <mat-icon class="contact-hidden">create</mat-icon>
       </mat-card-subtitle>
       <section>
         <p style="margin: 0px"><strong>Invite: </strong>{{job.dateAdded | date : 'MM/dd/yyyy'}}</p>
-        <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue!='ASAP' && job.currentDashboardColumn!='awarded'">
+        <div style="display: flex; justify-content: space-between;"
+          *ngIf="job.dateDue!='ASAP' && job.currentDashboardColumn!='awarded'">
           <p class="due-date" (click)="onDueDateSelected()"><strong>Due:
             </strong>{{job.dateDue | date : 'MM/dd/yyyy'}}</p>
           <mat-icon class="due-date-hidden">create</mat-icon>
         </div>
-        <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue=='ASAP' && job.currentDashboardColumn!='awarded'">
+        <div style="display: flex; justify-content: space-between;"
+          *ngIf="job.dateDue=='ASAP' && job.currentDashboardColumn!='awarded'">
           <p class="due-date" (click)="onDueDateSelected()"><strong>Due: </strong>{{job.dateDue}}</p>
           <mat-icon class="due-date-hidden">create</mat-icon>
         </div>
         <div style="display: flex; justify-content: space-between;" *ngIf="job.currentDashboardColumn=='awarded'">
           <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>Start Date:
-            </strong>{{job.startTime | date : 'MM/dd/yyyy'}}
+            </strong>
+            <span *ngIf="job.startTime=='TBD'">{{job.startTime}}</span>
+            <span *ngIf="job.startTime!='TBD'">{{job.startTime | date : 'MM/dd/yyyy'}}</span>
           </p>
           <mat-icon class="award-timeline-hidden">create</mat-icon>
         </div>
         <div style="display: flex; justify-content: space-between;" *ngIf="job.currentDashboardColumn=='awarded'">
           <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>End Date:
-            </strong>{{job.endTime | date : 'MM/dd/yyyy'}}
+            </strong>
+            <span *ngIf="job.endTime=='TBD'">{{job.endTime}}</span>
+            <span *ngIf="job.endTime!='TBD'">{{job.endTime | date : 'MM/dd/yyyy'}}</span>
           </p>
           <mat-icon class="award-timeline-hidden">create</mat-icon>
         </div>
       </section>
 
-    <section *ngIf="job.currentDashboardColumn=='invitation'" style="display: flex; justify-content: flex-end;">
+      <section *ngIf="job.currentDashboardColumn=='invitation'" style="display: flex; justify-content: flex-end;">
         <mat-slide-toggle color="warn" (change)="onNoBid($event)" [checked]="!!job.isNoBid">No Bid</mat-slide-toggle>
       </section>
 
@@ -62,10 +69,8 @@
             <strong>Project Value: </strong>
             {{(job.projectValue) | currency}}
           </p>
-          <button *ngIf="job.currentDashboardColumn!='estimating' && job.currentDashboardColumn!='invitation'" 
-            matTooltip="Edit Final Price" 
-            (click)="onDiscount()"
-            mat-icon-button color="primary">
+          <button *ngIf="job.currentDashboardColumn!='estimating' && job.currentDashboardColumn!='invitation'"
+            matTooltip="Edit Final Price" (click)="onDiscount()" mat-icon-button color="primary">
             <mat-icon>monetization_on</mat-icon>
           </button>
         </div>
@@ -80,7 +85,7 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-        
+
         <mat-form-field style="width: 60px">
           <mat-label>Box:</mat-label>
           <mat-select [value]="(+job.box)" (selectionChange)="onBoxChanged($event)">
@@ -89,7 +94,7 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-      </section> 
+      </section>
 
       <section *ngIf="job.currentDashboardColumn!='awarded'">
         <mat-form-field style="width: 200px">
@@ -113,10 +118,12 @@
           <button (click)="onSaveNote(note.value)" mat-mini-fab color="primary"
             style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
         </div>
-        <div style="display: flex; justify-content: stretch; align-items: flex-end;" *ngIf="job.currentDashboardColumn=='proposal' || job.currentDashboardColumn=='hold'">
+        <div style="display: flex; justify-content: stretch; align-items: flex-end;"
+          *ngIf="job.currentDashboardColumn=='proposal' || job.currentDashboardColumn=='hold'">
           <mat-form-field>
             <mat-label>Follow Up Info:</mat-label>
-            <input #reportNote name="reportNote" matInput [value]="job.reportOnlyNotes" (keydown.enter)="onSaveReportNote(reportNote.value)">
+            <input #reportNote name="reportNote" matInput [value]="job.reportOnlyNotes"
+              (keydown.enter)="onSaveReportNote(reportNote.value)">
             <button mat-button *ngIf="job.reportOnlyNotes" matSuffix mat-icon-button aria-label="Clear"
               (click)="reportNote.value=''; onSaveReportNote(reportNote.value)">
               <mat-icon>close</mat-icon>
@@ -129,7 +136,8 @@
     </div>
   </mat-card-content>
 
-  <mat-card-actions style="display: flex; justify-content: space-around; align-items: flex-start;" [ngStyle]="{'background': setDarkendFooter((tileColor$ | async))}">
+  <mat-card-actions style="display: flex; justify-content: space-around; align-items: flex-start;"
+    [ngStyle]="{'background': setDarkendFooter((tileColor$ | async))}">
     <button mat-button matTooltipPosition="above" matTooltip="View Attached File" (click)="onViewFileList()">
       <mat-icon [matBadge]="job.fileCount ? job.fileCount : null" matBadgeSize="small">
         attach_file

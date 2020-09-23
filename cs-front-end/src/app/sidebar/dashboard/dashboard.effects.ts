@@ -34,7 +34,7 @@ export class DashboardEffects {
     updateBid$ = createEffect(() =>
         this.actions$.pipe(
             ofType(DashboardActions.highlightJobItem),
-            tap(({ job }) => this.backendService.saveData('upateBid', job))
+            tap(({ job }) => this.backendService.saveData('updateBid', job))
         ), { dispatch: false }
     )
 

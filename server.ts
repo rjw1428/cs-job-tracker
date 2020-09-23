@@ -374,6 +374,16 @@ io.on('connection', (socket) => {
         }
     })
 
+    socket.on('updateProject', async (updatedJob, callback) => {
+        try {
+            const resp = await updateTable('bid_invites', { projectId: updatedJob.projectId }, { jobId: updatedJob.jobId }, `Updated GC Info for ${updatedJob.jobId}`)
+            emitUpdatedJob(updatedJob.jobId)
+        }
+        catch (e) {
+            callback({ error: e })
+        }
+    })
+
     socket.on('addEstimate', async ({ estimate, jobs }, callback) => {
         try {
             const estimateId = await insertIntoTable('estimates', estimate)
@@ -483,7 +493,7 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('upateBid', async (updatedJob: Job, callback) => {
+    socket.on('updateBid', async (updatedJob: Job, callback) => {
         try {
             await updateTable(
                 'bid_invites', { isAlerted: +updatedJob.isAlerted },

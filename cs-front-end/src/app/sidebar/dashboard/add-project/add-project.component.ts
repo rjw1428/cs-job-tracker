@@ -16,16 +16,16 @@ export class AddProjectComponent implements OnInit {
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<AddProjectComponent>,
     private backendService: BackendService,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: { projectName: string, city: string, state: string, zip: string, street: string }
   ) { }
 
   ngOnInit(): void {
     this.projectInfoFormGroup = this.formBuilder.group({
-      projectName: [this.data ? this.data : "", Validators.required],
-      city: [''],
-      state: [''],
-      zip: [''],
-      street:['']
+      projectName: [this.data.projectName ? this.data.projectName : "", Validators.required],
+      city: [this.data.city ? this.data.city : ""],
+      state: [this.data.state ? this.data.state : ""],
+      zip: [this.data.zip ? this.data.zip : ""],
+      street: [this.data.street ? this.data.street : ""]
     })
   }
 
