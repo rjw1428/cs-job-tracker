@@ -182,7 +182,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
           chart.dataSource = this.barChart(resp)
           break;
         case ('single_line'):
-          chart.dataSource = this.singleLineChart(resp, chart.seriesName)
+          chart.dataSource = this.lineChart(resp)
           break;
         case ('pie'):
           chart.dataSource = this.pieChart(resp)
@@ -196,12 +196,20 @@ export class ChartsComponent implements OnInit, OnDestroy {
         case ('combo'):
           chart['dataSource1'] = this.barChart(resp.map(dataPoint => {
             const keys = Object.keys(dataPoint)
-            return { [keys[0]]: dataPoint[keys[0]], [keys[1]]: dataPoint[keys[1]] }
+            return {
+              [keys[0]]: dataPoint[keys[0]],
+              [keys[1]]: dataPoint[keys[1]]
+            }
           }))
-          chart['dataSource2'] = this.singleLineChart(resp.map(dataPoint => {
-            const keys = Object.keys(dataPoint)
-            return { [keys[0]]: dataPoint[keys[0]], [keys[2]]: dataPoint[keys[2]] }
-          }), chart.seriesName)
+
+          console.log(JSON.stringify(chart.dataSource1))
+
+          const series2 = resp.map(dataPoint => Object.keys(dataPoint)
+            .filter((key, i) => i != 1)
+            .map(key => ({ [key]: dataPoint[key] }))
+            .reduce((acc, cur) => ({ ...acc, ...cur }), {}))
+
+          chart['dataSource2'] = this.lineChart(series2)
           break;
       }
     }
@@ -248,28 +256,36 @@ export class ChartsComponent implements OnInit, OnDestroy {
     this.ganttChart = chart;
   }
 
-  singleLineChart(data: any[], name) {
-    const series = data.map(dataPoint => {
-      const keys = Object.keys(dataPoint)
-      return {
-        name: dataPoint[keys[0]],
-        value: dataPoint[keys[1]]
-      }
+  lineChart(data: any[]) {
+    const keys = Object.keys(data[0])
+    const seriesNames = keys.slice(1)
+    return seriesNames.map(singleSeriesName => {
+      const series = data.map(dataPoint => {
+        return {
+          name: dataPoint[keys[0]],
+          value: dataPoint[singleSeriesName]
+        }
+      })
+      return { name: singleSeriesName, series }
     })
-    return [{ name, series }]
   }
 
   barChart(data: any[]) {
-    return data.map(dataPoint => {
-      const keys = Object.keys(dataPoint)
-      return {
-        name: dataPoint[keys[0]],
-        value: dataPoint[keys[1]]
-      }
-    });
+    console.log(data)
+    const keys = Object.keys(data[0])
+    const bars = keys.slice(1)
+    const seriesNames = data.map(dataPoint => dataPoint[keys[0]])
+    return seriesNames.map((singleSeriesName, i) => {
+      return bars.map(bar => {
+        return {
+          name: singleSeriesName,
+          value: data[i][bar],
+        }
+      }).reduce((acc,cur)=>({...acc,...cur}),{})
+    })
   }
 
-  
+
   pieChart(data: any[]) {
     return data.map(dataPoint => {
       const keys = Object.keys(dataPoint)

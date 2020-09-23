@@ -7,7 +7,6 @@ export class ChartConfig {
         public storedProcedure: string,
         public defaultTime: string,
         public excludedTimes: string[] = [],
-        public seriesName?: string,
         public xAxisLabel?: string,
         public yAxisLabel?: string,
         public dataSource?: any[],

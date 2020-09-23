@@ -41,18 +41,18 @@
           </div>
 
           <div *ngSwitchCase="'bar_horizontal'" class="wrapper chart">
-            <ngx-charts-bar-horizontal
+            <ngx-charts-bar-horizontal-stacked
               [results]="chart.dataSource"
               [xAxisLabel]="chart.xAxisLabel"
               [legendTitle]="chart.name"
               [yAxisLabel]="chart.yAxisLabel"
-              [legend]="false"
+              [legend]="true"
               [showXAxisLabel]="true"
               [showYAxisLabel]="true"
               [xAxis]="true"
               [yAxis]="true"
               [gradient]="true">
-            </ngx-charts-bar-horizontal>
+            </ngx-charts-bar-horizontal-stacked>
           </div>
 
           <div *ngSwitchCase="'single_line'" class="wrapper chart">

@@ -78,60 +78,60 @@ export const chartReducer = createReducer(
 )
 
 
-function setChartFromData(resp: any[], chart: ChartConfig): ChartConfig {
-    let newChart = { ...chart }
-    if (!resp.length) return { ...newChart, dataSource: [], dataSource1: [], dataSource2: [] }
-    const titlePipe = new TitleCasePipe()
-    newChart = { ...newChart, xAxisLabel: titlePipe.transform(Object.keys(resp[0])[0]) }
-    newChart = { ...newChart, yAxisLabel: titlePipe.transform(Object.keys(resp[0])[1]) }
-    switch (chart.chartType) {
-        case ('bar_vertical'):
-            return { ...newChart, dataSource: barChart(resp) }
+// function setChartFromData(resp: any[], chart: ChartConfig): ChartConfig {
+//     let newChart = { ...chart }
+//     if (!resp.length) return { ...newChart, dataSource: [], dataSource1: [], dataSource2: [] }
+//     const titlePipe = new TitleCasePipe()
+//     newChart = { ...newChart, xAxisLabel: titlePipe.transform(Object.keys(resp[0])[0]) }
+//     newChart = { ...newChart, yAxisLabel: titlePipe.transform(Object.keys(resp[0])[1]) }
+//     switch (chart.chartType) {
+//         case ('bar_vertical'):
+//             return { ...newChart, dataSource: barChart(resp) }
 
-        case ('bar_horizontal'):
-            return { ...newChart, dataSource: barChart(resp) }
+//         case ('bar_horizontal'):
+//             return { ...newChart, dataSource: barChart(resp) }
 
-        case ('single_line'):
-            return { ...newChart, dataSource: singleLineChart(resp, chart.seriesName) }
+//         case ('single_line'):
+//             return { ...newChart, dataSource: singleLineChart(resp, chart.seriesName) }
 
-        case ('pie'):
-            return { ...newChart, dataSource: barChart(resp) }
+//         case ('pie'):
+//             return { ...newChart, dataSource: barChart(resp) }
 
-        case ('pie_advanced'):
-            return { ...newChart, dataSource: barChart(resp) }
+//         case ('pie_advanced'):
+//             return { ...newChart, dataSource: barChart(resp) }
 
-        case ('gantt'):
-            return { ...newChart, dataSource: resp }
-        case ('combo'):
-            const source1 = barChart(resp.map(dataPoint => {
-                const keys = Object.keys(dataPoint)
-                return { [keys[0]]: dataPoint[keys[0]], [keys[1]]: dataPoint[keys[1]] }
-            }))
-            const source2 = singleLineChart(resp.map(dataPoint => {
-                const keys = Object.keys(dataPoint)
-                return { [keys[0]]: dataPoint[keys[0]], [keys[2]]: dataPoint[keys[2]] }
-            }), chart.seriesName)
-            return { ...chart, dataSource1: source1, dataSource2: source2 }
-    }
-}
+//         case ('gantt'):
+//             return { ...newChart, dataSource: resp }
+//         case ('combo'):
+//             const source1 = barChart(resp.map(dataPoint => {
+//                 const keys = Object.keys(dataPoint)
+//                 return { [keys[0]]: dataPoint[keys[0]], [keys[1]]: dataPoint[keys[1]] }
+//             }))
+//             const source2 = singleLineChart(resp.map(dataPoint => {
+//                 const keys = Object.keys(dataPoint)
+//                 return { [keys[0]]: dataPoint[keys[0]], [keys[2]]: dataPoint[keys[2]] }
+//             }), chart.seriesName)
+//             return { ...chart, dataSource1: source1, dataSource2: source2 }
+//     }
+// }
 
-function singleLineChart(data: any[], name) {
-    const series = data.map(dataPoint => {
-        const keys = Object.keys(dataPoint)
-        return {
-            name: dataPoint[keys[0]],
-            value: dataPoint[keys[1]]
-        }
-    })
-    return [{ name, series }]
-}
+// function singleLineChart(data: any[], name) {
+//     const series = data.map(dataPoint => {
+//         const keys = Object.keys(dataPoint)
+//         return {
+//             name: dataPoint[keys[0]],
+//             value: dataPoint[keys[1]]
+//         }
+//     })
+//     return [{ name, series }]
+// }
 
-function barChart(data: any[]) {
-    return data.map(dataPoint => {
-        const keys = Object.keys(dataPoint)
-        return {
-            name: dataPoint[keys[0]],
-            value: dataPoint[keys[1]]
-        }
-    });
-}
+// function barChart(data: any[]) {
+//     return data.map(dataPoint => {
+//         const keys = Object.keys(dataPoint)
+//         return {
+//             name: dataPoint[keys[0]],
+//             value: dataPoint[keys[1]]
+//         }
+//     });
+// }
