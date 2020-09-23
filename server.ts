@@ -507,6 +507,21 @@ io.on('connection', (socket) => {
         }
     })
 
+    // SPELLING ERROR IN v1.0.9, even needs to stay until people update
+    socket.on('upateBid', async (updatedJob: Job, callback) => {
+        try {
+            await updateTable(
+                'bid_invites', { isAlerted: +updatedJob.isAlerted },
+                { jobId: updatedJob.jobId },
+                `Highlight ${updatedJob.jobDisplayId}`
+            )
+            emitUpdatedJob(updatedJob.jobId)
+        }
+        catch (e) {
+            console.log(e)
+        }
+    })
+
     // ----------------------------------------------------------
 
     // ------------------------Charts---------------------------
