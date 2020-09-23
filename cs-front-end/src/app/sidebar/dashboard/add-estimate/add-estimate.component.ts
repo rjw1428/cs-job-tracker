@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Estimate } from 'src/models/estimate';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Observable, BehaviorSubject, forkJoin, throwError } from 'rxjs';
@@ -20,10 +20,11 @@ import { estimateTypesSelector, estimatorsSelector, itemsSelector } from '../das
 @Component({
   selector: 'app-add-estimate',
   templateUrl: './add-estimate.component.html',
-  styleUrls: ['./add-estimate.component.scss']
+  styleUrls: ['./add-estimate.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AddEstimateComponent implements OnInit {
-  costFormGroup: FormGroup
+  costFormGroup: FormGroup[]
   jobFormGroup: FormGroup
   estimateTypes$: Observable<EstimateType[]>
   estimators$: Observable<Estimator[]>
@@ -42,18 +43,23 @@ export class AddEstimateComponent implements OnInit {
     private backendService: BackendService,
     private formBuilder: FormBuilder,
     private store: Store<AppState>,
-    private dialogRef: MatDialogRef<AddEstimateComponent>
+    private dialogRef: MatDialogRef<AddEstimateComponent>,
   ) { }
 
   ngOnInit(): void {
     this.initializeForms()
     this.backendService.initEstimateForm()
     this.estimateTypes$ = this.store.select(estimateTypesSelector)
+    // .pipe(map(types => {
+    //   const selectedValues = this.costFormGroup.map(form => form.get('estimateType').value)
+    //   const selectedValueIds = selectedValues.map(val => val.id)
+    //   return types.filter(type => !selectedValueIds.includes(type.id))
+    // }))
     this.estimators$ = this.store.select(estimatorsSelector)
     this.jobs$ = this.store.select(itemsSelector, { columnId: 'estimating' })
 
     // Create filtered estimator list by watching jobs form valueChanges
-    this.filteredEstimators$ = this.costFormGroup.get('estimator')
+    this.filteredEstimators$ = this.costFormGroup[0].get('estimator')
       .valueChanges.pipe(
         startWith(""),
         switchMap(val => {
@@ -76,21 +82,41 @@ export class AddEstimateComponent implements OnInit {
   }
 
   onSave() {
-    if (!this.costFormGroup.valid)
+    if (!this.costFormGroup.map(costForm => costForm.value).reduce((acc, cur) => acc && cur, true))
       return this.error = "Information missing from Proposal Type section"
     if (!this.jobFormGroup.valid)
       return this.error = "Must select at least one job to assign the estimate to"
-    const estimate = {
-      cost: this.costFormGroup.get('cost').value,
-      estimateTypeId: this.costFormGroup.get('estimateType').value.id,
-      estimatorId: this.costFormGroup.get('estimator').value.id,
-      isInHouse: this.costFormGroup.get('isInHouse').value ? 1 : 0,
-      fee: this.costFormGroup.get('fee').value ? this.costFormGroup.get('fee').value : 0,
-      estimateDateCreated: new Date().toLocaleString()
-    }
+
+    const estimates = this.costFormGroup.map(form => {
+      return {
+        [form.get('estimateType').value.id]: {
+          cost: form.get('cost').value,
+          estimateTypeId: form.get('estimateType').value.id,
+          estimatorId: form.get('estimator').value.id,
+          isInHouse: form.get('isInHouse').value ? 1 : 0,
+          fee: form.get('fee').value ? form.get('fee').value : 0,
+          estimateDateCreated: new Date().toLocaleString()
+        }
+      }
+    }).reduce((acc, cur) => {
+      const curId = Object.keys(cur)[0]
+      const accIds = Object.keys(acc)
+      if (!accIds.includes(curId))
+        return { ...acc, ...cur }
+      return {
+        ...acc, [curId]: {
+          cost: acc[curId].cost + cur[curId].cost,
+          estimateTypeId: cur[curId].estimateTypeId,
+          estimatorId: acc[curId].estimatorId,
+          isInHouse: (acc[curId].isInHouse || cur[curId].isInHouse) ? 1 : 0,
+          fee: acc[curId].fee + cur[curId].fee,
+          estimateDateCreated: acc[curId]
+        }
+      }
+    }, {})
 
     this.dialogRef.close({
-      estimate,
+      estimates: Object.values(estimates),
       jobs: this.selectedJobs
     })
   }
@@ -105,16 +131,31 @@ export class AddEstimateComponent implements OnInit {
     this.selectedJobs.splice(index, 1)
   }
 
+  onAddNewForm(currentFormIndex: number) {
+    if (!this.costFormGroup[currentFormIndex].valid)
+      return this.error = "Must complete current estimate before you can add another one"
+    this.error = ""
+    this.costFormGroup.push(this.initializeConstForm())
+  }
+
+  onRemoveNewForm(formIndex: number) {
+    this.costFormGroup.splice(formIndex, 1)
+  }
+
   initializeForms() {
-    this.costFormGroup = this.formBuilder.group({
+    this.costFormGroup = [this.initializeConstForm()]
+    this.jobFormGroup = this.formBuilder.group({
+      jobs: ["", Validators.required]
+    })
+  }
+
+  initializeConstForm() {
+    return this.formBuilder.group({
       estimateType: ["", Validators.required],
       cost: ["", Validators.required],
       estimator: ["", Validators.required],
       isInHouse: ["true", Validators.required],
       fee: [""]
-    })
-    this.jobFormGroup = this.formBuilder.group({
-      jobs: ["", Validators.required]
     })
   }
 

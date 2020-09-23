@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { Estimate } from 'src/models/estimate';
 import { Proposal } from 'src/models/proposal';
-import { BackendService } from '../services/backend.service';
 
 @Component({
   selector: 'single-proposal',
@@ -12,8 +11,8 @@ export class SingleProposalComponent implements OnInit {
   @Input() proposal: Proposal
   @Input() deletable: boolean = false
   @Output() delete = new EventEmitter<Proposal>()
+  @Output() deleteEstimate = new EventEmitter<{mapId: number, type: string}>()
   constructor(
-    private backendService: BackendService
   ) { }
 
   ngOnInit(): void {
@@ -22,5 +21,9 @@ export class SingleProposalComponent implements OnInit {
 
   onDelete() {
     this.delete.emit(this.proposal)
+  }
+
+  onRemoveEstimate(estimate: Estimate) {
+    this.deleteEstimate.emit({mapId: estimate.mapId, type: estimate.type})
   }
 }

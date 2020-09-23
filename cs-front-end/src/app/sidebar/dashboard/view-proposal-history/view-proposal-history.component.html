@@ -34,7 +34,8 @@
         <single-proposal 
           [proposal]="proposal" 
           [deletable]="i!=proposals.length-1"
-          (delete)="onProposalDelete($event)">
+          (delete)="onProposalDelete($event)"
+          (deleteEstimate)="onEstimateDelete($event)">
       </single-proposal>
       </ng-template>
 

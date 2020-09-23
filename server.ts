@@ -7,7 +7,7 @@ import { createServer } from 'http'
 import { emailRoute } from './email'
 import { fileShareRoute } from './fileio';
 import { firebaseRoute, fetchInitialFirebaseConfigs } from './firebase';
-import { fetchInitialSQLData, insertIntoTable, fetchFromTable, updateTable, runStoredProcedure, runSearch, runQuery } from './db';
+import { fetchInitialSQLData, insertIntoTable, fetchFromTable, updateTable, runStoredProcedure, runSearch, runQuery, deleteFromTable } from './db';
 import { Contractor } from './cs-front-end/src/models/contractor'
 import { Project } from './cs-front-end/src/models/project'
 import { Estimator } from './cs-front-end/src/models/estimator'
@@ -561,6 +561,13 @@ io.on('connection', (socket) => {
         const resp = await fetchFromTable('bid_invites_active', "Bid Invites", { jobId })
         if (!resp.length) return callback(null)
         callback(resp[0])
+    })
+
+
+
+    // --- GENERIC DB ACTIONS
+    socket.on('removeEstimate', async (table, where, callback) => {
+        callback(await deleteFromTable(table, where, 'Delete'))
     })
 })
 

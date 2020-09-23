@@ -190,6 +190,18 @@ export class BackendService {
     this.socket.emit('removeProposal', ({ proposalId, job }))
   }
 
+  deleteEstimate(mapId: number, job: Job) {
+    this.socket.emit('removeEstimate', 'map_estimates_to_jobs', { mapId }, (resp) => {
+      if (resp) {
+        this.socket.emit('proposalHistoryFormInit', job)
+        this.socket.emit('getJob', job.jobId, (job => {
+          this.store.dispatch(DashboardActions.updateJob({ job }))
+        }))
+      }
+    })
+
+  }
+
 
   sendFile({ jobId, file, fileIndex, folder, subFolder }) {
     const formData: any = new FormData()

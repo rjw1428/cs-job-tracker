@@ -78,7 +78,18 @@ export const updateTable = (table: string, set: {}, where: {}, dataInfo: string)
     const setClause = createSetClause(set)
     const whereClause = createWhereClauses(where)
     return new Promise<any[]>((resolve, reject) => {
-        runQuery(`UPDATE ${table} SET ${setClause} ${whereClause}`, `Update ${dataInfo} -`, ({ error, results }) => {
+        runQuery(`UPDATE ${table} SET ${setClause} ${whereClause}`, `Delete ${dataInfo} -`, ({ error, results }) => {
+            if (error) return reject(error)
+            resolve(results)
+        })
+    })
+}
+
+// DELETE DATA
+export const deleteFromTable = (table: string, where: {}, dataInfo: string) => {
+    const whereClause = createWhereClauses(where)
+    return new Promise<any[]>((resolve, reject) => {
+        runQuery(`DELETE FROM ${table} ${whereClause}`, `Update ${dataInfo} -`, ({ error, results }) => {
             if (error) return reject(error)
             resolve(results)
         })

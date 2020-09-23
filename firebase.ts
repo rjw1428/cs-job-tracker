@@ -48,12 +48,15 @@ fb.auth().onAuthStateChanged((user) => {
     if (user) {
         console.log("User:", user.uid)
         logToFirebase('node-status')
-        pingLocaldabase()
-        setInterval(() => {
-            pollForSqlInjection()
-            logToFirebase('node-status')
-            pingLocaldabase()
-        }, 60 * 1000)
+
+        // ONLY USE IN PROD ------------------------------
+        // pingLocaldabase()
+        // setInterval(() => {
+        //     pollForSqlInjection()
+        //     logToFirebase('node-status')
+        //     pingLocaldabase()
+        // }, 60 * 1000)
+        // -----------------------------------------------
     } else {
         // No user is signed in.
     }

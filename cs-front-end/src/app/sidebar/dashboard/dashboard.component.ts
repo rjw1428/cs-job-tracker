@@ -4,7 +4,7 @@ import { Store, select } from '@ngrx/store';
 import { DashboardActions } from './dashboard.action-types';
 import { BackendService } from 'src/app/services/backend.service';
 import { AppActions } from 'src/app/app.action-types';
-import { Observable, iif, of, throwError } from 'rxjs';
+import { Observable, iif, of, throwError, combineLatest } from 'rxjs';
 import { Estimator } from 'src/models/estimator';
 import { map, mergeMap, finalize, catchError, first, switchMap, tap, debounceTime } from 'rxjs/operators'
 import { MatDialog } from '@angular/material/dialog';
@@ -54,18 +54,18 @@ export class DashboardComponent implements OnInit {
     })
 
     this.eventService.confirmProposal.pipe(
-      tap(()=>console.log("CONFIRMATION EVENT")),
+      tap(() => console.log("CONFIRMATION EVENT")),
       switchMap(action => {
         // If it is dropped back on the same column, do nothing
         if (action.selectedJob.currentDashboardColumn == 'proposal') return of({ action, skipProposal: true })
-    
+
 
         // If no estimates are attached, warn user
         if (action.selectedJob.estimateCount == 0) {
           console.log("OPENING CONFIRMATION FORM")
           return this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
             data: { message: "There are no estimates currently attached to this job. Are you sure you want to move to Proposal Sent?", action: "Move" }
-          }).onAction().pipe(first(),map(() => ({ action, skipProposal: false })))
+          }).onAction().pipe(first(), map(() => ({ action, skipProposal: false })))
         }
         return of(({ action, skipProposal: false }))
       }),
@@ -87,7 +87,7 @@ export class DashboardComponent implements OnInit {
     })
 
     this.eventService.triggerTimelineForm.pipe(
-      tap(()=>console.log("TIMELINE EVENT")),
+      tap(() => console.log("TIMELINE EVENT")),
       switchMap(action => {
         if (action.selectedJob.currentDashboardColumn == 'awarded') return of(null)
         return this.dialog.open(AwardTimelineFormComponent, {
@@ -115,7 +115,7 @@ export class DashboardComponent implements OnInit {
     )
 
     this.eventService.triggerAssignmentFrom.pipe(
-      tap(()=>console.log("ASSIGNMENT EVENT")),
+      tap(() => console.log("ASSIGNMENT EVENT")),
       switchMap(action => {
         if (action.selectedJob.currentDashboardColumn == 'estimating') return of(null)
         return this.dialog.open(AssignBidFormComponent, {
@@ -201,7 +201,9 @@ export class DashboardComponent implements OnInit {
       first(),
       mergeMap(formResp => {
         if (!formResp) return of(null)
-        return this.backendService.saveData('addEstimate', formResp)
+        return combineLatest(formResp['estimates'].map(estimate => ({ estimate, jobs: formResp.jobs })).map(estimateObj => {
+          return this.backendService.saveData('addEstimate', estimateObj)
+        }))
       })
     ).subscribe(resp => {
       if (resp && resp.error) return showSnackbar(this.snackBar, "ERROR:" + resp.error.sqlMessage)

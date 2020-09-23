@@ -10,7 +10,8 @@ import { MatAccordion } from '@angular/material/expansion';
 import { proposalHistorySelector } from '../dashboard.selectors';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmationSnackbarComponent } from 'src/app/popups/confirmation-snackbar/confirmation-snackbar.component';
-import { DatePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-view-proposal-history',
@@ -42,4 +43,10 @@ export class ViewProposalHistoryComponent implements OnInit {
     )
   }
 
+  onEstimateDelete({ mapId, type }: { mapId: number, type: string }) {
+    this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
+      data: { message: `Are you sure you want to delete the ${new TitleCasePipe().transform(type)} estimate?`, action: "Delete" }
+    }).onAction().subscribe(
+      () => this.backendService.deleteEstimate(mapId, this.job))
+  }
 }

@@ -18,7 +18,7 @@
   <mat-divider></mat-divider>
 
   <div *ngFor="let estimate of proposal.estimates">
-    <ng-container *ngTemplateOutlet="rowTemplate;context:estimate"></ng-container>
+    <ng-container *ngTemplateOutlet="rowTemplate;context: {estimate: estimate, proposalId: proposal.id}"></ng-container>
   </div>
 
 
@@ -40,20 +40,22 @@
   </div>
 </div>
 
-<ng-template #rowTemplate let-type="type" let-cost="cost" let-dateCreated="estimateDateCreated"
-  let-estimator="estimatorName" let-fee="fee">
-  <div style="display: flex; flex-direction: row; justify-content: space-between;" *ngIf="cost">
+<ng-template #rowTemplate let-estimate="estimate" let-proposalId="proposalId">
+  <div style="display: flex; flex-direction: row; justify-content: space-between;" *ngIf="estimate.cost">
     <div style="width: 30%">
-      <p><strong>{{type | titlecase}} Cost: </strong>{{cost | currency}}</p>
+      <p><strong>{{estimate.type | titlecase}} Cost: </strong>{{estimate.cost | currency}}</p>
     </div>
     <div style="width: 20%">
-      <p>{{dateCreated | date : 'MM/dd/yy'}}</p>
+      <p>{{estimate.estimateDateCreated | date : 'MM/dd/yy'}}</p>
     </div>
     <div style="width: 20%">
-      <p>{{estimator}}</p>
+      <p>{{estimate.estimatorName}}</p>
     </div>
     <div style="width: 10%">
-      <p *ngIf="fee">{{fee | currency}}</p>
+      <p *ngIf="estimate.fee">{{estimate.fee | currency}}</p>
+    </div>
+    <div style="width: 5%; cursor: pointer" *ngIf="!proposalId" (click)="onRemoveEstimate(estimate)">
+      <mat-icon>delete_outline</mat-icon>
     </div>
   </div>
 </ng-template>
