@@ -1,8 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { SpecialReportComponent } from './special-report/special-report.component';
 
 
 const routes: Routes = [
+  {
+    path: 'estimating', component: SpecialReportComponent
+  },
   {
     path: "dashboard",
     loadChildren: () => import('./sidebar/dashboard/dashboard.module').then(m => m.DashboardModule),

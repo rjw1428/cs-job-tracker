@@ -18,6 +18,7 @@ import { HelpComponent } from './sidebar/help/help.component';
 import { SettingsComponent } from './sidebar/settings-component/settings.component';
 import { ConfirmationSnackbarComponent } from './popups/confirmation-snackbar/confirmation-snackbar.component';
 import { BackendService } from './services/backend.service';
+import { SpecialReportComponent } from './special-report/special-report.component';
 
 export function init(backend: BackendService) {
   return () => backend.setupBackend()
@@ -30,6 +31,7 @@ export function init(backend: BackendService) {
     HelpComponent,
     SettingsComponent,
     ConfirmationSnackbarComponent,
+    SpecialReportComponent,
   ],
   imports: [
     BrowserModule,

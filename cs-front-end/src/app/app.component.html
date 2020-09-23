@@ -1,4 +1,4 @@
-<app-sidebar class="sidebar" [width]="sidebarWidth"></app-sidebar>
-<div class="content" [ngStyle]="{'padding-left': sidebarWidth + 'px'}">
+<app-sidebar class="sidebar" [width]="sidebarWidth" *ngIf="!(isDisplayMode$ | async) as mode"></app-sidebar>
+<div class="content" [ngStyle]="{'padding-left': sidebarWidth  + 'px'}">
   <router-outlet></router-outlet>
 </div>

@@ -1,0 +1,27 @@
+<div class="wrapper" *ngIf="report">
+  <mat-table matSort [dataSource]="report.dataSource" matSortDisableClear class="mat-elevation-z8">
+
+    <ng-container [matColumnDef]="columnDef" *ngFor="let columnDef of report.displayedColumns; let i = index">
+
+      <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" [ngStyle]="{'flex': this.widths[i]}">
+        {{columnDef | titlecase}} </mat-header-cell>
+
+      <mat-cell *matCellDef="let element" [ngStyle]="{'backgroundColor': element.color, 'flex': this.widths[i], 'line-height': '1em'}">
+        <div [ngStyle]="{'font-size': this.fontSize + 'px', padding: '.1em .2em', 'line-height': '1em'}">
+          {{(columnDef != 'project value')?element[columnDef]:element[columnDef] | currency}}</div>
+      </mat-cell>
+
+    </ng-container>
+
+    <mat-header-row class="sticky-row" *matHeaderRowDef="report.displayedColumns;  sticky: true">
+    </mat-header-row>
+    <!-- [ngStyle]="{'height': this.fontSize+'px !important'}" -->
+    <mat-row class="special-row" *matRowDef="let row; columns: report.displayedColumns;" ></mat-row>
+  </mat-table>
+</div>
+
+<!-- <div style="position: absolute; bottom: 50px; right: 100px">
+  <button mat-fab color="default" style="font-size: 52px; margin-right: 40px" (click)="grow()">+</button>
+
+  <button mat-fab color="default" style="font-size: 52px" (click)="shrink()">-</button>
+</div> -->
