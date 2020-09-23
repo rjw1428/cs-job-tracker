@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, ViewChild, OnDestroy, Chang
 import { MatTableDataSource } from '@angular/material/table';
 import { BackendService } from '../../services/backend.service';
 import { ActivatedRoute, Params } from '@angular/router';
-import { convertRawShortcut, formatDate, showSnackbar } from '../../shared/utility';
+import { convertRawShortcut, formatDate, formatLengthOfTime, showSnackbar } from '../../shared/utility';
 import { MatSort } from '@angular/material/sort';
 import { Store } from '@ngrx/store';
 import { CurrencyPipe } from '@angular/common';
@@ -132,7 +132,17 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   setReportFromData(resp: any[], report: ReportConfig) {
     if (resp.length) {
+      // FORMAT DATE
+      resp = resp.map(row => {
+        return Object.keys(row).map(field => {
+          if (field == "Time In Invites" || field == "Time On Hold" || field == "Turnaround Time")
+            return { [field + " (Days:Hours:Min)"]: formatLengthOfTime(row[field]) }
+          return { [field]: row[field] }
+        }).reduce((acc, cur) => ({ ...acc, ...cur }), {})
+      })
       report.displayedColumns = Object.keys(resp[0]).slice(0, -1)
+      console.log(resp[0])
+
       if (report.footer) {
         if (report.footer == 'project value') {
           const sum = resp.map(row => row[report.footer]).reduce((acc, cur) => acc += +cur, 0)

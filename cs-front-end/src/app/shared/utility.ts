@@ -116,3 +116,16 @@ export function formatDate(date) {
     if (sec.length < 2) sec = '0' + sec;
     return [year, month, day].join('-') + " " + [hour, min, sec].join("");
 }
+
+
+export function formatLengthOfTime(millis) {
+    const days = Math.floor(millis / (1000 * 60 * 60 * 24))
+    const hours = Math.floor((millis - days * (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    const minutes = Math.floor((millis - days * (1000 * 60 * 60 * 24) - hours * (1000 * 60 * 60)) / (1000 * 60))
+
+    const f_days = days < 10 ? '0' + days : days.toString()
+    const f_hours = hours < 10 ? '0' + hours : hours.toString()
+    const f_min = minutes < 10 ? '0' + minutes : minutes.toString()
+
+    return [f_days, f_hours, f_min].join(":")
+}
