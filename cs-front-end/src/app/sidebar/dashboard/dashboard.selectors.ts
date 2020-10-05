@@ -1,8 +1,6 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store'
 import { DashboardState } from 'src/models/dashboardState'
-import { AppState } from 'src/models/appState'
 import { Job } from 'src/models/job'
-import { Proposal } from 'src/models/proposal'
 
 export const selectDashboardState = createFeatureSelector<DashboardState>("dashboard")
 
@@ -61,7 +59,7 @@ export const itemsSelector = createSelector(
             .filter(key => dashboardState.invites[key].currentDashboardColumn == columnId)
             .filter(key => {
                 const job = jobs[key] as Job
-                const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId].join(" ").toLowerCase()
+                const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId, job.contractorName].join(" ").toLowerCase()
                 return searchString.includes(dashboardState.filterValue.toLowerCase())
             })
         const items = keys.map(key => dashboardState.invites[key])

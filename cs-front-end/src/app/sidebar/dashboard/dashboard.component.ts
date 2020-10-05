@@ -32,6 +32,9 @@ export class DashboardComponent implements OnInit {
   isLoading$: Observable<boolean>
   filterFormControl: FormControl
 
+  isToProposalConfirmationOpen: boolean = false
+  isToAwardTimelineOpen: boolean = false
+  isToEstimatingAssignmentOpen: boolean = false
   constructor(
     private store: Store<AppState>,
     private backendService: BackendService,
@@ -57,39 +60,43 @@ export class DashboardComponent implements OnInit {
       tap(() => console.log("CONFIRMATION EVENT")),
       switchMap(action => {
         // If it is dropped back on the same column, do nothing
-        if (action.selectedJob.currentDashboardColumn == 'proposal') return of({ action, skipProposal: true })
+        if (action.selectedJob.currentDashboardColumn == 'proposal' || this.isToProposalConfirmationOpen) return of({ action, skipProposal: true })
 
+        // If there are estimates, make move
+        if (action.selectedJob.estimateCount) return of({ action, skipProposal: false })
 
         // If no estimates are attached, warn user
-        if (action.selectedJob.estimateCount == 0) {
-          console.log("OPENING CONFIRMATION FORM")
-          return this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
-            data: { message: "There are no estimates currently attached to this job. Are you sure you want to move to Proposal Sent?", action: "Move" }
-          }).onAction().pipe(first(), map(() => ({ action, skipProposal: false })))
-        }
-        return of(({ action, skipProposal: false }))
+        return this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
+          data: { message: "There are no estimates currently attached to this job. Are you sure you want to move to Proposal Sent?", action: "Move" }
+        }).afterDismissed().pipe(first(), map(result => ({ action, skipProposal: !result.dismissedByAction })))
       }),
       switchMap(({ action, skipProposal }) => {
         if (skipProposal) return of({ action, propId: null })
         return this.backendService.saveData('snapshotProposal', action.selectedJob)
           .pipe(first(), map(resp => ({ action, propId: resp })))
-      })
+      }),
+      catchError(err => throwError(err))
     ).subscribe(({ action, propId }) => {
-      this.store.dispatch(DashboardActions.jobMoved({
-        ...action,
-        selectedJob: {
-          ...action.selectedJob,
-          historyOnlyNotes: `Moved to Proposal`,
-          proposalId: propId,
-          assignedTo: 0
-        }
-      }))
-    })
+      this.isToProposalConfirmationOpen = false
+      if (propId)
+        this.store.dispatch(DashboardActions.jobMoved({
+          ...action,
+          selectedJob: {
+            ...action.selectedJob,
+            historyOnlyNotes: `Moved to Proposal`,
+            proposalId: propId,
+            assignedTo: 0
+          }
+        }))
+    },
+      err => console.log(err)
+    )
 
     this.eventService.triggerTimelineForm.pipe(
-      tap(() => console.log("TIMELINE EVENT")),
       switchMap(action => {
-        if (action.selectedJob.currentDashboardColumn == 'awarded') return of(null)
+        if (action.selectedJob.currentDashboardColumn == 'awarded' || this.isToAwardTimelineOpen) return of(null)
+        console.log("TIMELINE EVENT")
+        this.isToAwardTimelineOpen = true
         return this.dialog.open(AwardTimelineFormComponent, {
           width: '500px',
           data: action.selectedJob
@@ -101,23 +108,24 @@ export class DashboardComponent implements OnInit {
               : null
           }))
       })
-    ).subscribe(
-      action => {
-        if (action)
-          this.store.dispatch(DashboardActions.jobMoved({
-            ...action,
-            selectedJob: {
-              ...action.selectedJob,
-              historyOnlyNotes: `Moved to Awarded`
-            }
-          }))
-      }
+    ).subscribe(action => {
+      if (action)
+        this.store.dispatch(DashboardActions.jobMoved({
+          ...action,
+          selectedJob: {
+            ...action.selectedJob,
+            historyOnlyNotes: `Moved to Awarded`
+          }
+        }))
+      this.isToAwardTimelineOpen = false
+    }
     )
 
     this.eventService.triggerAssignmentFrom.pipe(
       tap(() => console.log("ASSIGNMENT EVENT")),
       switchMap(action => {
-        if (action.selectedJob.currentDashboardColumn == 'estimating') return of(null)
+        if (action.selectedJob.currentDashboardColumn == 'estimating' || this.isToEstimatingAssignmentOpen) return of(null)
+        this.isToEstimatingAssignmentOpen = true
         return this.dialog.open(AssignBidFormComponent, {
           width: '500px',
           data: action.selectedJob
@@ -129,17 +137,17 @@ export class DashboardComponent implements OnInit {
               : null
           }))
       })
-    )
-      .subscribe(action => {
-        if (action)
-          this.store.dispatch(DashboardActions.jobMoved({
-            ...action,
-            selectedJob: {
-              ...action.selectedJob,
-              historyOnlyNotes: `Moved to Estimating; Assigned to ${action.name}`
-            }
-          }))
-      })
+    ).subscribe(action => {
+      if (action)
+        this.store.dispatch(DashboardActions.jobMoved({
+          ...action,
+          selectedJob: {
+            ...action.selectedJob,
+            historyOnlyNotes: `Moved to Estimating; Assigned to ${action.name}`
+          }
+        }))
+      this.isToEstimatingAssignmentOpen = false
+    })
   }
 
   onCreateContractor() {

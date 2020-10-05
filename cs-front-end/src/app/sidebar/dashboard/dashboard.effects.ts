@@ -79,6 +79,7 @@ export class DashboardEffects {
             ofType(DashboardActions.jobMoveForm),
             tap(() => console.log("CHECKING FOR MOVE FORM")),
             map(action => {
+                console.log(action.targetColIndex)
                 switch (action.targetColIndex) {
                     case 'estimating':
                         this.eventService.triggerAssignmentFrom.next(action)
@@ -97,9 +98,7 @@ export class DashboardEffects {
                         }
                     })
                 }
-            }),
-            debounceTime(1000),
-            tap(() => console.log("DEBOUNCE OVER"))
+            })
         )
     )
 

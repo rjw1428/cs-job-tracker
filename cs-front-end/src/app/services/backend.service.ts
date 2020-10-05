@@ -64,7 +64,9 @@ export class BackendService {
         })
 
         this.socket.on('getBoxOptions', (boxOptions) => {
-          this.store.dispatch(DashboardActions.storeBoxOptions({ boxOptions }))
+          // Needs to be removed once you're able to update the backend
+          const b = new Array(25).fill({}).map((val, i) => ({ id: i+1, boxId: (i+1).toString() }))
+          this.store.dispatch(DashboardActions.storeBoxOptions({ boxOptions: b }))
         })
 
         this.socket.on('getEstimateTypes', (estimateTypes) => {
