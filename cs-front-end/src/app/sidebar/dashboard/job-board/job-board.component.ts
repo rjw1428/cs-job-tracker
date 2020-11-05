@@ -20,6 +20,7 @@ export class JobBoardComponent implements OnInit {
   columns$: Observable<DashboardColumn[]>
   isInitialized = false
   isDragging = false
+  dragItemId: number
   constructor(
     private store: Store<AppState>
   ) { }
@@ -41,21 +42,28 @@ export class JobBoardComponent implements OnInit {
     //   targetOrderIndex,
     //   selectedJobId
     // })
-    this.store.pipe(first(), map(state => {
-      const selectedJobId = state.dashboard.dragItem
-      const selectedJob = state.dashboard.invites[selectedJobId]
-      this.store.dispatch(DashboardActions.jobMoveForm({
-        sourceColIndex,
-        sourceOrderIndex,
-        targetColIndex,
-        targetOrderIndex,
-        selectedJob
-      }))
-    })).subscribe(noop)
+    if (this.dragItemId)
+      this.store.pipe(first(), map(state => {
+        // const selectedJobId = state.dashboard.dragItem
+        const selectedJob = state.dashboard.invites[this.dragItemId]
+        this.store.dispatch(DashboardActions.jobMoveForm({
+          sourceColIndex,
+          sourceOrderIndex,
+          targetColIndex,
+          targetOrderIndex,
+          selectedJob
+        }))
+      })).subscribe(noop)
   }
 
-  onIsDragging(event) {
-    this.isDragging = event
+  onIsDragging(jobId: number | null) {
+    this.isDragging = !!jobId
+    console.log(!!jobId ? "setting id" : "clearing id")
+
+    // At end of call stack, clear the drag item (allows drop() event to run with the ID)
+    setTimeout(() => {
+      this.dragItemId = jobId
+    })
   }
 
 }

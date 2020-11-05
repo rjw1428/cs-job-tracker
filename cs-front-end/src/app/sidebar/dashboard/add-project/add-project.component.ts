@@ -10,16 +10,20 @@ import { Project } from 'src/models/project';
   styleUrls: ['./add-project.component.scss']
 })
 export class AddProjectComponent implements OnInit {
+  formTitle = "Add Project"
   projectInfoFormGroup: FormGroup
   error: string = ""
   constructor(
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<AddProjectComponent>,
     private backendService: BackendService,
-    @Inject(MAT_DIALOG_DATA) public data: { projectName: string, city: string, state: string, zip: string, street: string }
+    @Inject(MAT_DIALOG_DATA) public data: { id: number, projectName: string, city: string, state: string, zip: string, street: string }
   ) { }
 
   ngOnInit(): void {
+    if (this.data.id)
+      this.formTitle = "Edit Project"
+      
     this.projectInfoFormGroup = this.formBuilder.group({
       projectName: [this.data.projectName ? this.data.projectName : "", Validators.required],
       city: [this.data.city ? this.data.city : ""],

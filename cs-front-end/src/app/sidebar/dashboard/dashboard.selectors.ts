@@ -62,7 +62,19 @@ export const itemsSelector = createSelector(
                 const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId, job.contractorName].join(" ").toLowerCase()
                 return searchString.includes(dashboardState.filterValue.toLowerCase())
             })
-        const items = keys.map(key => dashboardState.invites[key])
+        const items = keys
+            .map(key => {
+                const job = jobs[key] as Job
+                const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId, job.contractorName].join(" ").toLowerCase()
+                return { ...dashboardState.invites[key], longName: searchString } as Job
+            })
+            .sort((a, b) => {
+                // 11/4/2020, 3:53:57 PM
+                const dateA = new Date(a.transactionDate)
+                const dateB = new Date(b.transactionDate)
+                return  dateB.getTime() - dateA.getTime()
+
+            })
         return items
     }
 )

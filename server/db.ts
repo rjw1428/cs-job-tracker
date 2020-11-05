@@ -1,9 +1,9 @@
 import * as mysql from 'mysql'
 import * as path from 'path';
 import * as dotenv from "dotenv";
-import { Estimator } from './cs-front-end/src/models/estimator'
+import { Estimator } from '../cs-front-end/src/models/estimator'
 
-dotenv.config({ path: path.join(__dirname, "./.env") })
+dotenv.config({ path: path.join(__dirname, "../.env") })
 
 const poolOptions = process.env.ENVIRONMENT && process.env.ENVIRONMENT.toLowerCase() != 'dev'
     ? {

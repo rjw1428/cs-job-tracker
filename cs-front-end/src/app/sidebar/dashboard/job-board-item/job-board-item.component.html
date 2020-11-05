@@ -7,9 +7,12 @@
       </div>
       <div style="display: flex; justify-content: space-between;">
         <div style="font-style: italic;" (click)="onTitleClicked()">{{job.jobDisplayId}}</div>
+       
+        <!-- Drage Indicator Field -->
         <div style="width:50px; display:flex; justify-content: flex-end;" *ngIf="!job.isNoBid">
           <ng-content></ng-content>
         </div>
+
       </div>
     </div>
     <mat-card-subtitle *ngIf="job.projectStreet" class="street" (click)="onTitleClicked()">{{job.projectStreet}}

@@ -180,14 +180,3 @@ export const expandItem = createAction(
     "[Job Item] Toggle Job Item Expand",
     props<{ id: number }>()
 )
-
-export const setItemDragging = createAction(
-    "[Job Column] Store Dragging Item ID",
-    props<{ jobId: number }>()
-)
-
-
-// export const clearItemDragging = createAction(
-//     "[Job Column] Clear Dragging Item ID",
-//     props<{ jobId: number }>()
-// )

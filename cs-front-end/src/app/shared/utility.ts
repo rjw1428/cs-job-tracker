@@ -129,3 +129,15 @@ export function formatLengthOfTime(millis) {
 
     return [f_days, f_hours, f_min].join(":")
 }
+
+export function isValidDate(d: string): boolean {
+    // This would be an ID and not a date
+    if (d.includes('-')) return false
+    const parts = d.trim().split(' ')
+    const test = parts.length > 1
+        ? parts.slice(0, -1).join(" ")
+        : parts[0]
+    return new Date(test).toString() == 'Invalid Date'
+        ? false
+        : new Date(d).toString() !== 'Invalid Date'
+}

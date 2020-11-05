@@ -26,5 +26,4 @@ export interface DashboardState {
     fileTypeOptions: string[]
     invites: { [jobId: number]: Job },
     filterValue: string
-    dragItem: number
 }

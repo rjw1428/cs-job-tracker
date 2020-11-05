@@ -23,7 +23,6 @@ export const initialDashboardState: DashboardState = {
     fileTypeOptions: [],
     invites: null,
     filterValue: "",
-    dragItem: null
 }
 
 
@@ -246,11 +245,5 @@ export const dashboardReducer = createReducer(
             ...state,
             invites: { ...state.invites, ...updatedJob }
         }
-    }),
-    on(DashboardActions.setItemDragging, (state, action) => {
-        return { ...state, dragItem: action.jobId }
-    }),
-    // on(DashboardActions.clearItemDragging, (state, action) => {
-    //     return { ...state, dragItem: null }
-    // })
+    })
 )

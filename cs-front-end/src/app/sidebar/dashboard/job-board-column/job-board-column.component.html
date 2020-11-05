@@ -12,7 +12,6 @@
         class="box" 
         cdkDrag 
         [job]="item" 
-        cdkDragBoundary=".dashboard-wrapper"
         (cdkDragStarted)="onDragStart(item)" 
         (cdkDragReleased)="onDragRelease(item)">
         <mat-icon cdkDragHandle [matMenuTriggerFor]="quickMoveMenu" style="cursor: grab;">drag_indicator</mat-icon>

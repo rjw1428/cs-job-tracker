@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, ViewChild, OnDestroy, Chang
 import { MatTableDataSource } from '@angular/material/table';
 import { BackendService } from '../../services/backend.service';
 import { ActivatedRoute, Params } from '@angular/router';
-import { convertRawShortcut, formatDate, formatLengthOfTime, showSnackbar } from '../../shared/utility';
+import { convertRawShortcut, formatDate, formatLengthOfTime, isValidDate, showSnackbar } from '../../shared/utility';
 import { MatSort } from '@angular/material/sort';
 import { Store } from '@ngrx/store';
 import { CurrencyPipe } from '@angular/common';
@@ -141,7 +141,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
         }).reduce((acc, cur) => ({ ...acc, ...cur }), {})
       })
       report.displayedColumns = Object.keys(resp[0]).slice(0, -1)
-      console.log(resp[0])
 
       if (report.footer) {
         if (report.footer == 'project value') {
@@ -194,7 +193,10 @@ export class ReportsComponent implements OnInit, OnDestroy {
     let workSheet = xlsx.utils.json_to_sheet(dataRowsAppended);
 
     // Set col width
-    workSheet['!cols'] = Object.keys(dataRows[0]).map((colKey, i) => ({ width: i == 1 ? 40 : 20 }))
+    workSheet['!cols'] = Object.keys(dataRows[0]).map((colKey, i) => {
+      const isLarge = ['project', 'general contractor'].includes(colKey.toLowerCase())
+      return { width: isLarge ? 40 : 20, }
+    })
 
     // Set header bold
     Object.keys(dataRows[0]).map((colKey, i) => {
@@ -202,9 +204,30 @@ export class ReportsComponent implements OnInit, OnDestroy {
       workSheet[letter + 1] = { ...workSheet[letter + 1], s: { font: { bold: true } } }
     })
 
+    //Set each cells format
+    const skipList = ['!cols', '!ref']
+    workSheet = Object.keys(workSheet)
+      .filter(key => {
+        const value = workSheet[key].v
+        console.log(value)
+        return value !== null
+      })
+      .map(key => {
+        if (skipList.includes(key)) return { [key]: workSheet[key] }
+        const value = workSheet[key].v
+
+        // Set format (number must be done before date format)
+        if (!Number.isNaN(+value))
+          return { [key]: { ...workSheet[key], t: "n" } }
+        if (isValidDate(value)) {
+          return { [key]: { ...workSheet[key], t: "d" } }
+        }
+        return { [key]: { ...workSheet[key] } }
+      })
+      .reduce((a, b) => ({ ...a, ...b }), {})
 
     xlsx.utils.book_append_sheet(wb, workSheet, report.name);
-    xlsx.writeFile(wb, fileName, { cellStyles: true });
+    xlsx.writeFile(wb, fileName);
   }
 
   onDateRangeSet(dateRange: { from: Date, to: Date }) {

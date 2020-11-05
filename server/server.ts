@@ -8,26 +8,26 @@ import { emailRoute } from './email'
 import { fileShareRoute } from './fileio';
 import { firebaseRoute, fetchInitialFirebaseConfigs } from './firebase';
 import { fetchInitialSQLData, insertIntoTable, fetchFromTable, updateTable, runStoredProcedure, runSearch, runQuery, deleteFromTable } from './db';
-import { Contractor } from './cs-front-end/src/models/contractor'
-import { Project } from './cs-front-end/src/models/project'
-import { Estimator } from './cs-front-end/src/models/estimator'
-import { EstimateType } from './cs-front-end/src/models/estimateType';
-import { BoxOption } from './cs-front-end/src/models/boxOption'
-import { ReportConfig } from './cs-front-end/src/models/reportConfig';
-import { ChartConfig } from './cs-front-end/src/models/chartConfig';
-import { RawTimeShortcut } from './cs-front-end/src/models/rawtimeShortcut';
-import { DashboardColumn } from './cs-front-end/src/models/dashboardColumn';
-import { Job } from './cs-front-end/src/models/job'
-import { AttachedFile } from './cs-front-end/src/models/attachedFile'
-import { StatusOption } from './cs-front-end/src/models/statusOption';
-import { Estimate } from './cs-front-end/src/models/estimate';
-import { Proposal } from './cs-front-end/src/models/proposal';
+import { Contractor } from '../cs-front-end/src/models/contractor'
+import { Project } from '../cs-front-end/src/models/project'
+import { Estimator } from '../cs-front-end/src/models/estimator'
+import { EstimateType } from '../cs-front-end/src/models/estimateType';
+import { BoxOption } from '../cs-front-end/src/models/boxOption'
+import { ReportConfig } from '../cs-front-end/src/models/reportConfig';
+import { ChartConfig } from '../cs-front-end/src/models/chartConfig';
+import { RawTimeShortcut } from '../cs-front-end/src/models/rawtimeShortcut';
+import { DashboardColumn } from '../cs-front-end/src/models/dashboardColumn';
+import { Job } from '../cs-front-end/src/models/job'
+import { AttachedFile } from '../cs-front-end/src/models/attachedFile'
+import { StatusOption } from '../cs-front-end/src/models/statusOption';
+import { Estimate } from '../cs-front-end/src/models/estimate';
+import { Proposal } from '../cs-front-end/src/models/proposal';
 
 const port = process.env.PORT || 9000
 const app: Application = express();
 const server = createServer(app)
 const io = socketio.listen(server)
-const distDir = path.join(__dirname, "./dist");
+const distDir = path.join(__dirname, "../dist");
 
 // State Endpoint
 const router = express.Router()

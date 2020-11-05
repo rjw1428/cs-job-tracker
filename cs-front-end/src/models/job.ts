@@ -25,6 +25,7 @@ export class Job {
         public status: string,
         public fileCount: number,
         public transactionId: number,
+        public transactionDate: string,
         public assignedTo: number,
         public assignedToName: string,
         public box: number,

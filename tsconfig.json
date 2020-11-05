@@ -7,11 +7,11 @@
     "skipLibCheck": true
   },
   "files": [
-    "db.ts",
-    "email.ts",
-    "fileio.ts",
-    "firebase.ts",
-    "server.ts"
+    "./server/db.ts",
+    "./server/email.ts",
+    "./server/fileio.ts",
+    "./server/firebase.ts",
+    "./server/server.ts"
   ],
   "exclude": ["node_modules"]
 }

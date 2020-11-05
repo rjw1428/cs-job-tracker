@@ -16,7 +16,7 @@ import { map, first } from 'rxjs/operators';
 })
 export class JobBoardColumnComponent implements OnInit {
   @Input() columnConfig: DashboardColumn
-  @Output() isDragging = new EventEmitter<boolean>()
+  @Output() isDragging = new EventEmitter<number>()
   items$: Observable<Job[]>
   isAwardedCol: boolean = false
   constructor(
@@ -29,8 +29,6 @@ export class JobBoardColumnComponent implements OnInit {
   }
 
   onShortcutMenuSelect(targetColIndex: string, selectedJob: Job) {
-    this.store.dispatch(DashboardActions.setItemDragging({jobId: selectedJob.jobId}))
-    
     const sourceColIndex = selectedJob.currentDashboardColumn
     const targetOrderIndex = 0
     const sourceOrderIndex = 0
@@ -50,12 +48,10 @@ export class JobBoardColumnComponent implements OnInit {
 
 
   onDragStart(job: Job) {
-    this.isDragging.emit(true)
-    this.store.dispatch(DashboardActions.setItemDragging({jobId: job.jobId}))
+    this.isDragging.emit(job.jobId)
   }
 
   onDragRelease(job: Job) {
-    this.isDragging.emit(false)
-    // this.store.dispatch(DashboardActions.clearItemDragging({jobId: job.jobId}))
+    this.isDragging.emit(null)
   }
 }

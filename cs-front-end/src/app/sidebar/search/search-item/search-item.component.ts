@@ -231,7 +231,7 @@ export class SearchItemComponent implements OnInit {
   onEditProject(job: Job) {
     const dialogRef = this.dialog.open(AddProjectComponent, {
       width: '500px',
-      data: { projectName: job.projectName, city: job.city, state: job.state, zip: job.zip, street: job.projectStreet }
+      data: { id: job.jobId, projectName: job.projectName, city: job.city, state: job.state, zip: job.zip, street: job.projectStreet }
     }).afterClosed().pipe(
       switchMap(formResp => {
         if (!formResp) return of(null)
