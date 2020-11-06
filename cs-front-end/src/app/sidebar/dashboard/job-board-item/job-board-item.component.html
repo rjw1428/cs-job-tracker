@@ -3,7 +3,7 @@
   <mat-card-header style="display: flex; flex-direction: column-reverse; cursor: pointer;">
     <div style="display: flex; flex-direction: column-reverse;">
       <div style="display: flex; justify-content: space-between;" (click)="onTitleClicked()">
-        <mat-card-title [matTooltip]="job.projectId" [matTooltipDisabled]="!isDev">{{job.projectName}}</mat-card-title>
+        <mat-card-title [matTooltip]="job.jobId" [matTooltipDisabled]="!isDev">{{job.projectName}}</mat-card-title>
       </div>
       <div style="display: flex; justify-content: space-between;">
         <div style="font-style: italic;" (click)="onTitleClicked()">{{job.jobDisplayId}}</div>

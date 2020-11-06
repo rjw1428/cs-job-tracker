@@ -135,7 +135,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
       // FORMAT DATE
       resp = resp.map(row => {
         return Object.keys(row).map(field => {
-          if (field == "Time In Invites" || field == "Time On Hold" || field == "Turnaround Time")
+          if (field == "Invite Time" || field == "Hold Time" || field == "Turnaround Time" || field == "Estimating Time")
             return { [field + " (Days:Hours:Min)"]: formatLengthOfTime(row[field]) }
           return { [field]: row[field] }
         }).reduce((acc, cur) => ({ ...acc, ...cur }), {})

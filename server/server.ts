@@ -477,15 +477,17 @@ io.on('connection', (socket) => {
 
     socket.on('changeBox', async ({ projectId, newId }) => {
         //Empty Old Box
-        console.log({projectId})
+        console.log({ projectId })
         const matchingBox = await fetchFromTable('options_boxes', "Boxes", { isFull: projectId })
         console.log(matchingBox)
         const oldBox = matchingBox[0]
-        console.log({oldBox})
-        const emptyResp = await updateTable('options_boxes', { isFull: 0, jobCount: 0 }, { id: oldBox.id }, `Box ${oldBox.id} emptied`)
+        console.log({ oldBox })
+        let emptyResp
+        if (oldBox)
+            emptyResp = await updateTable('options_boxes', { isFull: 0, jobCount: 0 }, { id: oldBox.id }, `Box ${oldBox.id} emptied`)
 
         //Fill New Box
-        const fillResp = await updateTable('options_boxes', { isFull: projectId, jobCount: oldBox.jobCount }, { id: newId }, `Box ${newId} filled`)
+        const fillResp = await updateTable('options_boxes', { isFull: projectId, jobCount: oldBox ? oldBox.jobCount : 0 }, { id: newId }, `Box ${newId} filled`)
         const allJobs = await fetchFromTable('bid_dashboard', "Jobs", { projectId })
         const transactionCall = allJobs.map(job => {
             return writeJobTransaction({

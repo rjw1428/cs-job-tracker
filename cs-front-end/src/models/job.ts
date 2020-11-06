@@ -39,6 +39,7 @@ export class Job {
         public proposalId: number,
         public projectValue: number,
         public dateSent: string,
-        public isExpanded: boolean
+        public isExpanded: boolean,
+        public color: string
     ) {}
 }

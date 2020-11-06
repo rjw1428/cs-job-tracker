@@ -107,6 +107,7 @@ export const statusOptionsSelector = createSelector(
 export const tileColorSelector = createSelector(
     selectDashboardState,
     (dashboardState: DashboardState, { job }: { job: Job }) => {
+        if (job.color) return job.color
         if (job.isAlerted) return '#fdfd96'
         const matchingCol = dashboardState.columns[job.currentDashboardColumn]
         const matchingOption = matchingCol.statusOptions.find(option => option.id == job.statusId)

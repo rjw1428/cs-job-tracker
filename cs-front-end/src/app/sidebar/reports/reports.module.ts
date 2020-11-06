@@ -7,6 +7,8 @@ import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import { ReportsEffect } from './reports.effects';
 import { reportReducer } from './reports.reducer';
+import { OpenButtonComponent } from './open-button/open-button.component';
+import { JobItemComponent } from './job-item/job-item.component';
 
 export const routes: Routes = [
   {
@@ -25,6 +27,8 @@ export const routes: Routes = [
 @NgModule({
   declarations: [
     ReportsComponent,
+    OpenButtonComponent,
+    JobItemComponent
   ],
   imports: [
     CommonModule,
