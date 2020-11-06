@@ -68,10 +68,6 @@ export class BackendService {
           this.store.dispatch(DashboardActions.storeBoxOptions({ boxOptions }))
         })
 
-        this.socket.on('getBoxOpenOptions', (openBoxOptions) => {
-          this.store.dispatch(DashboardActions.storeBoxOpenOptions({ openBoxOptions }))
-        })
-
         this.socket.on('getEstimateTypes', (estimateTypes) => {
           this.store.dispatch(DashboardActions.storeEstimateTypes({ estimateTypes }))
         })
@@ -150,6 +146,10 @@ export class BackendService {
       subj.next(resp)
     })
     return subj.asObservable().pipe(first())
+  }
+
+  switchBoxes(projectId, newId) {
+    this.socket.emit('changeBox', ({ projectId, newId }))
   }
 
   getJob(jobId: number) {

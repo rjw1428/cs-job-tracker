@@ -110,7 +110,7 @@ export class DashboardEffects {
                                 historyOnlyNotes: `Moved to ${action.targetColIndex}`
                             }
                         }),
-                        DashboardActions.boxCleared({ id: action.selectedJob.box })
+                        DashboardActions.boxCleared({ boxId: action.selectedJob.box })
                     )
                 }
             })
@@ -121,7 +121,7 @@ export class DashboardEffects {
         this.actions$.pipe(
             ofType(DashboardActions.boxSet),
             map(action => {
-                this.backendService.saveData('fillBox', action.id)
+                this.backendService.saveData('fillBox', (action))
             })
         ), { dispatch: false }
     )
@@ -130,7 +130,16 @@ export class DashboardEffects {
         this.actions$.pipe(
             ofType(DashboardActions.boxCleared),
             map(action => {
-                this.backendService.saveData('emptyBox', action.id)
+                this.backendService.saveData('emptyBox', action.boxId)
+            })
+        ), { dispatch: false }
+    )
+
+    changeBox$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(DashboardActions.boxChanged),
+            map(action => {
+                this.backendService.switchBoxes(action.projectId, action.newBoxId)
             })
         ), { dispatch: false }
     )

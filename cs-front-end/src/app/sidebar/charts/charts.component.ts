@@ -201,9 +201,6 @@ export class ChartsComponent implements OnInit, OnDestroy {
               [keys[1]]: dataPoint[keys[1]]
             }
           }))
-
-          console.log(JSON.stringify(chart.dataSource1))
-
           const series2 = resp.map(dataPoint => Object.keys(dataPoint)
             .filter((key, i) => i != 1)
             .map(key => ({ [key]: dataPoint[key] }))
@@ -264,6 +261,8 @@ export class ChartsComponent implements OnInit, OnDestroy {
         return {
           name: dataPoint[keys[0]],
           value: dataPoint[singleSeriesName]
+            ? dataPoint[singleSeriesName]
+            : 0
         }
       })
       return { name: singleSeriesName, series }
@@ -271,18 +270,18 @@ export class ChartsComponent implements OnInit, OnDestroy {
   }
 
   barChart(data: any[]) {
-    console.log(data)
     const keys = Object.keys(data[0])
     const bars = keys.slice(1)
     const seriesNames = data.map(dataPoint => dataPoint[keys[0]])
-    return seriesNames.map((singleSeriesName, i) => {
+    const result = seriesNames.map((singleSeriesName, i) => {
       return bars.map(bar => {
         return {
           name: singleSeriesName,
-          value: data[i][bar],
+          value: data[i][bar] ? data[i][bar] : 0,
         }
       }).reduce((acc,cur)=>({...acc,...cur}),{})
     })
+    return result
   }
 
 
@@ -291,7 +290,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
       const keys = Object.keys(dataPoint)
       return {
         name: `${dataPoint[keys[0]]}: ${dataPoint[keys[1]]}`,
-        value: dataPoint[keys[1]]
+        value: dataPoint[keys[1]] ? dataPoint[keys[1]] : 0
       }
     });
   }

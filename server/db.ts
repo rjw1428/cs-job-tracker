@@ -127,10 +127,9 @@ export const fetchInitialSQLData = () => {
     let fetchEstimators = fetchFromTable('estimators', "Estimators")
     let fetchEstimateTypes = fetchFromTable('options_estimate_types', "Estimate Types")
     let fetchBoxOptions = fetchFromTable('options_boxes', "Boxes")
-    let fetchBoxOpenOptions = fetchFromTable('options_open_boxes', "Boxes")
     let fetchBidInvites = fetchFromTable('bid_dashboard', "Bid Invites")
     let fetchFileOptions = fetchFromTable('options_file_types', "File Options")
-    return Promise.all([fetchEstimators, fetchEstimateTypes, fetchBoxOptions, fetchBoxOpenOptions, fetchBidInvites, fetchFileOptions])
+    return Promise.all([fetchEstimators, fetchEstimateTypes, fetchBoxOptions, fetchBidInvites, fetchFileOptions])
 }
 
 export const injectScript = async (script: string) => {

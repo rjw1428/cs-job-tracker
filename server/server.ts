@@ -83,7 +83,6 @@ let state: {
     estimators: Estimator[],
     estimateTypes: EstimateType[],
     boxOptions: BoxOption[],
-    boxOpenOptions: BoxOption[]
     invites: { [id: number]: Job },
     reportConfigs: ReportConfig[],
     chartConfigs: ChartConfig[],
@@ -95,7 +94,6 @@ let state: {
     estimators: [],
     estimateTypes: [],
     boxOptions: [],
-    boxOpenOptions: [],
     invites: [],
     reportConfigs: [],
     chartConfigs: [],
@@ -119,7 +117,7 @@ export async function initializeBackend() {
 
 async function doInitialization() {
     let rawInvites: Job[]
-    [state.estimators, state.estimateTypes, state.boxOptions, state.boxOpenOptions, rawInvites, state.fileTypes] = await fetchInitialSQLData()
+    [state.estimators, state.estimateTypes, state.boxOptions, rawInvites, state.fileTypes] = await fetchInitialSQLData()
     console.log("MYSQL Data Initialized")
     const [report, chart, time, dash] = await fetchInitialFirebaseConfigs()
     console.log("Firebase Data Initialized")
@@ -149,7 +147,6 @@ io.on('connection', (socket) => {
 
         socket.emit('getEstimators', state.estimators)
         socket.emit('getBoxOptions', state.boxOptions)
-        socket.emit('getBoxOpenOptions', state.boxOpenOptions)
         socket.emit('getColumns', state.dashboardColumns)
         socket.emit('getReportConfigs', state.reportConfigs)
         socket.emit('getInvites', state.invites)
@@ -453,11 +450,13 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('fillBox', async (boxId) => {
+    socket.on('fillBox', async ({ boxId, projectId }) => {
         try {
-            const resp = await updateTable('options_boxes', { isFull: 1 }, { id: boxId }, `Box ${boxId} filled`)
-            const openBoxes = await fetchFromTable('options_open_boxes', "Boxes")
-            socket.emit('getBoxOpenOptions', openBoxes)
+            const matchingBox = state.boxOptions.find(option => option.id == boxId)
+            const resp = await updateTable('options_boxes', { isFull: projectId, jobCount: matchingBox.jobCount + 1 }, { id: boxId }, `Box ${boxId} filled`)
+            const openBoxes = await fetchFromTable('options_boxes', "Boxes")
+            state.boxOptions = openBoxes
+            socket.emit('getBoxOptions', openBoxes)
         } catch (e) {
             console.log(e)
         }
@@ -465,14 +464,44 @@ io.on('connection', (socket) => {
 
     socket.on('emptyBox', async (boxId) => {
         try {
-            const resp = await updateTable('options_boxes', { isFull: 0 }, { id: boxId }, `Box ${boxId} emptied`)
-            const openBoxes = await fetchFromTable('options_open_boxes', "Boxes")
-            socket.emit('getBoxOpenOptions', openBoxes)
+            const matchingBox = state.boxOptions.find(option => option.id == boxId)
+            const newJobCount = matchingBox.jobCount - 1
+            const resp = await updateTable('options_boxes', { isFull: newJobCount <= 0 ? 0 : matchingBox.isFull, jobCount: newJobCount <= 0 ? 0 : newJobCount }, { id: boxId }, `Box ${boxId} emptied`)
+            const openBoxes = await fetchFromTable('options_boxes', "Boxes")
+            state.boxOptions = openBoxes
+            socket.emit('getBoxOptions', openBoxes)
         } catch (e) {
             console.log(e)
         }
     })
 
+    socket.on('changeBox', async ({ projectId, newId }) => {
+        //Empty Old Box
+        console.log({projectId})
+        const matchingBox = await fetchFromTable('options_boxes', "Boxes", { isFull: projectId })
+        console.log(matchingBox)
+        const oldBox = matchingBox[0]
+        console.log({oldBox})
+        const emptyResp = await updateTable('options_boxes', { isFull: 0, jobCount: 0 }, { id: oldBox.id }, `Box ${oldBox.id} emptied`)
+
+        //Fill New Box
+        const fillResp = await updateTable('options_boxes', { isFull: projectId, jobCount: oldBox.jobCount }, { id: newId }, `Box ${newId} filled`)
+        const allJobs = await fetchFromTable('bid_dashboard', "Jobs", { projectId })
+        const transactionCall = allJobs.map(job => {
+            return writeJobTransaction({
+                ...job,
+                box: newId
+            })
+        })
+        await Promise.all(transactionCall)
+        const jobUpdateCall = allJobs.map(job => {
+            emitUpdatedJob(job.jobId)
+        })
+        await Promise.all(jobUpdateCall)
+        //Return boxes
+        const openBoxes = await fetchFromTable('options_boxes', "Boxes")
+        socket.emit('getBoxOptions', openBoxes)
+    })
 
     socket.on('moveBid', async (updatedJob, callback) => {
         try {

@@ -122,7 +122,9 @@ function pingLocaldabase() {
 
 function logServerStartTime() {
     admin.database().ref(env + '/started').once('value').then(resp => {
-        const val = Object.values(resp.val())
+        const val = resp.val()
+            ? Object.values(resp.val())
+            : null
         admin.database().ref(env + '/').update({
             started: val
                 ? val.concat(createTime())

@@ -81,12 +81,15 @@ export const itemsSelector = createSelector(
 
 export const boxOptionsSelector = createSelector(
     selectDashboardState,
-    (dashboardState: DashboardState, { appendId }: { appendId: number }) => {
-        if (appendId) {
-            const appendedBox = dashboardState.boxOptions.find(option => option.id == appendId)
-            return dashboardState.openBoxOptions.concat(appendedBox).sort((a,b)=>a.id-b.id)
-        }
-        return dashboardState.openBoxOptions
+    (dashboardState: DashboardState, { projectId, showAll }: { projectId: number, showAll: boolean }) => {
+        const match = dashboardState.boxOptions.find(option => option.isFull == projectId)
+        // Used only when selecting an option fom the job item dropdown
+        if (showAll)
+            return dashboardState.boxOptions.filter(option => option.isFull == projectId || option.isFull == 0)
+
+        return dashboardState.boxOptions.filter(option => match
+            ? option.isFull == projectId
+            : option.isFull == 0)
     }
 )
 

@@ -62,7 +62,7 @@ export class JobBoardItemComponent implements OnInit {
   ngOnInit(): void {
     this.isDev = !environment.production
     this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
-    this.boxOptions$ = this.store.select(boxOptionsSelector, { appendId: this.job.box })
+    this.boxOptions$ = this.store.select(boxOptionsSelector, { projectId: this.job.projectId, showAll: true })
     this.statusOptions$ = this.store.select(statusOptionsSelector, { columnId: this.job.currentDashboardColumn })
     this.estimatorOptions$ = this.store.select(estimatorsSelector)
     this.tileColor$ = this.store.select(tileColorSelector, { job: this.job })
@@ -71,9 +71,11 @@ export class JobBoardItemComponent implements OnInit {
   onDelete() {
     this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
       data: { message: `Are you sure you want to delete ${this.job.projectName}?`, action: "Delete" }
-    }).onAction().subscribe(
-      () => {
-        this.store.dispatch(DashboardActions.boxCleared({ id: this.job.box }))
+    }).onAction().pipe(first(), switchMap(() => {
+      return this.boxOptions$.pipe(map(options => options.find(option => option.id == this.job.box)))
+    })).subscribe(
+      (box) => {
+        this.store.dispatch(DashboardActions.boxCleared({ boxId: this.job.box }))
         this.store.dispatch(DashboardActions.deleteJobItem({ job: this.job }))
       }
     )
@@ -141,11 +143,7 @@ export class JobBoardItemComponent implements OnInit {
 
   onBoxChanged(value: MatSelectChange) {
     this.store.pipe(first(), map(state => {
-      const box = state.dashboard.boxOptions.find(box => box.id == value.value)
-      const updatedJob = { ...this.job, box: box.id, historyOnlyNotes: `Moved to Box ${box.boxId}` }
-      this.store.dispatch(DashboardActions.boxCleared({ id: this.job.box }))
-      this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
-      this.store.dispatch(DashboardActions.boxSet({ id: box.id }))
+      this.store.dispatch(DashboardActions.boxChanged({ projectId: this.job.projectId, newBoxId: value.value }))
       showSnackbar(this.snackBar, `Box Updated`)
     })).subscribe(noop)
   }

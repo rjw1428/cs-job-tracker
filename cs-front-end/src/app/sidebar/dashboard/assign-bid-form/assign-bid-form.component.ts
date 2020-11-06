@@ -29,7 +29,7 @@ export class AssignBidFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.estimators$ = this.store.select(estimatorsSelector)
-    this.boxOptions$ = this.store.select(boxOptionsSelector, { appendId: null })
+    this.boxOptions$ = this.store.select(boxOptionsSelector, { projectId: this.job.projectId, showAll: false })
 
     this.assignmentFormGroup = this.formBuilder.group({
       assignedTo: ["", Validators.required],

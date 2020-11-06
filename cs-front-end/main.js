@@ -28,6 +28,8 @@ autoUpdater.on('download-progress', (progress)=>{
 autoUpdater.on('update-downloaded', (info)=>{
   console.log('Update Downloaded');
   console.log(info)
+  const message = formatUpdateMessage(info.releaseNotes)
+  console.log(message)
   const dialogOpts = {
     type: 'info',
     buttons: ['Restart', 'Later'],
@@ -35,12 +37,13 @@ autoUpdater.on('update-downloaded', (info)=>{
       ?  info.releaseName
       : 'Application Update',
     message: info.releaseNotes 
-      ? formatUpdateMessage(info.releaseNotes)
+      ? message
       : info.releaseName,
     detail: 'A new version has been downloaded. Restart the application to apply the updates.'
   }
 
   dialog.showMessageBox(dialogOpts).then((returnValue) => {
+    console.log(returnValue)
     if (returnValue.response === 0) autoUpdater.quitAndInstall()
   })
 })
@@ -131,6 +134,6 @@ app.on('activate', function () {
 
 
 function formatUpdateMessage(message) {
-  let noHTMLMessage = message.replace(/<p>/, "").replace(/<br>/, "").replace(/<\/p>/, "")
-  return " - "+noHTMLMessage.replace(/\n/, "\n - ")
+  let noHTMLMessage = message.replace(/<p>/g, "").replace(/<br>/g, "").replace(/<\/p>/g, "")
+  return " - "+noHTMLMessage.replace(/\n/g, "\n - ")
 }

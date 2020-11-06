@@ -181,17 +181,22 @@ export const expandItem = createAction(
     props<{ id: number }>()
 )
 
-export const storeBoxOpenOptions = createAction(
-    '[Backend Service (Box Fill State Changed)] Save Open Box Options',
-    props<{ openBoxOptions: BoxOption[] }>()
-)
-
 export const boxCleared = createAction(
     "[Dashboad] Box Cleared",
-    props<{id: number}>()
+    props<{ boxId: number }>()
 )
 
 export const boxSet = createAction(
     "[Dashboard] Box Set",
-    props<{ id: number }>()
+    props<{ boxId: number, projectId: number }>()
+)
+
+export const boxChanged = createAction(
+    "[Job Item] Change Box",
+    props<{ projectId: number, newBoxId: number }>()
+)
+
+export const UpdateJobsWithNewBox = createAction(
+    "[Dashboard Effect] Update Jobs With New Box",
+    props<{ projectId: number, newBoxId: number }>()
 )
