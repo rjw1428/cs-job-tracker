@@ -179,7 +179,7 @@ export class ChartsComponent implements OnInit, OnDestroy {
           chart.dataSource = this.barChart(resp)
           break;
         case ('bar_horizontal'):
-          chart.dataSource = this.barChart(resp)
+          chart.dataSource = this.multiBarChart(resp)
           break;
         case ('single_line'):
           chart.dataSource = this.lineChart(resp)
@@ -270,17 +270,43 @@ export class ChartsComponent implements OnInit, OnDestroy {
   }
 
   barChart(data: any[]) {
+    console.log(data)
     const keys = Object.keys(data[0])
     const bars = keys.slice(1)
+    debugger
     const seriesNames = data.map(dataPoint => dataPoint[keys[0]])
     const result = seriesNames.map((singleSeriesName, i) => {
       return bars.map(bar => {
         return {
           name: singleSeriesName,
-          value: data[i][bar] ? data[i][bar] : 0,
+          value: data[i][bar]
+            ? data[i][bar]
+            : 0,
         }
-      }).reduce((acc,cur)=>({...acc,...cur}),{})
+      }).reduce((acc, cur) => ({ ...acc, ...cur }), {})
     })
+    return result
+  }
+
+  multiBarChart(data: any[]) {
+    console.log(data)
+    const keys = Object.keys(data[0])
+    const bars = keys.slice(1)
+    debugger
+    const seriesNames = data.map(dataPoint => dataPoint[keys[0]])
+    const result = seriesNames.map((singleSeriesName, i) => {
+      return {
+        name: singleSeriesName,
+        series: bars.map(bar => {
+          return {
+            name: bar,
+            value: data[i][bar]
+              ? data[i][bar]
+              : 0,
+          }
+        })
+      }
+    })//.reduce((acc, cur) => ({ ...acc, ...cur }), {})
     return result
   }
 

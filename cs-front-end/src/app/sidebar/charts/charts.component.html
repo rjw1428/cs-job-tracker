@@ -42,6 +42,7 @@
 
           <div *ngSwitchCase="'bar_horizontal'" class="wrapper chart">
             <ngx-charts-bar-horizontal-stacked
+              [view]="[1500, 20*chart.dataSource.length]"
               [results]="chart.dataSource"
               [xAxisLabel]="chart.xAxisLabel"
               [legendTitle]="chart.name"
