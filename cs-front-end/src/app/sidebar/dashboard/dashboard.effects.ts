@@ -3,8 +3,8 @@ import { createEffect, ofType, Actions } from '@ngrx/effects';
 import { DashboardActions } from './dashboard.action-types';
 import { AppActions } from '../../app.action-types';
 import { BackendService } from '../../services/backend.service';
-import { tap, map, catchError, debounceTime } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { tap, map, catchError, debounceTime, switchMap } from 'rxjs/operators';
+import { forkJoin, of, throwError } from 'rxjs';
 import { EventService } from 'src/app/services/event.service';
 
 @Injectable()
@@ -83,24 +83,58 @@ export class DashboardEffects {
                 switch (action.targetColIndex) {
                     case 'estimating':
                         this.eventService.triggerAssignmentFrom.next(action)
-                        return DashboardActions.jobMoveIntercepted()
+                        return { action, openForm: true }
+
                     case 'proposal':
                         this.eventService.confirmProposal.next(action)
-                        return DashboardActions.jobMoveIntercepted()
+                        return { action, openForm: true }
+
                     case 'awarded':
                         this.eventService.triggerTimelineForm.next(action)
-                        return DashboardActions.jobMoveIntercepted()
-                    default: return DashboardActions.jobMoved({
-                        ...action,
-                        selectedJob: {
-                            ...action.selectedJob,
-                            historyOnlyNotes: `Moved to ${action.targetColIndex}`
-                        }
-                    })
+                        return { action, openForm: true }
+
+                    default:
+                        return { action, openForm: false }
+                }
+            }),
+            switchMap(({ action, openForm }) => {
+                if (openForm) {
+                    return of(DashboardActions.jobMoveIntercepted())
+                }
+                else {
+                    return of(
+                        DashboardActions.jobMoved({
+                            ...action,
+                            selectedJob: {
+                                ...action.selectedJob,
+                                historyOnlyNotes: `Moved to ${action.targetColIndex}`
+                            }
+                        }),
+                        DashboardActions.boxCleared({ id: action.selectedJob.box })
+                    )
                 }
             })
         )
     )
+
+    saveBox$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(DashboardActions.boxSet),
+            map(action => {
+                this.backendService.saveData('fillBox', action.id)
+            })
+        ), { dispatch: false }
+    )
+
+    clearBox$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(DashboardActions.boxCleared),
+            map(action => {
+                this.backendService.saveData('emptyBox', action.id)
+            })
+        ), { dispatch: false }
+    )
+
 
     constructor(
         private actions$: Actions,

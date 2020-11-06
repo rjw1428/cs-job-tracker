@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -30,6 +30,7 @@ import { ViewProposalHistoryComponent } from '../../dashboard/view-proposal-hist
 })
 export class SearchItemComponent implements OnInit {
   @Input() jobId: number
+  @Output() isDeleted = new EventEmitter()
   columns$: Observable<DashboardColumn[]>
   job: Job
   mailTo: string = ""
@@ -60,7 +61,11 @@ export class SearchItemComponent implements OnInit {
     this.snackBar.openFromComponent(ConfirmationSnackbarComponent, {
       data: { message: `Are you sure you want to delete ${this.job.projectName}?`, action: "Delete" }
     }).onAction().subscribe(
-      () => this.store.dispatch(DashboardActions.deleteJobItem({ job: this.job }))
+      () => {
+        this.store.dispatch(DashboardActions.boxCleared({ id: this.job.box }))
+        this.store.dispatch(DashboardActions.deleteJobItem({ job: this.job }))
+        this.isDeleted.emit()
+      }
     )
   }
 
@@ -106,7 +111,9 @@ export class SearchItemComponent implements OnInit {
     this.store.pipe(first(), map(state => {
       const box = state.dashboard.boxOptions.find(box => box.id == value.value)
       const updatedJob = { ...this.job, box: box.id, historyOnlyNotes: `Moved to Box ${box.boxId}` }
+      this.store.dispatch(DashboardActions.boxCleared({ id: this.job.box }))
       this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+      this.store.dispatch(DashboardActions.boxSet({ id: box.id }))
       this.updateJob.next()
       showSnackbar(this.snackBar, `Box Updated`)
     })).subscribe(noop)

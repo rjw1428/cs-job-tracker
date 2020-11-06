@@ -1,0 +1,20 @@
+TODO:
+ - Check the charts
+ - Summary report showing a lot of 'No Bids'
+ - Show only active Boxes
+ - Add User with Role & Color
+ - Monica's Monthly Report
+
+
+NEXT RELEASE:
+ - Need a fullscreen display for the estimating report
+
+
+
+LONG TERM:
+ - Routing is not working correctly for report files (not getting servered from express)
+
+
+
+ RECENTLY COMPELTED:
+  - Cleaned up Update Message Box

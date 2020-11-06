@@ -18,6 +18,7 @@ export class Job {
         public dateDue: string,
         public isActive: boolean,
         public currentDashboardColumn: string,
+        public lastMoveDate: string,
         public isNoBid: boolean,
         public noBidDate: string,
         public estimateCount: number,

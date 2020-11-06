@@ -16,6 +16,7 @@ import { saveAs } from 'file-saver'
 import { ReportConfig } from 'src/models/reportConfig';
 import { ChartConfig } from 'src/models/chartConfig';
 import { RawTimeShortcut } from 'src/models/rawTimeShortcut';
+import { version } from '../../../package.json';
 @Injectable({
   providedIn: 'root'
 })
@@ -32,10 +33,10 @@ export class BackendService {
   setupBackend() {
     return this.http.get(environment.assetPath + 'config.json')
       .toPromise()
-      .then((data: { endpoint: {}, version: string }) => {
+      .then((data: { endpoint: {} }) => {
         console.log(data)
         this.apiUrl = data.endpoint[environment.env]
-        this.version = data.version
+        this.version = version
 
         this.socket = io(this.apiUrl)
         this.socket.on('getEstimators', (estimators) => {
@@ -64,9 +65,11 @@ export class BackendService {
         })
 
         this.socket.on('getBoxOptions', (boxOptions) => {
-          // Needs to be removed once you're able to update the backend
-          const b = new Array(25).fill({}).map((val, i) => ({ id: i+1, boxId: (i+1).toString() }))
-          this.store.dispatch(DashboardActions.storeBoxOptions({ boxOptions: b }))
+          this.store.dispatch(DashboardActions.storeBoxOptions({ boxOptions }))
+        })
+
+        this.socket.on('getBoxOpenOptions', (openBoxOptions) => {
+          this.store.dispatch(DashboardActions.storeBoxOpenOptions({ openBoxOptions }))
         })
 
         this.socket.on('getEstimateTypes', (estimateTypes) => {

@@ -14,8 +14,8 @@ export interface DashboardState {
     contractors: Contractor[]
     projects: Project[]
     estimators: Estimator[]
-    // invites: Job[]
     boxOptions: BoxOption[]
+    openBoxOptions: BoxOption[]
     estimateTypes: EstimateType[]
     selectedJob: Job
     selectedJobFiles: AttachedFile[]

@@ -77,12 +77,13 @@ app.get('*', (req, res) => {
 });
 
 let room = "estimators"
-
+let refreshInterval
 let state: {
     users: any[],
     estimators: Estimator[],
     estimateTypes: EstimateType[],
     boxOptions: BoxOption[],
+    boxOpenOptions: BoxOption[]
     invites: { [id: number]: Job },
     reportConfigs: ReportConfig[],
     chartConfigs: ChartConfig[],
@@ -94,6 +95,7 @@ let state: {
     estimators: [],
     estimateTypes: [],
     boxOptions: [],
+    boxOpenOptions: [],
     invites: [],
     reportConfigs: [],
     chartConfigs: [],
@@ -105,13 +107,27 @@ let state: {
 
 // Initialize backend data (runs after firebase auth finishes)
 export async function initializeBackend() {
+    doInitialization()
+    refreshInterval = setInterval(async () => {
+        try {
+            doInitialization()
+        } catch (e) {
+            console.log(e)
+        }
+    }, 1000 * 60)
+}
+
+async function doInitialization() {
     let rawInvites: Job[]
-    [state.estimators, state.estimateTypes, state.boxOptions, rawInvites, state.fileTypes] = await fetchInitialSQLData()
+    [state.estimators, state.estimateTypes, state.boxOptions, state.boxOpenOptions, rawInvites, state.fileTypes] = await fetchInitialSQLData()
+    console.log("MYSQL Data Initialized")
     const [report, chart, time, dash] = await fetchInitialFirebaseConfigs()
+    console.log("Firebase Data Initialized")
     state.reportConfigs = report
     state.chartConfigs = chart
     state.timeShortcuts = time
 
+    // Convert invites to an Obj
     state.invites = rawInvites
         .map(invite => ({ [invite.jobId]: invite }))
         .reduce((acc, cur) => ({ ...acc, ...cur }), {})
@@ -121,17 +137,6 @@ export async function initializeBackend() {
         ...column,
         statusOptions: options[i]
     }))
-
-    setInterval(async () => {
-        try {
-            const [report, chart, time, dash] = await fetchInitialFirebaseConfigs()
-            state.reportConfigs = report
-            state.chartConfigs = chart
-            state.timeShortcuts = time
-        } catch (e) {
-            console.log(e)
-        }
-    }, 1000 * 60)
 }
 
 io.on('connection', (socket) => {
@@ -144,7 +149,7 @@ io.on('connection', (socket) => {
 
         socket.emit('getEstimators', state.estimators)
         socket.emit('getBoxOptions', state.boxOptions)
-
+        socket.emit('getBoxOpenOptions', state.boxOpenOptions)
         socket.emit('getColumns', state.dashboardColumns)
         socket.emit('getReportConfigs', state.reportConfigs)
         socket.emit('getInvites', state.invites)
@@ -348,7 +353,7 @@ io.on('connection', (socket) => {
 
     socket.on('addInvite', async (newInvite, callback) => {
         try {
-            const newId = await insertIntoTable('bid_invites', newInvite)
+            const newId = await insertIntoTable('bid_invites', { ...newInvite, lastMoveDate: new Date().toLocaleString() })
             const updatedInvite = { jobId: newId, ...newInvite }
             const initTransaction = {
                 jobId: updatedInvite.jobId,
@@ -448,10 +453,30 @@ io.on('connection', (socket) => {
         }
     })
 
+    socket.on('fillBox', async (boxId) => {
+        try {
+            const resp = await updateTable('options_boxes', { isFull: 1 }, { id: boxId }, `Box ${boxId} filled`)
+            const openBoxes = await fetchFromTable('options_open_boxes', "Boxes")
+            socket.emit('getBoxOpenOptions', openBoxes)
+        } catch (e) {
+            console.log(e)
+        }
+    })
+
+    socket.on('emptyBox', async (boxId) => {
+        try {
+            const resp = await updateTable('options_boxes', { isFull: 0 }, { id: boxId }, `Box ${boxId} emptied`)
+            const openBoxes = await fetchFromTable('options_open_boxes', "Boxes")
+            socket.emit('getBoxOpenOptions', openBoxes)
+        } catch (e) {
+            console.log(e)
+        }
+    })
+
 
     socket.on('moveBid', async (updatedJob, callback) => {
         try {
-            await updateTable('bid_invites', { currentDashboardColumn: updatedJob.currentDashboardColumn }, { jobId: updatedJob.jobId }, 'Update Invite')
+            await updateTable('bid_invites', { currentDashboardColumn: updatedJob.currentDashboardColumn, lastMoveDate: new Date().toLocaleString() }, { jobId: updatedJob.jobId }, 'Update Invite')
             await writeJobTransaction({
                 ...updatedJob,
                 statusId: state.dashboardColumns.find(col => col.id == updatedJob.currentDashboardColumn).defaultStatusId,
@@ -567,6 +592,7 @@ io.on('connection', (socket) => {
     socket.on('refreshBackend', async (triggerEvent: string, callback) => {
         state.users = state.users.filter(user => user.id != socket.id)
         console.log('User Left: (' + state.users.length + ")")
+        clearInterval(refreshInterval)
         await initializeBackend()
         callback(triggerEvent)
     })

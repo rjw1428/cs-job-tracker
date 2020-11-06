@@ -1,10 +1,10 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { AppState } from 'src/models/appState';
 import { Store, select } from '@ngrx/store';
 import { DashboardActions } from './dashboard.action-types';
 import { BackendService } from 'src/app/services/backend.service';
 import { AppActions } from 'src/app/app.action-types';
-import { Observable, iif, of, throwError, combineLatest } from 'rxjs';
+import { Observable, iif, of, throwError, combineLatest, Subscription } from 'rxjs';
 import { Estimator } from 'src/models/estimator';
 import { map, mergeMap, finalize, catchError, first, switchMap, tap, debounceTime } from 'rxjs/operators'
 import { MatDialog } from '@angular/material/dialog';
@@ -28,13 +28,13 @@ import { Job } from 'src/models/job';
   styleUrls: ['./dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   isLoading$: Observable<boolean>
   filterFormControl: FormControl
 
-  isToProposalConfirmationOpen: boolean = false
-  isToAwardTimelineOpen: boolean = false
-  isToEstimatingAssignmentOpen: boolean = false
+  confirmationFormSubscription: Subscription
+  timelineFormSubscription: Subscription
+  assignmentFormSubscription: Subscription
   constructor(
     private store: Store<AppState>,
     private backendService: BackendService,
@@ -43,7 +43,15 @@ export class DashboardComponent implements OnInit {
     private snackBar: MatSnackBar,
   ) { }
 
+  ngOnDestroy() {
+    console.log("DESTROY")
+    this.confirmationFormSubscription.unsubscribe()
+    this.timelineFormSubscription.unsubscribe()
+    this.assignmentFormSubscription.unsubscribe()
+  }
+
   ngOnInit(): void {
+    console.log("INIT")
     this.filterFormControl = new FormControl('')
     this.store.dispatch(DashboardActions.initDashboard())
     this.store.dispatch(AppActions.startLoading())
@@ -56,11 +64,11 @@ export class DashboardComponent implements OnInit {
       this.store.dispatch(DashboardActions.applyFilter({ value }))
     })
 
-    this.eventService.confirmProposal.pipe(
+    this.confirmationFormSubscription = this.eventService.confirmProposal.pipe(
       tap(() => console.log("CONFIRMATION EVENT")),
       switchMap(action => {
         // If it is dropped back on the same column, do nothing
-        if (action.selectedJob.currentDashboardColumn == 'proposal' || this.isToProposalConfirmationOpen) return of({ action, skipProposal: true })
+        if (action.selectedJob.currentDashboardColumn == 'proposal') return of({ action, skipProposal: true })
 
         // If there are estimates, make move
         if (action.selectedJob.estimateCount) return of({ action, skipProposal: false })
@@ -77,8 +85,7 @@ export class DashboardComponent implements OnInit {
       }),
       catchError(err => throwError(err))
     ).subscribe(({ action, propId }) => {
-      this.isToProposalConfirmationOpen = false
-      if (propId)
+      if (propId) {
         this.store.dispatch(DashboardActions.jobMoved({
           ...action,
           selectedJob: {
@@ -88,15 +95,16 @@ export class DashboardComponent implements OnInit {
             assignedTo: 0
           }
         }))
+        this.store.dispatch(DashboardActions.boxCleared({ id: action.selectedJob.box }))
+      }
     },
       err => console.log(err)
     )
 
-    this.eventService.triggerTimelineForm.pipe(
+    this.timelineFormSubscription = this.eventService.triggerTimelineForm.pipe(
       switchMap(action => {
-        if (action.selectedJob.currentDashboardColumn == 'awarded' || this.isToAwardTimelineOpen) return of(null)
+        if (action.selectedJob.currentDashboardColumn == 'awarded') return of(null)
         console.log("TIMELINE EVENT")
-        this.isToAwardTimelineOpen = true
         return this.dialog.open(AwardTimelineFormComponent, {
           width: '500px',
           data: action.selectedJob
@@ -109,7 +117,7 @@ export class DashboardComponent implements OnInit {
           }))
       })
     ).subscribe(action => {
-      if (action)
+      if (action) {
         this.store.dispatch(DashboardActions.jobMoved({
           ...action,
           selectedJob: {
@@ -117,15 +125,14 @@ export class DashboardComponent implements OnInit {
             historyOnlyNotes: `Moved to Awarded`
           }
         }))
-      this.isToAwardTimelineOpen = false
-    }
-    )
+        this.store.dispatch(DashboardActions.boxCleared({ id: action.selectedJob.box }))
+      }
+    })
 
-    this.eventService.triggerAssignmentFrom.pipe(
+    this.assignmentFormSubscription = this.eventService.triggerAssignmentFrom.pipe(
       tap(() => console.log("ASSIGNMENT EVENT")),
       switchMap(action => {
-        if (action.selectedJob.currentDashboardColumn == 'estimating' || this.isToEstimatingAssignmentOpen) return of(null)
-        this.isToEstimatingAssignmentOpen = true
+        if (action.selectedJob.currentDashboardColumn == 'estimating') return of(null)
         return this.dialog.open(AssignBidFormComponent, {
           width: '500px',
           data: action.selectedJob
@@ -138,7 +145,8 @@ export class DashboardComponent implements OnInit {
           }))
       })
     ).subscribe(action => {
-      if (action)
+      if (action) {
+        console.log("ACTION")
         this.store.dispatch(DashboardActions.jobMoved({
           ...action,
           selectedJob: {
@@ -146,7 +154,10 @@ export class DashboardComponent implements OnInit {
             historyOnlyNotes: `Moved to Estimating; Assigned to ${action.name}`
           }
         }))
-      this.isToEstimatingAssignmentOpen = false
+        this.store.dispatch(DashboardActions.boxSet({
+          id: action.selectedJob.box
+        }))
+      }
     })
   }
 

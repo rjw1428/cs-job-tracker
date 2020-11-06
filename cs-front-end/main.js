@@ -31,8 +31,12 @@ autoUpdater.on('update-downloaded', (info)=>{
   const dialogOpts = {
     type: 'info',
     buttons: ['Restart', 'Later'],
-    title: 'Application Update',
-    message: info.releaseNotes ? info.releaseNotes: info.releaseName,
+    title:  info.releaseName
+      ?  info.releaseName
+      : 'Application Update',
+    message: info.releaseNotes 
+      ? formatUpdateMessage(info.releaseNotes)
+      : info.releaseName,
     detail: 'A new version has been downloaded. Restart the application to apply the updates.'
   }
 
@@ -124,3 +128,9 @@ app.on('window-all-closed', function () {
 app.on('activate', function () {
   if (mainWindow === null) createWindow()
 })
+
+
+function formatUpdateMessage(message) {
+  let noHTMLMessage = message.replace(/<p>/, "").replace(/<br>/, "").replace(/<\/p>/, "")
+  return " - "+noHTMLMessage.replace(/\n/, "\n - ")
+}

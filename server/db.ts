@@ -78,7 +78,7 @@ export const updateTable = (table: string, set: {}, where: {}, dataInfo: string)
     const setClause = createSetClause(set)
     const whereClause = createWhereClauses(where)
     return new Promise<any[]>((resolve, reject) => {
-        runQuery(`UPDATE ${table} SET ${setClause} ${whereClause}`, `Delete ${dataInfo} -`, ({ error, results }) => {
+        runQuery(`UPDATE ${table} SET ${setClause} ${whereClause}`, `Update ${dataInfo} -`, ({ error, results }) => {
             if (error) return reject(error)
             resolve(results)
         })
@@ -89,7 +89,7 @@ export const updateTable = (table: string, set: {}, where: {}, dataInfo: string)
 export const deleteFromTable = (table: string, where: {}, dataInfo: string) => {
     const whereClause = createWhereClauses(where)
     return new Promise<any[]>((resolve, reject) => {
-        runQuery(`DELETE FROM ${table} ${whereClause}`, `Update ${dataInfo} -`, ({ error, results }) => {
+        runQuery(`DELETE FROM ${table} ${whereClause}`, `Delete ${dataInfo} -`, ({ error, results }) => {
             if (error) return reject(error)
             resolve(results)
         })
@@ -127,9 +127,10 @@ export const fetchInitialSQLData = () => {
     let fetchEstimators = fetchFromTable('estimators', "Estimators")
     let fetchEstimateTypes = fetchFromTable('options_estimate_types', "Estimate Types")
     let fetchBoxOptions = fetchFromTable('options_boxes', "Boxes")
+    let fetchBoxOpenOptions = fetchFromTable('options_open_boxes', "Boxes")
     let fetchBidInvites = fetchFromTable('bid_dashboard', "Bid Invites")
     let fetchFileOptions = fetchFromTable('options_file_types', "File Options")
-    return Promise.all([fetchEstimators, fetchEstimateTypes, fetchBoxOptions, fetchBidInvites, fetchFileOptions])
+    return Promise.all([fetchEstimators, fetchEstimateTypes, fetchBoxOptions, fetchBoxOpenOptions, fetchBidInvites, fetchFileOptions])
 }
 
 export const injectScript = async (script: string) => {

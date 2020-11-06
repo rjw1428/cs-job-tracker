@@ -180,3 +180,18 @@ export const expandItem = createAction(
     "[Job Item] Toggle Job Item Expand",
     props<{ id: number }>()
 )
+
+export const storeBoxOpenOptions = createAction(
+    '[Backend Service (Box Fill State Changed)] Save Open Box Options',
+    props<{ openBoxOptions: BoxOption[] }>()
+)
+
+export const boxCleared = createAction(
+    "[Dashboad] Box Cleared",
+    props<{id: number}>()
+)
+
+export const boxSet = createAction(
+    "[Dashboard] Box Set",
+    props<{ id: number }>()
+)

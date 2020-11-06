@@ -38,7 +38,8 @@
         <div class="example-element-detail" [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
 
           <!-- EXPANDED ELEMENT -->
-          <app-search-item *ngIf="element == expandedElement" [jobId]="element.jobId"></app-search-item>
+          <app-search-item *ngIf="element == expandedElement" [jobId]="element.jobId"
+            (isDeleted)="onSearch(search.value)"></app-search-item>
 
         </div>
       </td>

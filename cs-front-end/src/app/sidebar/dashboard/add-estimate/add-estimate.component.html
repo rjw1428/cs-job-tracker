@@ -5,48 +5,50 @@
       <ng-template matStepLabel>Proposal Type</ng-template>
       <div style="display: flex; flex-direction: column;">
         <div *ngFor="let cfg of costFormGroup; let i=index">
-          <div style="display: flex; justify-content: space-evenly;">
+          <div style="display: flex; justify-content: flex-start; width: 90%">
             <form [formGroup]="cfg">
-              <mat-form-field style="width: 25%">
-                <mat-label>Estimate Type</mat-label>
-                <input name="estimateType" matInput [matAutocomplete]="estimateType" formControlName="estimateType">
-                <button mat-button *ngIf="cfg.get('estimateType').value" matSuffix mat-icon-button aria-label="Clear"
-                  (click)="cfg.patchValue({estimateType: {}})">
-                  <mat-icon>close</mat-icon>
-                </button>
-                <mat-autocomplete autoActiveFirstOption #estimateType="matAutocomplete"
-                  [displayWith]="estimateTypeDisplayFn">
-                  <mat-option *ngFor="let option of estimateTypes$ | async" [value]="option">
-                    {{option.type | titlecase}}
-                  </mat-option>
-                </mat-autocomplete>
-              </mat-form-field>
+              <div style="display: flex; width: 100%">
+                <mat-form-field style="width: 100%">
+                  <mat-label>Estimate Type</mat-label>
+                  <input name="estimateType" matInput [matAutocomplete]="estimateType" formControlName="estimateType">
+                  <button mat-button *ngIf="cfg.get('estimateType').value" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="cfg.patchValue({estimateType: {}})">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                  <mat-autocomplete autoActiveFirstOption #estimateType="matAutocomplete"
+                    [displayWith]="estimateTypeDisplayFn">
+                    <mat-option *ngFor="let option of estimateTypes$ | async" [value]="option">
+                      {{option.type | titlecase}}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
 
 
-              <mat-form-field style="width: 25%">
-                <mat-label>Cost</mat-label>
-                <input name="cost" matInput type="number" formControlName="cost">
-                <button mat-button *ngIf="cfg.get('cost').value" matSuffix mat-icon-button aria-label="Clear"
-                  (click)="cfg.patchValue({cost: null})">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </mat-form-field>
+                <mat-form-field style="width: 100%">
+                  <mat-label>Cost</mat-label>
+                  <input name="cost" matInput type="number" formControlName="cost">
+                  <button mat-button *ngIf="cfg.get('cost').value" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="cfg.patchValue({cost: null})">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </mat-form-field>
 
 
-              <mat-form-field style="width: 25%">
-                <mat-label>Estimator</mat-label>
-                <input name="estimator" matInput [matAutocomplete]="estimator" formControlName="estimator">
-                <button mat-button *ngIf="cfg.get('estimator').value" matSuffix mat-icon-button aria-label="Clear"
-                  (click)="cfg.patchValue({estimator: {}})">
-                  <mat-icon>close</mat-icon>
-                </button>
-                <mat-autocomplete autoActiveFirstOption #estimator="matAutocomplete" [displayWith]="estimatorDisplayFn">
-                  <mat-option *ngFor="let option of filteredEstimators$ | async" [value]="option">
-                    {{option.name}}
-                  </mat-option>
-                </mat-autocomplete>
-              </mat-form-field>
-
+                <mat-form-field style="width: 100%">
+                  <mat-label>Estimator</mat-label>
+                  <input name="estimator" matInput [matAutocomplete]="estimator" formControlName="estimator">
+                  <button mat-button *ngIf="cfg.get('estimator').value" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="cfg.patchValue({estimator: {}})">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                  <mat-autocomplete autoActiveFirstOption #estimator="matAutocomplete"
+                    [displayWith]="estimatorDisplayFn">
+                    <mat-option *ngFor="let option of filteredEstimators$ | async" [value]="option">
+                      {{option.name}}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+              </div>
 
               <mat-radio-group color="primary" style="display: flex; justify-content: space-around"
                 formControlName="isInHouse">
@@ -65,8 +67,10 @@
                 </mat-form-field>
                 <!-- <p><strong>Estimate Fee: </strong> {{projectCost$ | async | currency}}</p> -->
               </div>
-              <button *ngIf="i==costFormGroup.length-1" (click)="onAddNewForm(i)" mat-mini-fab color="accent" style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
-              <button *ngIf="i!=costFormGroup.length-1" (click)="onRemoveNewForm(i)" mat-mini-fab color="warn" style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">X</button>
+              <button *ngIf="i==costFormGroup.length-1" (click)="onAddNewForm(i)" mat-mini-fab color="accent"
+                style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
+              <button *ngIf="i!=costFormGroup.length-1" (click)="onRemoveNewForm(i)" mat-mini-fab color="warn"
+                style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">X</button>
             </form>
           </div>
         </div>

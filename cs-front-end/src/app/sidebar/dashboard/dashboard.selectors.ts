@@ -70,9 +70,9 @@ export const itemsSelector = createSelector(
             })
             .sort((a, b) => {
                 // 11/4/2020, 3:53:57 PM
-                const dateA = new Date(a.transactionDate)
-                const dateB = new Date(b.transactionDate)
-                return  dateB.getTime() - dateA.getTime()
+                const dateA = new Date(a.lastMoveDate)
+                const dateB = new Date(b.lastMoveDate)
+                return dateB.getTime() - dateA.getTime()
 
             })
         return items
@@ -81,7 +81,13 @@ export const itemsSelector = createSelector(
 
 export const boxOptionsSelector = createSelector(
     selectDashboardState,
-    dashboardState => dashboardState.boxOptions
+    (dashboardState: DashboardState, { appendId }: { appendId: number }) => {
+        if (appendId) {
+            const appendedBox = dashboardState.boxOptions.find(option => option.id == appendId)
+            return dashboardState.openBoxOptions.concat(appendedBox).sort((a,b)=>a.id-b.id)
+        }
+        return dashboardState.openBoxOptions
+    }
 )
 
 export const statusOptionsSelector = createSelector(
