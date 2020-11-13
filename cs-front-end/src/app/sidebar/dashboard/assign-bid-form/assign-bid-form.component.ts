@@ -33,7 +33,7 @@ export class AssignBidFormComponent implements OnInit {
 
     this.assignmentFormGroup = this.formBuilder.group({
       assignedTo: ["", Validators.required],
-      box: ["", Validators.required]
+      box: [""]
     })
   }
 
