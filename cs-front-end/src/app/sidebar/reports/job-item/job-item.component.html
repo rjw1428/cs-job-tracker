@@ -1,1 +1,78 @@
-<p>job-item works!</p>
+<div style="width: 100%; background: whitesmoke" *ngIf="job">
+    <div style="display: flex; justify-content: space-around;">
+      <div>
+        <h3>Project Info:</h3>
+        <p style="margin: 0px"><strong>Name: </strong>{{job.projectName}}</p>
+        <p><strong>Address: </strong>{{job.projectStreet}}</p>
+        <p>
+          <span *ngIf="job.city">{{job.city}}</span>
+          <span *ngIf="job.state"> {{job.state}}</span>
+          <span *ngIf="job.zip"> {{job.zip}}</span>
+        </p>
+      </div>
+      <div class="contact">
+        <h3>Contact Info:</h3>
+        <p style="margin: 0px"><strong>Contractor: </strong>{{job.contractorName}}</p>
+        <p><strong>Contact Name: </strong><a href="mailto:{{mailTo}}"
+            (click)="$event.stopPropagation()">{{job.contactName}}</a></p>
+        <p><strong>Email: </strong>{{job.contactEmail}}</p>
+        <p><strong>Phone Number: </strong>{{job.contactNumber}}</p>
+      </div>
+  
+      <div style="display: flex; flex-direction:column; justify-content: flex-start;">
+        <h3>Bid Status</h3>
+        <mat-slide-toggle color="warn" style="margin-bottom: 8px" (change)="onNoBid($event)" [checked]="!!job.isNoBid">
+          No Bid</mat-slide-toggle>
+        <p style="margin: 0px"><strong>Invite: </strong>{{job.dateAdded | date : 'MM/dd/yyyy'}}</p>
+        <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue!='ASAP'">
+          <p class="due-date" (click)="onDueDateSelected()"><strong>Due:
+            </strong>{{job.dateDue | date : 'MM/dd/yyyy'}}</p>
+          <mat-icon class="due-date-hidden">create</mat-icon>
+        </div>
+        <div style="display: flex; justify-content: space-between;" *ngIf="job.dateDue=='ASAP'">
+          <p class="due-date" (click)="onDueDateSelected()"><strong>Due: </strong>{{job.dateDue}}</p>
+          <mat-icon class="due-date-hidden">create</mat-icon>
+        </div>
+      </div>
+  
+      <section>
+        <h3>Award Timeline</h3>
+        <div style="display: flex; justify-content: space-between;">
+          <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>Start Date: </strong>
+            <span *ngIf="job.startTime=='TBD'">{{job.startTime}}</span>
+            <span *ngIf="job.startTime!='TBD'">{{job.startTime | date : 'MM/dd/yyyy'}}</span>
+          </p>
+          <mat-icon class="award-timeline-hidden">create</mat-icon>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <p class="award-timeline" (click)="onStartEndDateSelected()"><strong>End Date: </strong>
+            <span *ngIf="job.endTime=='TBD'">{{job.endTime}}</span>
+            <span *ngIf="job.endTime!='TBD'">{{job.endTime | date : 'MM/dd/yyyy'}}</span>
+          </p>
+          <mat-icon class="award-timeline-hidden">create</mat-icon>
+        </div>
+      </section>
+    </div>
+    <div style="display:flex; justify-content: space-between; margin: 8px 0px;">
+      <div>
+        <button mat-raised-button (click)="onViewFileList()" class="button">View
+          Attachements({{job.fileCount?job.fileCount:0}})
+        </button>
+        <button mat-raised-button (click)="onProposalHistory()" class="button">View Proposal History
+        </button>
+        <button mat-raised-button (click)="onJobHistory()" class="button">View Job History
+        </button>
+  
+        <button mat-raised-button color="primary" (click)="onEditProject(job)" class="button"
+          style="margin-left: 16px;">Edit Project Details
+        </button>
+  
+        <button mat-raised-button color="primary" (click)="onEditContact(job)" class="button">Edit Contact Info
+        </button>
+      </div>
+      <div>
+        <button mat-raised-button color="warn" (click)="onDelete()">Delete Job</button>
+      </div>
+    </div>
+  </div>
+  

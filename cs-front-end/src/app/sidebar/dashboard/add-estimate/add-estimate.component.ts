@@ -101,6 +101,7 @@ export class AddEstimateComponent implements OnInit {
     }).reduce((acc, cur) => {
       const curId = Object.keys(cur)[0]
       const accIds = Object.keys(acc)
+    
       if (!accIds.includes(curId))
         return { ...acc, ...cur }
       return {

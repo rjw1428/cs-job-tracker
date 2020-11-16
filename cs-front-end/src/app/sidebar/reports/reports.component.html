@@ -41,11 +41,20 @@
               <mat-header-cell *matHeaderCellDef style="background: whitesmoke;" mat-sort-header>
                 {{columnDef | titlecase}} </mat-header-cell>
 
-              <mat-cell *matCellDef="let element" [ngStyle]="{'backgroundColor': element.color}">
-                <div>{{(columnDef != 'project value')?element[columnDef]:element[columnDef] | currency}}</div>
+              <mat-cell *matCellDef="let element" >
+                <div *ngIf="columnDef == 'open'; else noOpen">
+                  <app-open-button [jobId]="element.jobId"></app-open-button>
+                </div>
+                <ng-template #noOpen>
+                  <div>{{(columnDef != 'project value')?element[columnDef]:element[columnDef] | currency}}</div>
+                </ng-template>
               </mat-cell>
 
-              <ng-container *ngIf="report.footer">
+              <ng-container *ngIf="report.footer && report.footer=='all'">
+                <mat-footer-cell *matFooterCellDef>{{footer[columnDef]}}</mat-footer-cell>
+              </ng-container>
+
+              <ng-container *ngIf="report.footer && report.footer!='all'">
                 <mat-footer-cell *matFooterCellDef style="background: whitesmoke;">
                   <div *ngIf="i==report.displayedColumns.length-2 && report.footer=='project value'">
                     <strong>Total Value</strong>
@@ -61,7 +70,7 @@
 
             <mat-header-row class="sticky-row" *matHeaderRowDef="report.displayedColumns;  sticky: true">
             </mat-header-row>
-            <mat-row *matRowDef="let row; columns: report.displayedColumns;"></mat-row>
+            <mat-row *matRowDef="let row; columns: report.displayedColumns;" [ngStyle]="{'backgroundColor': row.color}"></mat-row>
             <ng-container *ngIf="report.footer">
               <mat-footer-row class="sticky-row" *matFooterRowDef="report.displayedColumns;  sticky: true">
               </mat-footer-row>

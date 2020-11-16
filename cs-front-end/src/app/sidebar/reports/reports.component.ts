@@ -23,7 +23,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
   initialTab$: Observable<number>
   timeShortcuts$: Observable<TimeShortcut[]>
   reports: ReportConfig[]
-  footer: string
+  footer: string | any
   currentTab: number
   dataSubscription: Subscription
   sortCol: string
@@ -132,7 +132,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   setReportFromData(resp: any[], report: ReportConfig) {
     if (resp.length) {
-      // FORMAT DATE
+
+      // FORMATE DATES
       resp = resp.map(row => {
         return Object.keys(row).map(field => {
           if (field == "Invite Time" || field == "Hold Time" || field == "Turnaround Time" || field == "Estimating Time")
@@ -140,12 +141,27 @@ export class ReportsComponent implements OnInit, OnDestroy {
           return { [field]: row[field] }
         }).reduce((acc, cur) => ({ ...acc, ...cur }), {})
       })
-      report.displayedColumns = Object.keys(resp[0]).slice(0, -1)
 
+      report.displayedColumns = report.clickable
+        ? ["open"].concat(Object.keys(resp[0]).slice(0, -2))
+        : Object.keys(resp[0]).slice(0, -1)
+
+      console.log(report.displayedColumns)
+
+      // SET FOOTER (SUM VALUES BEFORE THEY ARE FORMATTED)
       if (report.footer) {
         if (report.footer == 'project value') {
           const sum = resp.map(row => row[report.footer]).reduce((acc, cur) => acc += +cur, 0)
           this.footer = new CurrencyPipe('en-US').transform(sum)
+        }
+        else if (report.footer == 'all') {
+          this.footer = report.displayedColumns.map((col, i) => {
+            if (i == 0) return { [col]: "TOTALS" }
+            const sum = resp.map(row => row[col]).reduce((acc, cur) => acc += +cur, 0)
+            return (col.includes('amount') || col.toLowerCase().includes('paid'))
+              ? { [col]: new CurrencyPipe('en-US').transform(sum) }
+              : { [col]: sum }
+          }).reduce((acc, cur) => ({ ...acc, ...cur }), {})
         }
         else {
           // Average Estimate Hours
@@ -160,6 +176,19 @@ export class ReportsComponent implements OnInit, OnDestroy {
           this.footer = (hrs < 10 ? '0' + hrs : hrs) + ":" + (min < 10 ? '0' + min : min)
         }
       }
+
+      // FORMAT CELLS WITH CURRENCY
+      resp = resp.map(row => {
+        return Object.keys(row).map(field => {
+          if (field.includes('amount') || field.toLowerCase().includes('paid'))
+            return { [field]: new CurrencyPipe('en-US').transform(row[field]) }
+          return { [field]: row[field] }
+        }).reduce((acc, cur) => ({ ...acc, ...cur }), {})
+      })
+
+
+
+
       report.dataSource = new MatTableDataSource(resp);
       report.dataSource.sort = this.sort
     }
@@ -177,7 +206,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
   onExport(report: ReportConfig) {
     const dataRows = report.dataSource.filteredData.map(d => {
       return Object.keys(d)
-        .filter(key => key != 'color')
+        .filter(key => key != 'color' && key != 'epoch')
         .map(key => ({ [key]: d[key] }))
         .reduce((acc, cur) => ({ ...acc, ...cur }), {})
     })
@@ -254,5 +283,9 @@ export class ReportsComponent implements OnInit, OnDestroy {
   onRefresh() {
     this.backendService.refreshBackend('reports')
   }
+
+  // onClick(elemet) {
+  //   console.log(elemet)
+  // }
 
 }

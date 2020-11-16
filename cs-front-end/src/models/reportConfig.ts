@@ -11,7 +11,8 @@ export class ReportConfig {
         public defaultTime: string,
         public footer?: string,
         public displayedColumns?: string[],
-        public dataSource?: MatTableDataSource<any>
+        public dataSource?: MatTableDataSource<any>,
+        public clickable?: boolean
     ) { }
 }
 
