@@ -19,5 +19,6 @@ export class EventService {
   triggerTimelineForm = new Subject<Move>()
   confirmProposal = new Subject<Move>()
   createGanttChart = new Subject<ChartConfig>()
+  searchMoveFormCanceled = new Subject<{jobId: number}>()
   constructor() { }
 }

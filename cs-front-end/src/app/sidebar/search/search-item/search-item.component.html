@@ -38,7 +38,7 @@
     <section>
       <h3>Edit Dashboard Column</h3>
       <mat-form-field style="width: 100%">
-        <mat-select [value]="job.currentDashboardColumn" (selectionChange)="onMove($event)">
+        <mat-select [(ngModel)]="selectedColumn" (selectionChange)="onMove($event)">
           <mat-option *ngFor="let option of columns$ | async" [value]="option.id">
             {{option.name}}
           </mat-option>

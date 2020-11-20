@@ -28,7 +28,6 @@ export class ViewJobHistoryComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public job: Job) { }
 
   ngOnInit(): void {
-    debugger
     this.backendService.initViewJobHistory(this.job)
 
     this.store.select(jobHistorySelector).subscribe(transactions => {

@@ -1,13 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
-import { noop, Observable, of, Subject } from 'rxjs';
+import { noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { first, map, mergeMap, switchMap } from 'rxjs/operators';
 import { ConfirmationSnackbarComponent } from 'src/app/popups/confirmation-snackbar/confirmation-snackbar.component';
 import { BackendService } from 'src/app/services/backend.service';
+import { EventService } from 'src/app/services/event.service';
 import { showSnackbar } from 'src/app/shared/utility';
 import { AppState } from 'src/models/appState';
 import { DashboardColumn } from 'src/models/dashboardColumn';
@@ -28,23 +29,34 @@ import { ViewProposalHistoryComponent } from '../../dashboard/view-proposal-hist
   templateUrl: './search-item.component.html',
   styleUrls: ['./search-item.component.scss']
 })
-export class SearchItemComponent implements OnInit {
+export class SearchItemComponent implements OnInit, OnDestroy {
   @Input() jobId: number
   @Output() isDeleted = new EventEmitter()
   columns$: Observable<DashboardColumn[]>
   job: Job
   mailTo: string = ""
   updateJob = new Subject()
+
+  moveCancelSubscription: Subscription
+  selectedColumn: string
+  currentColumn: string
   constructor(
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private store: Store<AppState>,
-    private backendService: BackendService
+    private backendService: BackendService,
+    private eventService: EventService,
+    private cdr: ChangeDetectorRef
   ) { }
+
+  ngOnDestroy() {
+    this.moveCancelSubscription.unsubscribe()
+  }
 
   ngOnInit() {
     this.backendService.getJob(this.jobId).subscribe(job => {
       this.job = job
+      this.selectedColumn = job.currentDashboardColumn
       this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
     })
 
@@ -53,6 +65,14 @@ export class SearchItemComponent implements OnInit {
     ).subscribe(job =>
       this.job = job
     )
+
+    this.moveCancelSubscription = this.eventService.searchMoveFormCanceled.subscribe(({ jobId }) => {
+      console.log({ jobId })
+      if (this.job.jobId == jobId) {
+        this.job = {...this.job, currentDashboardColumn: this.currentColumn}
+        this.selectedColumn = this.currentColumn
+      }
+    })
 
     this.columns$ = this.store.pipe(first(), map(state => Object.values(state.dashboard.columns)))
   }
@@ -193,6 +213,7 @@ export class SearchItemComponent implements OnInit {
   }
 
   onMove(event: MatSelectChange) {
+    this.currentColumn = this.job.currentDashboardColumn
     const sourceColIndex = this.job.currentDashboardColumn
     const sourceOrderIndex = 0
     const targetColIndex = event.value
@@ -205,6 +226,11 @@ export class SearchItemComponent implements OnInit {
       targetOrderIndex,
       selectedJob
     }))
+
+    this.job = {...this.job, currentDashboardColumn: this.selectedColumn}
+    const formTriggeredColumns = ['estimating', 'proposal', 'awarded']
+    if (!formTriggeredColumns.includes(targetColIndex))
+      showSnackbar(this.snackBar, "Job Moved")
   }
 
   onEditContact(job: Job) {

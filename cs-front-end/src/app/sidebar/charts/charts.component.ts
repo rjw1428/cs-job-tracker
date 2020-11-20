@@ -273,7 +273,6 @@ export class ChartsComponent implements OnInit, OnDestroy {
     console.log(data)
     const keys = Object.keys(data[0])
     const bars = keys.slice(1)
-    debugger
     const seriesNames = data.map(dataPoint => dataPoint[keys[0]])
     const result = seriesNames.map((singleSeriesName, i) => {
       return bars.map(bar => {
@@ -292,7 +291,6 @@ export class ChartsComponent implements OnInit, OnDestroy {
     console.log(data)
     const keys = Object.keys(data[0])
     const bars = keys.slice(1)
-    debugger
     const seriesNames = data.map(dataPoint => dataPoint[keys[0]])
     const result = seriesNames.map((singleSeriesName, i) => {
       return {
