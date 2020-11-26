@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -46,7 +46,6 @@ export class SearchItemComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private backendService: BackendService,
     private eventService: EventService,
-    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnDestroy() {
