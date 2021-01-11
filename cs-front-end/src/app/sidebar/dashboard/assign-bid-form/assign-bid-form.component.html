@@ -11,15 +11,6 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
-
-      <mat-form-field style="width: 64px">
-        <mat-label>Box:</mat-label>
-        <mat-select formControlName="box">
-          <mat-option *ngFor="let option of boxOptions$ | async" [value]="option.id">
-            {{option.boxId}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
     </section>
   </form>
   <p *ngIf="error" style="color: red;">ERROR: {{error}}</p>

@@ -95,7 +95,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             assignedTo: 0
           }
         }))
-        this.store.dispatch(DashboardActions.boxCleared({ boxId: action.selectedJob.box }))
+        // this.store.dispatch(DashboardActions.boxCleared({ boxId: action.selectedJob.box }))
       }
     },
       err => console.log(err)
@@ -125,7 +125,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
             historyOnlyNotes: `Moved to Awarded`
           }
         }))
-        this.store.dispatch(DashboardActions.boxCleared({ boxId: action.selectedJob.box }))
+        // this.store.dispatch(DashboardActions.boxCleared({ boxId: action.selectedJob.box }))
       }
     })
 
@@ -154,9 +154,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
             historyOnlyNotes: `Moved to Estimating; Assigned to ${action.name}`
           }
         }))
-        this.store.dispatch(DashboardActions.boxSet({
-          boxId: action.selectedJob.box, projectId: action.selectedJob.projectId
-        }))
+        // this.store.dispatch(DashboardActions.boxSet({
+        //   boxId: action.selectedJob.box, projectId: action.selectedJob.projectId
+        // }))
       }
     })
   }

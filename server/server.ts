@@ -702,6 +702,8 @@ async function writeJobTransaction(updatedJob: Job) {
             assignedTo: updatedJob.assignedTo ? updatedJob.assignedTo : 0,
             statusId: updatedJob.statusId,
         } as any
+
+        // Why would you do this and not just pass in the entire updatedJob item?
         if (updatedJob.box)
             newTransaction.box = updatedJob.box
         if (updatedJob.historyOnlyNotes)
@@ -710,6 +712,8 @@ async function writeJobTransaction(updatedJob: Job) {
             newTransaction.reportOnlyNotes = updatedJob.reportOnlyNotes
         if (updatedJob.proposalId)
             newTransaction.proposalId = updatedJob.proposalId
+        if (updatedJob.followupDate)
+            newTransaction.followupDate = updatedJob.followupDate
         await Promise.all([
             insertIntoTable('job_transactions', newTransaction),
             updateTable('job_transactions',

@@ -135,8 +135,20 @@ export class JobBoardItemComponent implements OnInit {
     showSnackbar(this.snackBar, `Note Updated`)
   }
 
-  onSaveReportNote(value: string) {
-    const updatedJob = { ...this.job, reportOnlyNotes: value, historyOnlyNotes: value }
+  onSaveReportNote(note: string) {
+    const updatedJob = { ...this.job, reportOnlyNotes: note, historyOnlyNotes: note, followupDate: this.job.followupDate }
+    this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+    showSnackbar(this.snackBar, `Follow Up Note Updated`)
+  }
+
+  onFollowupDate(followupDate: string) {
+    const updatedJob = { ...this.job, reportOnlyNotes: this.job.reportOnlyNotes, historyOnlyNotes: this.job.historyOnlyNotes, followupDate: followupDate }
+    this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
+    showSnackbar(this.snackBar, `Follow Up Note Updated`)
+  }
+
+  onSaveFollowUpInfo(note: string, followupDate: string) {
+    const updatedJob = { ...this.job, reportOnlyNotes: note, historyOnlyNotes: note, followupDate }
     this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
     showSnackbar(this.snackBar, `Follow Up Note Updated`)
   }

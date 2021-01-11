@@ -6,8 +6,8 @@
         <mat-card-title [matTooltip]="job.jobId" [matTooltipDisabled]="!isDev">{{job.projectName}}</mat-card-title>
       </div>
       <div style="display: flex; justify-content: space-between;">
-        <div style="font-style: italic;" (click)="onTitleClicked()">{{job.jobDisplayId}}</div>
-       
+        <div style="font-style: italic;" (click)="onTitleClicked()">{{job.contractorName}}</div>
+
         <!-- Drage Indicator Field -->
         <div style="width:50px; display:flex; justify-content: flex-end;" *ngIf="!job.isNoBid">
           <ng-content></ng-content>
@@ -80,7 +80,7 @@
       </section>
 
       <section *ngIf="job.currentDashboardColumn=='estimating'" style="display:flex">
-        <mat-form-field style="width: 140px">
+        <mat-form-field style="width: 200px">
           <mat-label>Assigned To:</mat-label>
           <mat-select [value]="job.assignedTo" (selectionChange)="onAssignedToChanged($event)">
             <mat-option *ngFor="let option of estimatorOptions$ | async" [value]="option.id">
@@ -88,7 +88,7 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-
+        <!-- 
         <mat-form-field style="width: 60px">
           <mat-label>Box:</mat-label>
           <mat-select [value]="(+job.box)" (selectionChange)="onBoxChanged($event)">
@@ -96,7 +96,7 @@
               {{option.boxId}}
             </mat-option>
           </mat-select>
-        </mat-form-field>
+        </mat-form-field> -->
       </section>
 
       <section *ngIf="job.currentDashboardColumn!='awarded'">
@@ -109,8 +109,8 @@
           </mat-select>
         </mat-form-field>
 
-        <div style="display: flex; justify-content: stretch; align-items: flex-end;">
-          <mat-form-field>
+        <div style="display: flex; align-items: center; ">
+          <mat-form-field style="flex-grow: 1;">
             <mat-label>Notes:</mat-label>
             <input #note name="note" matInput [value]="job.notes" (keydown.enter)="onSaveNote(note.value)">
             <button mat-button *ngIf="job.notes" matSuffix mat-icon-button aria-label="Clear"
@@ -118,22 +118,40 @@
               <mat-icon>close</mat-icon>
             </button>
           </mat-form-field>
-          <button (click)="onSaveNote(note.value)" mat-mini-fab color="primary"
-            style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
+          <div style="display: flex; flex-basis: 0%; justify-content: flex-end; flex-grow: 1;">
+            <button (click)="onSaveNote(note.value)" mat-mini-fab color="primary"
+              style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
+          </div>
         </div>
-        <div style="display: flex; justify-content: stretch; align-items: flex-end;"
+
+        <div style="display: flex; align-items: center;"
           *ngIf="job.currentDashboardColumn=='proposal' || job.currentDashboardColumn=='hold'">
-          <mat-form-field>
-            <mat-label>Follow Up Info:</mat-label>
-            <input #reportNote name="reportNote" matInput [value]="job.reportOnlyNotes"
-              (keydown.enter)="onSaveReportNote(reportNote.value)">
-            <button mat-button *ngIf="job.reportOnlyNotes" matSuffix mat-icon-button aria-label="Clear"
-              (click)="reportNote.value=''; onSaveReportNote(reportNote.value)">
-              <mat-icon>close</mat-icon>
-            </button>
-          </mat-form-field>
-          <button (click)="onSaveReportNote(reportNote.value)" mat-mini-fab color="primary"
-            style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
+          <div style="display: flex; flex-direction: column; justify-content: center; flex-grow: 1;">
+            <mat-form-field>
+              <mat-label>Follow Up Info:</mat-label>
+              <input #reportNote name="reportNote" matInput [value]="job.reportOnlyNotes"
+                (keydown.enter)="onSaveReportNote(reportNote.value)">
+              <button mat-button *ngIf="job.reportOnlyNotes" matSuffix mat-icon-button aria-label="Clear"
+                (click)="reportNote.value=''; onSaveReportNote(reportNote.value)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Follow Up Date:</mat-label>
+              <input #followupDate name="followupDate" matInput [value]="job.followupDate"
+                (keydown.enter)="onSaveFollowUpInfo(reportNote.value, followupDate.value)">
+              <button mat-button *ngIf="job.followupDate" matSuffix mat-icon-button aria-label="Clear"
+                (click)="followupDate.value=''; onFollowupDate(followupDate.value)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+
+          <div style="display: flex; flex-grow: 1; flex-basis: 0%; justify-content: flex-end;">
+            <button (click)="onSaveFollowUpInfo(reportNote.value, followupDate.value)" mat-mini-fab color="primary"
+              style="width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; margin: 0 0 17.5px">+</button>
+          </div>
         </div>
       </section>
     </div>

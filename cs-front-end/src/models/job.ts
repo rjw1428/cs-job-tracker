@@ -32,6 +32,7 @@ export class Job {
         public box: number,
         public notes: string,
         public reportOnlyNotes: string,
+        public followupDate: string,
         public historyOnlyNotes: string,
         public isAlerted: boolean,
         public startTime: string,
