@@ -180,7 +180,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
       // FORMAT CELLS WITH CURRENCY
       resp = resp.map(row => {
         return Object.keys(row).map(field => {
-          if (field.includes('amount') || field.toLowerCase().includes('paid'))
+          if (field.toLowerCase().includes('amount') || field.toLowerCase().includes('paid') || field.toLowerCase() == 'project value')
             return { [field]: new CurrencyPipe('en-US').transform(row[field]) }
           return { [field]: row[field] }
         }).reduce((acc, cur) => ({ ...acc, ...cur }), {})

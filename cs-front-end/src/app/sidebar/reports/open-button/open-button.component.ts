@@ -19,7 +19,7 @@ export class OpenButtonComponent implements OnInit {
 
   onOpen() {
      this.dialog.open(JobItemComponent, {
-      width: '800px',
+      width: '1000px',
       data: this.jobId
     })
   }
