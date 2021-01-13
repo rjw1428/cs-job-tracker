@@ -134,6 +134,11 @@ app.on('activate', function () {
 
 
 function formatUpdateMessage(message) {
-  let noHTMLMessage = message.replace(/<p>/g, "").replace(/<br>/g, "").replace(/<\/p>/g, "")
+  let noHTMLMessage = message
+    .replace(/<p>/g, "")
+    .replace(/<br>/g, "")
+    .replace(/<\/p>/g, "")
+    .replace(/<\/li>/g, "")
+    .replace(/<\/ul>/g, "")
   return " - "+noHTMLMessage.replace(/\n/g, "\n - ")
 }
