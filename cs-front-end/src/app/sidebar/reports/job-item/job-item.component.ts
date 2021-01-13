@@ -100,10 +100,9 @@ export class JobItemComponent implements OnInit {
     showSnackbar(this.snackBar, `Note Updated`)
   }
 
-  onSaveReportNote(value: string) {
-    const updatedJob = { ...this.job, reportOnlyNotes: value, historyOnlyNotes: value }
+  onSaveFollowUpInfo(note: string, followupDate: string) {
+    const updatedJob = { ...this.job, reportOnlyNotes: note, historyOnlyNotes: note, followupDate }
     this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
-    this.updateJob.next()
     showSnackbar(this.snackBar, `Follow Up Note Updated`)
   }
 

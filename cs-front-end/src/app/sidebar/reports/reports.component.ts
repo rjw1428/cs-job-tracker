@@ -158,7 +158,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
           this.footer = report.displayedColumns.map((col, i) => {
             if (i == 0) return { [col]: "TOTALS" }
             const sum = resp.map(row => row[col]).reduce((acc, cur) => acc += +cur, 0)
-            return (col.includes('amount') || col.toLowerCase().includes('paid'))
+            return (col.toLowerCase().includes('amount') || col.toLowerCase().includes('paid'))
               ? { [col]: new CurrencyPipe('en-US').transform(sum) }
               : { [col]: sum }
           }).reduce((acc, cur) => ({ ...acc, ...cur }), {})
