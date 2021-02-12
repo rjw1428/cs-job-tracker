@@ -187,8 +187,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
       })
 
 
-
-
       report.dataSource = new MatTableDataSource(resp);
       report.dataSource.sort = this.sort
     }
@@ -238,14 +236,16 @@ export class ReportsComponent implements OnInit, OnDestroy {
     workSheet = Object.keys(workSheet)
       .filter(key => {
         const value = workSheet[key].v
-        console.log(value)
         return value !== null
       })
       .map(key => {
         if (skipList.includes(key)) return { [key]: workSheet[key] }
         const value = workSheet[key].v
-
         // Set format (number must be done before date format)
+        const isNumber = Number.isNaN(+value)
+        const isCurrency = !!value.indexOf && value.indexOf('$') == 0
+        if (isNumber && isCurrency)
+          return { [key]: { ...workSheet[key], v: Number(value.replace(/[^0-9.-]+/g,"")), t: "n", z:'_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)' } }
         if (!Number.isNaN(+value))
           return { [key]: { ...workSheet[key], t: "n" } }
         if (isValidDate(value)) {
