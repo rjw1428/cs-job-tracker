@@ -15,7 +15,11 @@
 
       </div>
     </div>
-    <mat-card-subtitle *ngIf="job.projectStreet" class="street" (click)="onTitleClicked()">{{job.projectStreet}}
+    <mat-card-subtitle class="street" (click)="onTitleClicked()">
+      <span  *ngIf="job.projectStreet">{{job.projectStreet}}</span>
+      <span  *ngIf="job.city"> {{job.city}}</span>
+      <span  *ngIf="job.state"> {{job.state}}</span>
+      <span  *ngIf="job.zip">, {{job.zip}}</span>
     </mat-card-subtitle>
   </mat-card-header>
 
