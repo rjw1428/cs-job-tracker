@@ -1,6 +1,6 @@
 {
   "name": "wf-manager",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "author": "RW Software Solutions",
   "description": "Workflow Manager",
   "main": "main.js",
