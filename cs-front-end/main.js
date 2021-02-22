@@ -2,12 +2,8 @@ const {app, BrowserWindow,dialog, ipcMain } = require('electron')
 const fs = require('fs')
 const url = require("url");
 const path = require("path");
-const {
-  autoUpdater
-} = require('electron-updater')
+const {autoUpdater} = require('electron-updater')
 const isDev = require('electron-is-dev');
-const { response } = require('express');
-const { catchErrors } = require('electron-log');
 
 autoUpdater.logger = require('electron-log')
 autoUpdater.logger.transports.file.level = 'info'
