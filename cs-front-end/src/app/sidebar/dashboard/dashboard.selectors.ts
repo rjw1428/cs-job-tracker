@@ -59,13 +59,13 @@ export const itemsSelector = createSelector(
             .filter(key => dashboardState.invites[key].currentDashboardColumn == columnId)
             .filter(key => {
                 const job = jobs[key] as Job
-                const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId, job.contractorName].join(" ").toLowerCase()
+                const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId, job.contractorName, job.projectStreet, job.city, job.state, job.zip].join(" ").toLowerCase()
                 return searchString.includes(dashboardState.filterValue.toLowerCase())
             })
         const items = keys
             .map(key => {
                 const job = jobs[key] as Job
-                const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId, job.contractorName].join(" ").toLowerCase()
+                const searchString = [job.projectName, job.contactName, job.status, job.assignedToName, job.jobDisplayId, job.contractorName, job.projectStreet, job.city, job.state, job.zip].join(" ").toLowerCase()
                 return { ...dashboardState.invites[key], longName: searchString } as Job
             })
             .sort((a, b) => {

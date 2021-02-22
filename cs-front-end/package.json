@@ -1,7 +1,6 @@
 {
   "name": "wf-manager",
   "version": "1.2.3",
-  
   "author": "RW Software Solutions",
   "description": "Workflow Manager",
   "main": "main.js",
@@ -44,6 +43,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "electron-updater": "^4.3.5",
     "file-saver": "^2.0.2",
+    "ngx-electron": "^2.2.0",
     "rxjs": "~6.5.4",
     "sheetjs-style": "^0.15.6",
     "socket.io-client": "^2.3.0",

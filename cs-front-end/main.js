@@ -1,31 +1,36 @@
-const { app, BrowserWindow, dialog  } = require('electron')
+const {app, BrowserWindow,dialog, ipcMain } = require('electron')
+const fs = require('fs')
 const url = require("url");
 const path = require("path");
-const { autoUpdater } = require('electron-updater')
-const isDev = require('electron-is-dev')
+const {
+  autoUpdater
+} = require('electron-updater')
+const isDev = require('electron-is-dev');
+const { response } = require('express');
+const { catchErrors } = require('electron-log');
 
 autoUpdater.logger = require('electron-log')
 autoUpdater.logger.transports.file.level = 'info'
 
-autoUpdater.on('checking-for-update', ()=>{
+autoUpdater.on('checking-for-update', () => {
   console.log('Checking for updates...')
 })
 
-autoUpdater.on('update-available', (info)=>{
+autoUpdater.on('update-available', (info) => {
   console.log('Update Available!')
   console.log('Version', info.version)
   console.log('Release Date', info.releaseDate)
 })
 
-autoUpdater.on('update-not-available', ()=>{
+autoUpdater.on('update-not-available', () => {
   console.log('Nothing to see here')
 })
 
-autoUpdater.on('download-progress', (progress)=>{
+autoUpdater.on('download-progress', (progress) => {
   console.log(`Progress ${Math.floor(progress.percent)}`)
 })
 
-autoUpdater.on('update-downloaded', (info)=>{
+autoUpdater.on('update-downloaded', (info) => {
   console.log('Update Downloaded');
   console.log(info)
   const message = formatUpdateMessage(info.releaseNotes)
@@ -33,12 +38,12 @@ autoUpdater.on('update-downloaded', (info)=>{
   const dialogOpts = {
     type: 'info',
     buttons: ['Restart', 'Later'],
-    title:  info.releaseName
-      ?  info.releaseName
-      : 'Application Update',
-    message: info.releaseNotes 
-      ? message
-      : info.releaseName,
+    title: info.releaseName ?
+      info.releaseName :
+      'Application Update',
+    message: info.releaseNotes ?
+      message :
+      info.releaseName,
     detail: 'A new version has been downloaded. Restart the application to apply the updates.'
   }
 
@@ -48,7 +53,7 @@ autoUpdater.on('update-downloaded', (info)=>{
   })
 })
 
-autoUpdater.on('error', (error)=>{
+autoUpdater.on('error', (error) => {
   console.log(error)
 })
 
@@ -82,10 +87,14 @@ function createMain() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 960,
-    // transparent: true,
-    maximizable : true,
+    maximizable: true,
+    webPreferences: {
+      nodeIntegration: true,
+      _worldSafeExecuteJavaScript: true, 
+      _contextIsolation: true
+  }
   })
- 
+
   mainWindow.hide()
 
 
@@ -101,7 +110,7 @@ function createMain() {
 
   mainWindow.webContents.once('dom-ready', () => {
     if (splash)
-      setTimeout(()=>{
+      setTimeout(() => {
         mainWindow.maximize()
         mainWindow.show()
         splash.close();
@@ -133,6 +142,21 @@ app.on('activate', function () {
 })
 
 
+ipcMain.on('report_export', (event, {data, fileName}) => {
+  const options = {
+    defaultPath: `${app.getPath('documents')}/${fileName}`,
+    title: "Save Report"
+  }
+  dialog.showSaveDialog(null, options)
+  .then(resp=>{
+    if (!resp.canceled)
+     fs.writeFileSync(resp.filePath, data)
+     event.reply('export_success', fileName)
+  })
+  .catch(err=>console.log(err))
+})
+
+
 function formatUpdateMessage(message) {
   let noHTMLMessage = message
     .replace(/<p>/g, "")
@@ -140,5 +164,5 @@ function formatUpdateMessage(message) {
     .replace(/<\/p>/g, "")
     .replace(/<\/li>/g, "")
     .replace(/<\/ul>/g, "")
-  return " - "+noHTMLMessage.replace(/\n/g, "\n - ")
+  return " - " + noHTMLMessage.replace(/\n/g, "\n - ")
 }

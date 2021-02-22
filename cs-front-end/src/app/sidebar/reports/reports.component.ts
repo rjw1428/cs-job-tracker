@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { BackendService } from '../../services/backend.service';
 import { ActivatedRoute, Params } from '@angular/router';
@@ -13,6 +13,7 @@ import { AppState } from 'src/models/appState';
 import { TimeShortcut } from 'src/models/timeShortcut';
 import { ReportConfig } from 'src/models/reportConfig';
 import { AppActions } from 'src/app/app.action-types';
+import { ElectronService } from 'ngx-electron';
 import * as xlsx from 'sheetjs-style'
 @Component({
   selector: 'app-reports',
@@ -38,6 +39,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private cdr: ChangeDetectorRef,
     private snackBar: MatSnackBar,
+    private electronService: ElectronService,
+    private ngZone: NgZone,
   ) { }
 
   ngOnDestroy() {
@@ -72,6 +75,12 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.refreshInterval = setInterval(() => {
       this.onTabChanged(this.currentTab, false)
     }, 60 * 1000)
+
+    this.electronService.ipcRenderer.on('export_success', (event, fileName) =>{
+      this.ngZone.run(()=>{
+        showSnackbar(this.snackBar, `${fileName} Saved!`)
+      })
+    })
   }
 
   onTabChanged(tabNumber: number, init: boolean) {
@@ -234,10 +243,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
     //Set each cells format
     const skipList = ['!cols', '!ref']
     workSheet = Object.keys(workSheet)
-      .filter(key => {
-        const value = workSheet[key].v
-        return value !== null
-      })
+      .filter(key => workSheet[key].v !== null)
       .map(key => {
         if (skipList.includes(key)) return { [key]: workSheet[key] }
         const value = workSheet[key].v
@@ -245,7 +251,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
         const isNumber = Number.isNaN(+value)
         const isCurrency = !!value.indexOf && value.indexOf('$') == 0
         if (isNumber && isCurrency)
-          return { [key]: { ...workSheet[key], v: Number(value.replace(/[^0-9.-]+/g,"")), t: "n", z:'_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)' } }
+          return { [key]: { ...workSheet[key], v: Number(value.replace(/[^0-9.-]+/g, "")), t: "n", z: '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)' } }
         if (!Number.isNaN(+value))
           return { [key]: { ...workSheet[key], t: "n" } }
         if (isValidDate(value)) {
@@ -256,7 +262,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
       .reduce((a, b) => ({ ...a, ...b }), {})
 
     xlsx.utils.book_append_sheet(wb, workSheet, report.name);
-    xlsx.writeFile(wb, fileName);
+    const data =  xlsx.write(wb, { type: 'buffer', bookType: 'xlsx'});
+    this.electronService.ipcRenderer.send('report_export', {data, fileName})
   }
 
   onDateRangeSet(dateRange: { from: Date, to: Date }) {

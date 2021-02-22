@@ -19,6 +19,7 @@ import { SettingsComponent } from './sidebar/settings-component/settings.compone
 import { ConfirmationSnackbarComponent } from './popups/confirmation-snackbar/confirmation-snackbar.component';
 import { BackendService } from './services/backend.service';
 import { SpecialReportComponent } from './special-report/special-report.component';
+import { NgxElectronModule } from 'ngx-electron';
 
 export function init(backend: BackendService) {
   return () => backend.setupBackend()
@@ -39,6 +40,7 @@ export function init(backend: BackendService) {
     AppRoutingModule,
     HttpClientModule,
     SharedModule,
+    NgxElectronModule,
     StoreModule.forRoot(reducers, {
       metaReducers,
       runtimeChecks: {
