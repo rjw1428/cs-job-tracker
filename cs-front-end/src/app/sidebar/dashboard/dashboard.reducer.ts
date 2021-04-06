@@ -248,7 +248,7 @@ export const dashboardReducer = createReducer(initialDashboardState, on(Dashboar
             ...state,
             boxOptions: state.boxOptions.map(option => ({
                 ...option,
-                isFull: action.projectId
+                isFull: 0//action.projectId
             }))
 
         }

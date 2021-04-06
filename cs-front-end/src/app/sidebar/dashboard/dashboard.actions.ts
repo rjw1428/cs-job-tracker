@@ -193,7 +193,7 @@ export const boxSet = createAction(
 
 export const boxChanged = createAction(
     "[Job Item] Change Box",
-    props<{ projectId: number, newBoxId: number }>()
+    props<{ projectId: number, newBox: { id: number, boxId: string } }>()
 )
 
 export const UpdateJobsWithNewBox = createAction(

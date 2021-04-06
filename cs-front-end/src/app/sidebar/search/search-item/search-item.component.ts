@@ -11,6 +11,7 @@ import { BackendService } from 'src/app/services/backend.service';
 import { EventService } from 'src/app/services/event.service';
 import { showSnackbar } from 'src/app/shared/utility';
 import { AppState } from 'src/models/appState';
+import { BoxOption } from 'src/models/boxOption';
 import { DashboardColumn } from 'src/models/dashboardColumn';
 import { Job } from 'src/models/job';
 import { AddContractorComponent } from '../../dashboard/add-contractor/add-contractor.component';
@@ -18,6 +19,7 @@ import { AddFinalPriceComponent } from '../../dashboard/add-final-price/add-fina
 import { AddProjectComponent } from '../../dashboard/add-project/add-project.component';
 import { AwardTimelineFormComponent } from '../../dashboard/award-timeline-form/award-timeline-form.component';
 import { DashboardActions } from '../../dashboard/dashboard.action-types';
+import { boxOptionsSelector } from '../../dashboard/dashboard.selectors';
 import { UpdateDueDateComponent } from '../../dashboard/update-due-date/update-due-date.component';
 import { ViewCurrentProposalComponent } from '../../dashboard/view-current-proposal/view-current-proposal.component';
 import { ViewFilesComponent } from '../../dashboard/view-files/view-files.component';
@@ -33,6 +35,7 @@ export class SearchItemComponent implements OnInit, OnDestroy {
   @Input() jobId: number
   @Output() isDeleted = new EventEmitter()
   columns$: Observable<DashboardColumn[]>
+  boxOptions$: Observable<BoxOption[]>
   job: Job
   mailTo: string = ""
   updateJob = new Subject()
@@ -53,6 +56,8 @@ export class SearchItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.boxOptions$ = this.store.select(boxOptionsSelector, { projectId: 0 })
+    this.boxOptions$.subscribe(console.log)
     this.backendService.getJob(this.jobId).subscribe(job => {
       this.job = job
       this.selectedColumn = job.currentDashboardColumn
@@ -81,7 +86,7 @@ export class SearchItemComponent implements OnInit, OnDestroy {
       data: { message: `Are you sure you want to delete ${this.job.projectName}?`, action: "Delete" }
     }).onAction().subscribe(
       () => {
-        this.store.dispatch(DashboardActions.boxCleared({ boxId: this.job.box }))
+        // this.store.dispatch(DashboardActions.boxCleared({ boxId: this.job.box }))
         this.store.dispatch(DashboardActions.deleteJobItem({ job: this.job }))
         this.isDeleted.emit()
       }
@@ -128,11 +133,8 @@ export class SearchItemComponent implements OnInit, OnDestroy {
 
   onBoxChanged(value: MatSelectChange) {
     this.store.pipe(first(), map(state => {
-      const box = state.dashboard.boxOptions.find(box => box.id == value.value)
-      const updatedJob = { ...this.job, box: box.id, historyOnlyNotes: `Moved to Box ${box.boxId}` }
-      this.store.dispatch(DashboardActions.boxCleared({ boxId: this.job.box }))
-      this.store.dispatch(DashboardActions.updateJobItem({ job: updatedJob }))
-      this.store.dispatch(DashboardActions.boxSet({ boxId: box.id, projectId: this.job.projectId }))
+      const newBox = state.dashboard.boxOptions.find(box => box.id == value.value)
+      this.store.dispatch(DashboardActions.boxChanged({ projectId: this.job.projectId, newBox }))
       this.updateJob.next()
       showSnackbar(this.snackBar, `Box Updated`)
     })).subscribe(noop)

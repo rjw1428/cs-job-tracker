@@ -62,7 +62,7 @@ export class JobBoardItemComponent implements OnInit {
   ngOnInit(): void {
     this.isDev = !environment.production
     this.mailTo = this.job.contactEmail + "?subject=" + encodeURIComponent(this.job.projectName)
-    this.boxOptions$ = this.store.select(boxOptionsSelector, { projectId: this.job.projectId, showAll: true })
+    this.boxOptions$ = this.store.select(boxOptionsSelector, { projectId: this.job.projectId })
     this.statusOptions$ = this.store.select(statusOptionsSelector, { columnId: this.job.currentDashboardColumn })
     this.estimatorOptions$ = this.store.select(estimatorsSelector)
     this.tileColor$ = this.store.select(tileColorSelector, { job: this.job })
@@ -75,7 +75,7 @@ export class JobBoardItemComponent implements OnInit {
       return this.boxOptions$.pipe(map(options => options.find(option => option.id == this.job.box)))
     })).subscribe(
       (box) => {
-        this.store.dispatch(DashboardActions.boxCleared({ boxId: this.job.box }))
+        // this.store.dispatch(DashboardActions.boxCleared({ boxId: this.job.box }))
         this.store.dispatch(DashboardActions.deleteJobItem({ job: this.job }))
       }
     )
@@ -155,7 +155,8 @@ export class JobBoardItemComponent implements OnInit {
 
   onBoxChanged(value: MatSelectChange) {
     this.store.pipe(first(), map(state => {
-      this.store.dispatch(DashboardActions.boxChanged({ projectId: this.job.projectId, newBoxId: value.value }))
+      const newBox = state.dashboard.boxOptions.find(option=>option.id==value.value)
+      this.store.dispatch(DashboardActions.boxChanged({ projectId: this.job.projectId, newBox }))
       showSnackbar(this.snackBar, `Box Updated`)
     })).subscribe(noop)
   }

@@ -138,20 +138,20 @@ async function doInitialization() {
 }
 
 io.on('connection', (socket) => {
+    
+    socket.join(room)
+    state.users.push({ id: socket.id, room })
+    console.log("Users: " + state.users.filter(user => user.room == room).length)
 
     // -------------Dashboard---------------------------------------
     // On Dashboard Init
     socket.on('dashboard', (callback) => {
-        socket.join(room)
-        state.users.push({ id: socket.id, room })
-
         socket.emit('getEstimators', state.estimators)
         socket.emit('getBoxOptions', state.boxOptions)
         socket.emit('getColumns', state.dashboardColumns)
         socket.emit('getReportConfigs', state.reportConfigs)
         socket.emit('getInvites', state.invites)
 
-        console.log("Users: " + state.users.filter(user => user.room == room).length)
     })
 
     // On Bid Form Init
@@ -165,6 +165,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('searchInit', () => {
+        socket.emit('getBoxOptions', state.boxOptions)
         socket.emit('getColumns', state.dashboardColumns)
     })
 
@@ -475,34 +476,33 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('changeBox', async ({ projectId, newId }) => {
+    socket.on('changeBox', async ({ projectId, newBox }) => {
         //Empty Old Box
-        console.log({ projectId })
-        const matchingBox = await fetchFromTable('options_boxes', "Boxes", { isFull: projectId })
-        console.log(matchingBox)
-        const oldBox = matchingBox[0]
-        console.log({ oldBox })
-        let emptyResp
-        if (oldBox)
-            emptyResp = await updateTable('options_boxes', { isFull: 0, jobCount: 0 }, { id: oldBox.id }, `Box ${oldBox.id} emptied`)
+        // console.log({ projectId })
+        // const matchingBox = await fetchFromTable('options_boxes', "Boxes", { isFull: projectId })
+        // console.log(matchingBox)
+        // const oldBox = matchingBox[0]
+        // console.log({ oldBox })
+        // let emptyResp
+        // if (oldBox)
+        //     emptyResp = await updateTable('options_boxes', { isFull: 0, jobCount: 0 }, { id: oldBox.id }, `Box ${oldBox.id} emptied`)
 
         //Fill New Box
-        const fillResp = await updateTable('options_boxes', { isFull: projectId, jobCount: oldBox ? oldBox.jobCount : 0 }, { id: newId }, `Box ${newId} filled`)
+        // const fillResp = await updateTable('options_boxes', { isFull: 0, jobCount: 0 }, { id: newId }, `Box ${newId} filled`)
         const allJobs = await fetchFromTable('bid_dashboard', "Jobs", { projectId })
         const transactionCall = allJobs.map(job => {
             return writeJobTransaction({
                 ...job,
-                box: newId
+                box: newBox.id,
+                historyOnlyNotes: `Moved to box ${newBox.boxId}`
             })
         })
         await Promise.all(transactionCall)
-        const jobUpdateCall = allJobs.map(job => {
-            emitUpdatedJob(job.jobId)
-        })
-        await Promise.all(jobUpdateCall)
-        //Return boxes
-        const openBoxes = await fetchFromTable('options_boxes', "Boxes")
-        socket.emit('getBoxOptions', openBoxes)
+        allJobs.map(job => emitUpdatedJob(job.jobId))
+        // await Promise.all(jobUpdateCall)
+        // //Return boxes
+        // const openBoxes = await fetchFromTable('options_boxes', "Boxes")
+        // socket.emit('getBoxOptions', openBoxes)
     })
 
     socket.on('moveBid', async (updatedJob, callback) => {
@@ -670,6 +670,7 @@ router.get('/api/data/:procedure', (req, resp) => {
 
 async function emitUpdatedJob(jobId) {
     const newJob = await fetchFromTable('bid_invites_active', "Bid Invites", { jobId: jobId })
+    console.log(newJob[0].jobId)
     state.invites = {
         ...state.invites,
         ...{ [jobId]: newJob[0] }

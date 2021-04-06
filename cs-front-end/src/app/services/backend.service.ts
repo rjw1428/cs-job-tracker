@@ -148,8 +148,8 @@ export class BackendService {
     return subj.asObservable().pipe(first())
   }
 
-  switchBoxes(projectId, newId) {
-    this.socket.emit('changeBox', ({ projectId, newId }))
+  switchBoxes(projectId, newBox) {
+    this.socket.emit('changeBox', ({ projectId, newBox }))
   }
 
   getJob(jobId: number) {

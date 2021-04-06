@@ -44,6 +44,15 @@
           </mat-option>
         </mat-select>
       </mat-form-field>
+
+      <mat-form-field style="width: 60px">
+        <mat-label>Box:</mat-label>
+        <mat-select [value]="(+job.box)" (selectionChange)="onBoxChanged($event)">
+          <mat-option *ngFor="let option of boxOptions$ | async" [value]="option.id">
+            {{option.boxId}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
     </section>
 
     <section>

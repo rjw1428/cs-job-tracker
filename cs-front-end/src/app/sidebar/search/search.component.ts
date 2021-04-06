@@ -88,7 +88,6 @@ export class SearchComponent implements OnInit, OnDestroy {
       }),
       catchError(err => throwError(err))
     ).subscribe(({ action, propId }) => {
-      debugger
       if (!propId) return this.eventService.searchMoveFormCanceled.next({ jobId: action.selectedJob.jobId })
       this.store.dispatch(DashboardActions.jobMoved({
         ...action,
@@ -99,7 +98,7 @@ export class SearchComponent implements OnInit, OnDestroy {
           assignedTo: 0
         }
       }))
-      this.store.dispatch(DashboardActions.boxCleared({ boxId: action.selectedJob.box }))
+      // this.store.dispatch(DashboardActions.boxCleared({ boxId: action.selectedJob.box }))
       showSnackbar(this.snackBar, "Job Moved")
 
     },
@@ -130,7 +129,7 @@ export class SearchComponent implements OnInit, OnDestroy {
           historyOnlyNotes: `Moved to Awarded`
         }
       }))
-      this.store.dispatch(DashboardActions.boxCleared({ boxId: action.selectedJob.box }))
+      // this.store.dispatch(DashboardActions.boxCleared({ boxId: action.selectedJob.box }))
       showSnackbar(this.snackBar, "Job Moved")
     })
 
