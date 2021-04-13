@@ -248,6 +248,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
         if (skipList.includes(key)) return { [key]: workSheet[key] }
         const value = workSheet[key].v
         // Set format (number must be done before date format)
+        if (!value)
+          return { [key]: { ...workSheet[key], t: "n" } }
         const isNumber = Number.isNaN(+value)
         const isCurrency = !!value.indexOf && value.indexOf('$') == 0
         if (isNumber && isCurrency)
