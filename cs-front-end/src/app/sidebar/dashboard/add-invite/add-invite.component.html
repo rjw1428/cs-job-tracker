@@ -74,7 +74,16 @@
             <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
             <mat-datepicker #picker2></mat-datepicker>
           </mat-form-field>
-          <mat-checkbox labelPosition="before" formControlName="isAsap">ASAP</mat-checkbox>
+          <mat-checkbox labelPosition="before" formControlName="isAsap">Due Date: ASAP</mat-checkbox>
+
+          <mat-form-field *ngIf="!timelineFormGroup.get('isTargetAsap').value">
+            <mat-label>Target Turnaround Date</mat-label>
+            <input name="dueDate" matInput [matDatepicker]="picker3" formControlName="dateTarget">
+            <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
+            <mat-datepicker #picker3></mat-datepicker>
+          </mat-form-field>
+          <mat-checkbox labelPosition="before" formControlName="isTargetAsap">Target Turnaround Date: ASAP</mat-checkbox>
+
           <div>
             <button mat-button matStepperPrevious>Back</button>
             <button mat-button color="primary" (click)="onSave()">Save</button>

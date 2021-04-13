@@ -33,6 +33,18 @@
         <p class="due-date" (click)="onDueDateSelected()"><strong>Due: </strong>{{job.dateDue}}</p>
         <mat-icon class="due-date-hidden">create</mat-icon>
       </div>
+
+      <div style="display: flex; justify-content: space-between;"
+        *ngIf="job.dateTarget!='ASAP' && job.currentDashboardColumn!='awarded'">
+        <p class="due-date" (click)="onTargetDateSelected()"><strong>Target:
+          </strong>{{job.dateTarget | date : 'MM/dd/yyyy'}}</p>
+        <mat-icon class="due-date-hidden">create</mat-icon>
+      </div>
+      <div style="display: flex; justify-content: space-between;"
+        *ngIf="job.dateTarget=='ASAP' && job.currentDashboardColumn!='awarded'">
+        <p class="due-date" (click)="onTargetDateSelected()"><strong>Target: </strong>{{job.dateTarget}}</p>
+        <mat-icon class="due-date-hidden">create</mat-icon>
+      </div>
     </div>
 
     <section>

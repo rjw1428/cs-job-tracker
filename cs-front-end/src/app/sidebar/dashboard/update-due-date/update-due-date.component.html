@@ -1,5 +1,6 @@
-<h1 style="margin: 0px"mat-dialog-title>Modify Due Date</h1>
-<p style="color: rgb(0,0,0,.54)">{{job.projectName}}</p>
+<h1 style="margin: 0px"mat-dialog-title *ngIf="input.field == 'dateDue'">Modify Due Date</h1>
+<h1 style="margin: 0px"mat-dialog-title *ngIf="input.field == 'dateTarget'">Modify Target Turnaround Date</h1>
+<p style="color: rgb(0,0,0,.54)">{{input.job.projectName}}</p>
 <div mat-dialog-content>
   <form [formGroup]="dueDateFormGroup" style="display: flex; flex-direction: column;">
     <mat-form-field *ngIf="!dueDateFormGroup.get('isAsap').value">

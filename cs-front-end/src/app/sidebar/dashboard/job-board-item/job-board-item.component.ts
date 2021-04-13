@@ -155,7 +155,7 @@ export class JobBoardItemComponent implements OnInit {
 
   onBoxChanged(value: MatSelectChange) {
     this.store.pipe(first(), map(state => {
-      const newBox = state.dashboard.boxOptions.find(option=>option.id==value.value)
+      const newBox = state.dashboard.boxOptions.find(option => option.id == value.value)
       this.store.dispatch(DashboardActions.boxChanged({ projectId: this.job.projectId, newBox }))
       showSnackbar(this.snackBar, `Box Updated`)
     })).subscribe(noop)
@@ -189,11 +189,22 @@ export class JobBoardItemComponent implements OnInit {
   onDueDateSelected() {
     this.dialog.open(UpdateDueDateComponent, {
       width: '400px',
-      data: this.job
+      data: { job: this.job, field: 'dateDue' }
     }).afterClosed()
       .subscribe(updatedJob => {
         if (updatedJob)
           this.backendService.saveData('updateDueDate', updatedJob)
+      })
+  }
+
+  onTargetDateSelected() {
+    this.dialog.open(UpdateDueDateComponent, {
+      width: '400px',
+      data: { job: this.job, field: 'dateTarget' }
+    }).afterClosed()
+      .subscribe(updatedJob => {
+        if (updatedJob)
+          this.backendService.saveData('updateTargetDate', updatedJob)
       })
   }
 

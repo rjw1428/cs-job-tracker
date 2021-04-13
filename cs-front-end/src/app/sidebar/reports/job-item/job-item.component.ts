@@ -146,11 +146,24 @@ export class JobItemComponent implements OnInit {
   onDueDateSelected() {
     this.dialog.open(UpdateDueDateComponent, {
       width: '400px',
-      data: this.job
+      data: { job: this.job, field: 'dateDue' }
     }).afterClosed()
       .subscribe(updatedJob => {
         if (updatedJob) {
           this.backendService.saveData('updateDueDate', updatedJob)
+          this.updateJob.next()
+        }
+      })
+  }
+
+  onTargetDateSelected() {
+    this.dialog.open(UpdateDueDateComponent, {
+      width: '400px',
+      data: { job: this.job, field: 'dateTarget' }
+    }).afterClosed()
+      .subscribe(updatedJob => {
+        if (updatedJob) {
+          this.backendService.saveData('updateTargetDate', updatedJob)
           this.updateJob.next()
         }
       })

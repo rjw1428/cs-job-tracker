@@ -291,6 +291,18 @@ io.on('connection', (socket) => {
     socket.on('updateDueDate', async (job: Job) => {
         try {
             const resp = await updateTable('bid_invites', { dateDue: job.dateDue }, { jobId: job.jobId }, "Due Date")
+            await writeJobTransaction({...job, historyOnlyNotes: "Due Date Updated"})
+            emitUpdatedJob(job.jobId)
+        }
+        catch (e) {
+            console.log(e)
+        }
+    })
+
+    socket.on('updateTargetDate', async (job: Job) => {
+        try {
+            const resp = await updateTable('bid_invites', { dateTarget: job.dateTarget }, { jobId: job.jobId }, "Target Turnaround Date")
+            await writeJobTransaction({...job, historyOnlyNotes: "Target Turnaround Date Updated"})
             emitUpdatedJob(job.jobId)
         }
         catch (e) {

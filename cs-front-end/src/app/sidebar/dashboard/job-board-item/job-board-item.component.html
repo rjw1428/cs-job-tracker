@@ -16,10 +16,10 @@
       </div>
     </div>
     <mat-card-subtitle class="street" (click)="onTitleClicked()">
-      <span  *ngIf="job.projectStreet">{{job.projectStreet}}</span>
-      <span  *ngIf="job.city"> {{job.city}}</span>
-      <span  *ngIf="job.state"> {{job.state}}</span>
-      <span  *ngIf="job.zip">, {{job.zip}}</span>
+      <span *ngIf="job.projectStreet">{{job.projectStreet}}</span>
+      <span *ngIf="job.city"> {{job.city}}</span>
+      <span *ngIf="job.state"> {{job.state}}</span>
+      <span *ngIf="job.zip">, {{job.zip}}</span>
     </mat-card-subtitle>
   </mat-card-header>
 
@@ -34,7 +34,8 @@
         <mat-icon class="contact-hidden">create</mat-icon>
       </mat-card-subtitle>
       <section>
-        <p style="margin: 0px"><strong>Invite: </strong>{{job.dateAdded | date : 'MM/dd/yyyy'}}</p>
+        <p style="margin: 0px; margin-bottom: 4px;"><strong>Invite: </strong>{{job.dateAdded | date : 'MM/dd/yyyy'}}</p>
+        
         <div style="display: flex; justify-content: space-between;"
           *ngIf="job.dateDue!='ASAP' && job.currentDashboardColumn!='awarded'">
           <p class="due-date" (click)="onDueDateSelected()"><strong>Due:
@@ -44,6 +45,18 @@
         <div style="display: flex; justify-content: space-between;"
           *ngIf="job.dateDue=='ASAP' && job.currentDashboardColumn!='awarded'">
           <p class="due-date" (click)="onDueDateSelected()"><strong>Due: </strong>{{job.dateDue}}</p>
+          <mat-icon class="due-date-hidden">create</mat-icon>
+        </div>
+
+        <div style="display: flex; justify-content: space-between;"
+        *ngIf="job.dateTarget!='ASAP' && job.currentDashboardColumn!='awarded'">
+        <p class="due-date" (click)="onTargetDateSelected()"><strong>Target:
+          </strong>{{job.dateTarget | date : 'MM/dd/yyyy'}}</p>
+        <mat-icon class="due-date-hidden">create</mat-icon>
+      </div>
+        <div style="display: flex; justify-content: space-between;"
+          *ngIf="job.dateTarget=='ASAP' && job.currentDashboardColumn!='awarded'">
+          <p class="due-date" (click)="onTargetDateSelected()"><strong>Target: </strong>{{job.dateTarget}}</p>
           <mat-icon class="due-date-hidden">create</mat-icon>
         </div>
         <div style="display: flex; justify-content: space-between;" *ngIf="job.currentDashboardColumn=='awarded'">
@@ -92,7 +105,7 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-        
+
         <mat-form-field style="width: 60px">
           <mat-label>Box:</mat-label>
           <mat-select [value]="(+job.box)" (selectionChange)="onBoxChanged($event)">
@@ -158,7 +171,7 @@
           </div>
         </div>
       </section>
-    </div>
+      </div>
   </mat-card-content>
 
   <mat-card-actions style="display: flex; justify-content: space-around; align-items: flex-start;"

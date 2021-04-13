@@ -16,6 +16,7 @@ export class Job {
         public zip: string,
         public dateAdded: string,
         public dateDue: string,
+        public dateTarget: string,
         public isActive: boolean,
         public currentDashboardColumn: string,
         public lastMoveDate: string,

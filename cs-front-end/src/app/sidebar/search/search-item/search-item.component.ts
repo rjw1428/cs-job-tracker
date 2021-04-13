@@ -73,7 +73,7 @@ export class SearchItemComponent implements OnInit, OnDestroy {
     this.moveCancelSubscription = this.eventService.searchMoveFormCanceled.subscribe(({ jobId }) => {
       console.log({ jobId })
       if (this.job.jobId == jobId) {
-        this.job = {...this.job, currentDashboardColumn: this.currentColumn}
+        this.job = { ...this.job, currentDashboardColumn: this.currentColumn }
         this.selectedColumn = this.currentColumn
       }
     })
@@ -168,11 +168,24 @@ export class SearchItemComponent implements OnInit, OnDestroy {
   onDueDateSelected() {
     this.dialog.open(UpdateDueDateComponent, {
       width: '400px',
-      data: this.job
+      data: { job: this.job, field: 'dateDue' }
     }).afterClosed()
       .subscribe(updatedJob => {
         if (updatedJob) {
           this.backendService.saveData('updateDueDate', updatedJob)
+          this.updateJob.next()
+        }
+      })
+  }
+
+  onTargetDateSelected() {
+    this.dialog.open(UpdateDueDateComponent, {
+      width: '400px',
+      data: { job: this.job, field: 'dateTarget' }
+    }).afterClosed()
+      .subscribe(updatedJob => {
+        if (updatedJob) {
+          this.backendService.saveData('updateTargetDate', updatedJob)
           this.updateJob.next()
         }
       })
@@ -228,7 +241,7 @@ export class SearchItemComponent implements OnInit, OnDestroy {
       selectedJob
     }))
 
-    this.job = {...this.job, currentDashboardColumn: this.selectedColumn}
+    this.job = { ...this.job, currentDashboardColumn: this.selectedColumn }
     const formTriggeredColumns = ['estimating', 'proposal', 'awarded']
     if (!formTriggeredColumns.includes(targetColIndex))
       showSnackbar(this.snackBar, "Job Moved")

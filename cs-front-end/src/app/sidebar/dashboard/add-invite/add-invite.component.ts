@@ -80,6 +80,7 @@ export class AddInviteComponent implements OnInit {
       projectId: this.projectFormGroup.get('project').value.projectId,
       dateAdded: this.timelineFormGroup.get('dateAdded').value.toLocaleString(),
       dateDue: this.timelineFormGroup.get('isAsap').value ? "ASAP" : this.timelineFormGroup.get('dateDue').value.toLocaleString(),
+      dateTarget: this.timelineFormGroup.get('isTargetAsap').value ? "ASAP" : this.timelineFormGroup.get('dateTarget').value.toLocaleString(),
       dateCreated: new Date().toLocaleString()
     } as BidInvite
 
@@ -171,7 +172,9 @@ export class AddInviteComponent implements OnInit {
     this.timelineFormGroup = this.formBuilder.group({
       dateAdded: [new Date(), Validators.required],
       dateDue: [""],
-      isAsap: [false]
+      isAsap: [false],
+      dateTarget: [""],
+      isTargetAsap: [false],
     })
   }
 }

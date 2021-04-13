@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Store, State } from '@ngrx/store';
 import { AppState } from 'src/models/appState';
+import { Job } from 'src/models/job';
 
 @Component({
   selector: 'app-update-due-date',
@@ -17,13 +18,13 @@ export class UpdateDueDateComponent implements OnInit {
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<UpdateDueDateComponent>,
     private store: Store<AppState>,
-    @Inject(MAT_DIALOG_DATA) public job
+    @Inject(MAT_DIALOG_DATA) public input: { job: Job, field: string }
   ) { }
 
   ngOnInit(): void {
     this.dueDateFormGroup = this.formBuilder.group({
-      dateDue: [new Date(Date.parse(this.job.dateDue)), Validators.required],
-      isAsap: [this.job.dateDue=='ASAP', Validators.required]
+      dateDue: [new Date(Date.parse(this.input.job[this.input.field])), Validators.required],
+      isAsap: [this.input.job[this.input.field] == 'ASAP', Validators.required]
     })
   }
 
@@ -31,6 +32,6 @@ export class UpdateDueDateComponent implements OnInit {
     const newDueDate = this.dueDateFormGroup.value.isAsap
       ? 'ASAP'
       : this.dueDateFormGroup.value.dateDue.toLocaleString()
-    this.dialogRef.close({ ...this.job, dateDue: newDueDate })
+    this.dialogRef.close({ ...this.input.job, [this.input.field]: newDueDate })
   }
 }
